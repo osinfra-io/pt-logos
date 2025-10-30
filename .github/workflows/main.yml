@@ -1,0 +1,39 @@
+name: Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+
+# For reusable workflows, the permissions setting for id-token should be set to write at the
+# caller workflow level or in the specific job that calls the reusable workflow.
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  main:
+    name: "${{ matrix.team }}"
+    uses: osinfra-io/github-opentofu-gcp-called-workflows/.github/workflows/plan-and-apply.yml@e3c59e43f2458550c7f13b6369fb6978b6f42c6e # v0.2.9
+    if: github.actor != 'dependabot[bot]'
+    strategy:
+      matrix:
+        team:
+          - pt-logos
+          - pt-corpus
+          - pt-pneuma
+          - st-ethos
+    with:
+      checkout_ref: ${{ github.ref }}
+      github_environment: "Production: ${{ matrix.team }}"
+      service_account: pt-logos-github@pt-logos-tf5f-prod.iam.gserviceaccount.com
+      opentofu_kms_encryption_key: projects/pt-logos-tf5f-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
+      opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
+      opentofu_state_bucket: pt-logos-tf5f-prod
+      opentofu_version: ${{ vars.OPENTOFU_VERSION }}
+      opentofu_workspace: ${{ matrix.team }}
+      workload_identity_provider: projects/134040294660/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc
