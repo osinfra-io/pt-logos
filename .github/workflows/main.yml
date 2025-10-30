@@ -30,10 +30,10 @@ jobs:
     with:
       checkout_ref: ${{ github.ref }}
       github_environment: "Production: ${{ matrix.team }}"
-      service_account: pt-onboarding-github@pt-onboarding-tf5f-prod.iam.gserviceaccount.com
-      opentofu_kms_encryption_key: projects/pt-onboarding-tf5f-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
+      service_account: pt-logos-github@pt-logos-tf5f-prod.iam.gserviceaccount.com
+      opentofu_kms_encryption_key: projects/pt-logos-tf5f-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
       opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
-      opentofu_state_bucket: pt-onboarding-tf5f-prod
+      opentofu_state_bucket: pt-logos-tf5f-prod
       opentofu_version: ${{ vars.OPENTOFU_VERSION }}
       opentofu_workspace: ${{ matrix.team }}
       workload_identity_provider: projects/134040294660/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc

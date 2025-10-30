@@ -13,6 +13,7 @@ The foundational infrastructure automates the creation of:
 - **Google Cloud folder hierarchy** following Team Topologies (Platform Teams, Stream-aligned Teams, etc.)
 - **Google Cloud Identity Groups** with role-based access (admin, writer, reader)
 - **GitHub Teams** with hierarchical structure and environment-specific approval workflows
+- **GitHub Repositories** with branch protection, webhooks, and team-based access control
 - **Datadog Teams** for monitoring and observability
 - **User Management** with lifecycle protection for organization owners and admins
 - **Foundational outputs** for downstream consumption
@@ -43,12 +44,13 @@ See the [documentation](https://docs.osinfra.io/fundamentals/development-setup) 
 
 Links to documentation and other resources required to develop and iterate in this repository successfully.
 
+- [datadog teams](https://docs.datadoghq.com/account_management/teams/)
+- [github repositories](https://docs.github.com/en/repositories)
+- [github teams](https://docs.github.com/en/organizations/organizing-members-into-teams/about-teams)
 - [google cloud platform groups](https://cloud.google.com/identity/docs/groups)
 - [google cloud platform iam](https://cloud.google.com/iam/docs/overview)
 - [google cloud platform resource landing-zone](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-landing-zone)
-- [team topologies](https://teamtopologies.com/) - Organizational design methodology
-- [github teams](https://docs.github.com/en/organizations/organizing-members-into-teams/about-teams)
-- [datadog teams](https://docs.datadoghq.com/account_management/teams/)
+- [team topologies](https://teamtopologies.com/)
 
 ## Architecture
 
@@ -76,11 +78,12 @@ Additionally, it creates:
 
 - **Google Cloud Identity Groups** with 3 standard roles per team (admin, writer, reader) applied at team folder level
 - **GitHub Teams** with hierarchical structure (parent team with child teams for GitHub Actions approvers and repository administrators)
+- **GitHub Repositories** with branch protection rules, webhook configurations, and team-based access control
 - **GitHub Users** with organization membership management and admin protection
 - **Datadog Teams** for monitoring and observability with admin/member roles, one per top-level team
 - **Datadog Users** with role-based access and admin protection
 
-## Interface (tfvars)
+## Interface
 
 ### Required Variables
 
@@ -140,6 +143,22 @@ team = {
         owners   = ["brett@osinfra.io"]
       }
     }
+
+    repositories = {
+      "pt-logos" = {
+        description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously."
+        topics = [
+          "osinfra",
+          "platform-team",
+          "opentofu"
+        ]
+        push_allowances = [
+          "osinfra-io/pt-logos"
+        ]
+        enable_discord_webhook = true
+        enable_datadog_webhook = true
+      }
+    }
   }
 }
 ```
@@ -183,6 +202,24 @@ Users can be assigned to one of three roles within each group:
 - **`display_name`**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform Team: Logos Admin")
 
 **Access Scope**: Groups have access to the entire team folder and all child environment folders.
+
+### GitHub Repository Management
+
+Each team can optionally define repositories that will be created and managed:
+
+- **`repositories`**: Optional map of repository configurations
+  - **`description`**: Repository description
+  - **`topics`**: List of repository topics/tags for organization and discovery
+  - **`push_allowances`**: List of teams allowed to push to the repository (typically includes the owning team)
+  - **`enable_discord_webhook`**: Optional boolean to enable Discord webhook notifications (default: true)
+  - **`enable_datadog_webhook`**: Optional boolean to enable Datadog webhook notifications (default: true)
+
+**Repository Features:**
+
+- Automatic branch protection rules with required reviews and status checks
+- Team-based access control via push allowances
+- Webhook integration for Discord and Datadog notifications
+- Consistent repository settings and security policies
 
 ### GitHub Team Structure
 
@@ -277,3 +314,7 @@ These outputs provide downstream repositories with all necessary information to 
 - **Datadog Teams**:
   - **Name**: `"{Team Type}: {Team Name}"` (e.g., "Platform Team: Logos")
   - **Handle**: `{team_prefix}-{team_key}` (e.g., "pt-logos")
+- **GitHub Repositories**:
+  - **Repository names**: Team-defined in repositories configuration
+  - **Topics**: Include team type and relevant technology tags
+  - **Push allowances**: Follow team naming pattern `{org}/{team}` (e.g., "osinfra-io/pt-logos")
