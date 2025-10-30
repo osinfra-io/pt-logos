@@ -40,28 +40,39 @@ data "github_app" "pr_approve_and_merge_osinfra_io" {
 resource "datadog_user" "admins" {
   for_each = local.datadog_admin_users
 
-  email = each.value
-  name  = local.datadog_user_names[each.value]
-  roles = [local.datadog_user_roles[each.value]]
-
-  depends_on = [data.datadog_role.this]
+  depends_on = [
+    data.datadog_role.this
+  ]
 
   # Protect organization admins from accidental deletion
   lifecycle {
+    ignore_changes = [
+      roles
+    ] # Prevent accidental role changes
     prevent_destroy = true
-    ignore_changes  = [roles] # Prevent accidental role changes
   }
+
+  email = each.value
+  name  = local.datadog_user_names[each.value]
+  roles = [
+    local.datadog_user_roles[each.value]
+  ]
 }
 
 # Regular Datadog Users - Can be destroyed normally
 resource "datadog_user" "this" {
   for_each = local.datadog_regular_users
 
+  depends_on = [
+    data.datadog_role.this
+  ]
+
   email = each.value
   name  = local.datadog_user_names[each.value]
-  roles = [local.datadog_user_roles[each.value]]
 
-  depends_on = [data.datadog_role.this]
+  roles = [
+    local.datadog_user_roles[each.value]
+  ]
 }
 
 # Datadog Team Membership Resource
@@ -70,14 +81,17 @@ resource "datadog_user" "this" {
 resource "datadog_team_membership" "this" {
   for_each = local.datadog_team_memberships
 
+  depends_on = [
+    datadog_user.admins,
+    datadog_user.this
+  ]
+
+  role    = each.value.role
   team_id = datadog_team.this[each.value.team_id].id
   user_id = try(
     datadog_user.admins[local.normalize_email[each.value.user_id]].id,
     datadog_user.this[local.normalize_email[each.value.user_id]].id
   )
-  role = each.value.role
-
-  depends_on = [datadog_user.admins, datadog_user.this]
 }
 
 # Datadog Team Resource
@@ -86,9 +100,9 @@ resource "datadog_team_membership" "this" {
 resource "datadog_team" "this" {
   for_each = local.datadog_teams
 
-  name        = each.value.name
   description = each.value.description
   handle      = each.value.handle
+  name        = each.value.name
 }
 
 # GitHub Actions Organization Permissions Resource
@@ -129,8 +143,8 @@ resource "github_branch_protection" "this" {
   pattern                         = "main"
   repository_id                   = github_repository.this[each.key].name
   require_conversation_resolution = true
-  required_linear_history         = true
   require_signed_commits          = true
+  required_linear_history         = true
 
   required_pull_request_reviews {
     dismiss_stale_reviews           = true
@@ -189,8 +203,8 @@ resource "github_organization_settings" "this" {
   company                                                      = "Open Source Infrastructure (as Code)"
   default_repository_permission                                = "read"
   dependabot_alerts_enabled_for_new_repositories               = true
-  dependency_graph_enabled_for_new_repositories                = true
   dependabot_security_updates_enabled_for_new_repositories     = true
+  dependency_graph_enabled_for_new_repositories                = true
   description                                                  = "Open Source Infrastructure (as Code)"
   email                                                        = "help@osinfra.io"
   has_organization_projects                                    = true
@@ -245,37 +259,37 @@ resource "github_repository" "this" {
 resource "github_repository_file" "release" {
   for_each = local.github_repositories
 
-  branch              = "main"
-  content             = file("${path.module}/markdown/release.yml")
-  file                = ".github/release.yml"
-  repository          = each.key
-  commit_message      = "Update .github/release.yml"
-  commit_author       = "Open Source Infrastructure as Code Service Account"
-  commit_email        = "github-sa@osinfra.io"
-  overwrite_on_create = true
-
   depends_on = [
     github_repository.this
   ]
+
+  branch              = "main"
+  commit_author       = "Open Source Infrastructure as Code Service Account"
+  commit_email        = "github-sa@osinfra.io"
+  commit_message      = "Update .github/release.yml"
+  content             = file("${path.module}/markdown/release.yml")
+  file                = ".github/release.yml"
+  overwrite_on_create = true
+  repository          = each.key
 }
 
 resource "github_repository_file" "security_policy" {
   for_each = local.github_repositories
 
-  branch = "main"
+  depends_on = [
+    github_repository.this
+  ]
+
+  branch         = "main"
+  commit_author  = "Open Source Infrastructure as Code Service Account"
+  commit_email   = "github-sa@osinfra.io"
+  commit_message = "Update SECURITY.md"
   content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
     repository = each.key
   })
   file                = "SECURITY.md"
-  repository          = each.key
-  commit_message      = "Update SECURITY.md"
-  commit_author       = "Open Source Infrastructure as Code Service Account"
-  commit_email        = "github-sa@osinfra.io"
   overwrite_on_create = true
-
-  depends_on = [
-    github_repository.this
-  ]
+  repository          = each.key
 }
 
 # Github Repository Webhook Resource
@@ -284,33 +298,34 @@ resource "github_repository_file" "security_policy" {
 resource "github_repository_webhook" "discord" {
   for_each = local.discord_webhooks
 
-  active = true
+  depends_on = [
+    github_repository.this
+  ]
 
+  active = true
   configuration {
     content_type = "json"
     insecure_ssl = false
     url          = "https://discord.com/api/webhooks/1175823442415722517/${var.discord_webhook_api_key}/github"
   }
+  events = ["*"]
 
-  events     = ["*"]
   repository = each.key
-
-  depends_on = [
-    github_repository.this
-  ]
 }
 
 resource "github_repository_webhook" "datadog" {
   for_each = local.datadog_webhooks
 
-  active = true
+  depends_on = [
+    github_repository.this
+  ]
 
+  active = true
   configuration {
     content_type = "json"
     insecure_ssl = false
     url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_webhook_api_key}"
   }
-
   events = [
     "branch_protection_rule",         # This event occurs when there is activity relating to branch protection rules
     "commit_comment",                 # This event occurs when there is activity relating to commit comments
@@ -329,10 +344,6 @@ resource "github_repository_webhook" "datadog" {
   ]
 
   repository = each.key
-
-  depends_on = [
-    github_repository.this
-  ]
 }
 
 # GitHub Team Membership Resource - Child Teams
@@ -341,21 +352,21 @@ resource "github_repository_webhook" "datadog" {
 resource "github_team_membership" "child_maintainers" {
   for_each = local.github_child_team_maintainers
 
+  depends_on = [github_membership.owners, github_membership.members]
+
+  role     = each.value.role
   team_id  = github_team.children[each.value.team_key].id
   username = each.value.username
-  role     = each.value.role
-
-  depends_on = [github_membership.owners, github_membership.members]
 }
 
 resource "github_team_membership" "child_members" {
   for_each = local.github_child_team_members
 
+  depends_on = [github_membership.owners, github_membership.members]
+
+  role     = each.value.role
   team_id  = github_team.children[each.value.team_key].id
   username = each.value.username
-  role     = each.value.role
-
-  depends_on = [github_membership.owners, github_membership.members]
 }
 
 # GitHub Team Membership Resource - Parent Teams
@@ -364,11 +375,11 @@ resource "github_team_membership" "child_members" {
 resource "github_team_membership" "parents" {
   for_each = local.github_parent_team_memberships
 
+  depends_on = [github_membership.owners, github_membership.members]
+
+  role     = each.value.role
   team_id  = github_team.parents[each.value.team_key].id
   username = each.value.username
-  role     = each.value.role
-
-  depends_on = [github_membership.owners, github_membership.members]
 }
 
 # Github Team Repository Resource
@@ -377,27 +388,27 @@ resource "github_team_membership" "parents" {
 resource "github_team_repository" "children" {
   for_each = local.github_team_repository_child_permissions
 
-  team_id    = github_team.children[each.value.child_team_key].id
-  repository = github_repository.this[each.value.repository].name
-  permission = each.value.permission
-
   depends_on = [
     github_repository.this,
     github_team.children
   ]
+
+  permission = each.value.permission
+  repository = github_repository.this[each.value.repository].name
+  team_id    = github_team.children[each.value.child_team_key].id
 }
 
 resource "github_team_repository" "parents" {
   for_each = local.github_team_repository_parent_permissions
 
-  team_id    = github_team.parents[each.value.team_key].id
-  repository = github_repository.this[each.value.repository].name
-  permission = each.value.permission
-
   depends_on = [
     github_repository.this,
     github_team.parents
   ]
+
+  permission = each.value.permission
+  repository = github_repository.this[each.value.repository].name
+  team_id    = github_team.parents[each.value.team_key].id
 }
 
 # GitHub Team Resource - Child Teams
@@ -406,10 +417,10 @@ resource "github_team_repository" "parents" {
 resource "github_team" "children" {
   for_each = local.github_child_teams
 
-  name           = each.value.name
   description    = each.value.description
-  privacy        = each.value.privacy
+  name           = each.value.name
   parent_team_id = github_team.parents[each.value.parent_team].id
+  privacy        = each.value.privacy
 }
 
 # GitHub Organization Membership Management - Split resources for lifecycle protection
@@ -420,22 +431,22 @@ resource "github_team" "children" {
 resource "github_membership" "owners" {
   for_each = toset(local.github_organization_owners)
 
-  username = each.value
-  role     = "admin"
-
   # Protect organization owners from accidental deletion
   lifecycle {
     prevent_destroy = true
     ignore_changes  = [role] # Prevent accidental demotion
   }
+
+  role     = "admin"
+  username = each.value
 }
 
 # Regular GitHub Members - Can be destroyed normally
 resource "github_membership" "members" {
   for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
 
-  username = each.value
   role     = "member"
+  username = each.value
 }
 
 # GitHub Team Resource - Parent Teams
@@ -450,8 +461,8 @@ resource "github_membership" "members" {
 resource "github_team" "parents" {
   for_each = local.github_parent_teams
 
-  name        = each.value.name
   description = each.value.description
+  name        = each.value.name
   privacy     = each.value.privacy
 }
 
@@ -466,7 +477,6 @@ resource "github_team_settings" "this" {
     member_count = each.value.member_count
     notify       = false
   }
-
   team_id = github_team.parents[each.key].id
 }
 
@@ -496,25 +506,19 @@ resource "google_billing_budget" "teams" {
       units         = var.monthly_budget_amount
     }
   }
-
   billing_account = var.billing_account
-
   budget_filter {
     resource_ancestors = [google_folder.team[each.key].id]
   }
-
   display_name = "${each.value.display_name} Monthly"
-
   threshold_rules {
     threshold_percent = 0.50
     spend_basis       = "CURRENT_SPEND"
   }
-
   threshold_rules {
     threshold_percent = 0.75
     spend_basis       = "CURRENT_SPEND"
   }
-
   threshold_rules {
     threshold_percent = 1.0
     spend_basis       = "CURRENT_SPEND"
@@ -527,78 +531,59 @@ resource "google_billing_budget" "teams" {
 resource "google_cloud_identity_group" "this" {
   for_each = local.identity_groups
 
-  description          = each.value.description
-  display_name         = each.value.display_name
-  initial_group_config = "EMPTY"
-
   # When you signed up for Google Workspace or Cloud Identity, your account is assigned a unique customer ID.
   # You can look up this ID in your Admin console.
   # https://admin.google.com/ac/accountsettings/profile
 
-  parent = "customers/${var.customer_id}"
-
+  description  = each.value.description
+  display_name = each.value.display_name
   group_key {
     id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.key}@${var.primary_domain}"
   }
-
+  initial_group_config = "EMPTY"
   labels = {
-
     # Must not contain more than one entry and must contain the following entry:
-
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
+  parent = "customers/${var.customer_id}"
 }
 
 # Cloud Identity Group Membership Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "managers" {
-
   # Iterate over local.managers to create a resource for each user in the manager list.
-
   for_each = local.managers
 
   group = google_cloud_identity_group.this[each.value.group].id
-
   preferred_member_key {
     id = each.value.manager
   }
-
   # MEMBER role must be specified. The order of roles should not be changed.
-
   roles { name = "MEMBER" }
   roles { name = "MANAGER" }
 }
 
 resource "google_cloud_identity_group_membership" "members" {
-
   # Iterate over local.members to create a resource for each user in the member list.
-
   for_each = local.members
 
   group = google_cloud_identity_group.this[each.value.group].id
-
   preferred_member_key {
     id = each.value.member
   }
-
   roles { name = "MEMBER" }
 }
 
 resource "google_cloud_identity_group_membership" "owners" {
-
   # Iterate over local.owners to create a resource for each user in the owner list.
-
   for_each = local.owners
 
   group = google_cloud_identity_group.this[each.value.group].id
-
   preferred_member_key {
     id = each.value.owner
   }
-
   # MEMBER role must be specified. The order of roles should not be changed.
-
   roles { name = "OWNER" }
   roles { name = "MEMBER" }
 }
@@ -611,14 +596,14 @@ resource "google_cloud_identity_group_membership" "owners" {
 resource "google_folder_iam_member" "team_access" {
   for_each = local.iam_bindings
 
-  folder = google_folder.team[each.value.team_key].name
-  role   = each.value.role
-  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
-
   depends_on = [
     google_cloud_identity_group.this,
     google_folder.team
   ]
+
+  folder = google_folder.team[each.value.team_key].name
+  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
+  role   = each.value.role
 }
 
 # Google Folder Resources
@@ -635,23 +620,23 @@ resource "google_folder_iam_member" "team_access" {
 resource "google_folder" "environment" {
   for_each = local.environments
 
+  deletion_protection = false
   display_name        = each.value.environment
   parent              = google_folder.team[each.value.team].name
-  deletion_protection = false
 }
 
 resource "google_folder" "team" {
   for_each = var.team
 
+  deletion_protection = false
   display_name        = each.value.display_name
   parent              = google_folder.team_type[each.value.team_type].name
-  deletion_protection = false
 }
 
 resource "google_folder" "team_type" {
   for_each = local.team_types
 
+  deletion_protection = false
   display_name        = local.team_type_display_names[each.value]
   parent              = "folders/${var.top_level_folder_id}"
-  deletion_protection = false
 }

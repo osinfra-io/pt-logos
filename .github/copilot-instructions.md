@@ -14,7 +14,7 @@ Top Level Folder → Team Type Folders → Team Folders → Environment Folders
 
 ### Key Components Created
 - **Google Cloud**: Folder hierarchy + Identity Groups (admin/writer/reader roles) + IAM bindings + Billing budgets
-- **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Projects
+- **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Repositories with branch protection and webhooks
 - **Datadog**: Teams with admin/member roles + User management
 
 ## Repository Structure
@@ -30,6 +30,29 @@ Top Level Folder → Team Type Folders → Team Folders → Environment Folders
 ### File Organization & Structure Standards
 - **File structure**: All variables, outputs, locals, and tfvars must be in strict alphabetical order
 - **main.tofu structure**: Data sources first, then resources alphabetically by resource type
+- **Resource arguments**: All arguments within a resource must be in strict alphabetical order
+- **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
+- **Resource arguments**: All remaining arguments within a resource must be in strict alphabetical order, regardless of whether they're required or optional
+- **Nested block ordering**: Within nested blocks (lifecycle, provisioner, etc.), use normal alphabetical ordering
+- **List/Map formatting**: Newline before and after any list or map; line after list/map only if it's the first argument in a resource
+- **Meta-argument ordering example**:
+  ```hcl
+  resource "example_resource" "this" {
+    for_each = local.example_map
+
+    depends_on = [
+      other_resource.this
+    ]
+
+    lifecycle {
+      prevent_destroy = true
+    }
+
+    # Regular arguments in alphabetical order
+    argument_a = "value"
+    argument_b = "value"
+  }
+  ```
 - **Consistent ordering**: Maintains readability and makes code easier to navigate
 - **Configuration separation**: Team-specific configs isolated in `teams/` directory
 - **Infrastructure separation**: Backend and provider configs separated for clarity
@@ -55,6 +78,15 @@ team = {
       # ... writer, reader (3 hardcoded roles)
     }
     datadog_team = { admins = [], members = [] }
+    repositories = {
+      repo_name = {
+        description = "Repository description"
+        topics = ["topic1", "topic2"]
+        push_allowances = ["org/team"]
+        enable_discord_webhook = true
+        enable_datadog_webhook = true
+      }
+    }
   }
 }
 ```
