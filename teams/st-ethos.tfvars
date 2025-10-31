@@ -3,16 +3,12 @@ team = {
     display_name = "Ethos" # Devoted to the living promise of reliability and integrity, ensuring that every product, service, and interaction reinforces the confidence of those we serve.
     team_type    = "stream-aligned-team"
 
-    github_parent_team = {
-      maintainers = []
-      members     = []
+    datadog_team = {
+      admins  = []
+      members = []
     }
 
     github_child_teams = {
-      sandbox-approver = {
-        maintainers = []
-        members     = []
-      }
       non-production-approver = {
         maintainers = []
         members     = []
@@ -25,11 +21,15 @@ team = {
         maintainers = []
         members     = []
       }
+      sandbox-approver = {
+        maintainers = []
+        members     = []
+      }
     }
 
-    datadog_team = {
-      admins  = []
-      members = []
+    github_parent_team = {
+      maintainers = []
+      members     = []
     }
 
     google_identity_groups = {
@@ -38,12 +38,12 @@ team = {
         members  = []
         owners   = []
       }
-      writer = {
+      reader = {
         managers = []
         members  = []
         owners   = []
       }
-      reader = {
+      writer = {
         managers = []
         members  = []
         owners   = []

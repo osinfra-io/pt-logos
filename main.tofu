@@ -49,11 +49,13 @@ resource "datadog_user" "admins" {
     ignore_changes = [
       roles
     ] # Prevent accidental role changes
+
     prevent_destroy = true
   }
 
   email = each.value
   name  = local.datadog_user_names[each.value]
+
   roles = [
     local.datadog_user_roles[each.value]
   ]
@@ -75,6 +77,17 @@ resource "datadog_user" "this" {
   ]
 }
 
+# Datadog Team Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
+
+resource "datadog_team" "this" {
+  for_each = local.datadog_teams
+
+  description = each.value.description
+  handle      = each.value.handle
+  name        = each.value.name
+}
+
 # Datadog Team Membership Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_membership
 
@@ -88,21 +101,11 @@ resource "datadog_team_membership" "this" {
 
   role    = each.value.role
   team_id = datadog_team.this[each.value.team_id].id
+
   user_id = try(
     datadog_user.admins[local.normalize_email[each.value.user_id]].id,
     datadog_user.this[local.normalize_email[each.value.user_id]].id
   )
-}
-
-# Datadog Team Resource
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
-
-resource "datadog_team" "this" {
-  for_each = local.datadog_teams
-
-  description = each.value.description
-  handle      = each.value.handle
-  name        = each.value.name
 }
 
 # GitHub Actions Organization Permissions Resource
@@ -139,6 +142,10 @@ resource "github_actions_organization_permissions" "this" {
 resource "github_branch_protection" "this" {
   for_each = local.github_branch_protections
 
+  depends_on = [
+    github_repository.this
+  ]
+
   enforce_admins                  = false
   pattern                         = "main"
   repository_id                   = github_repository.this[each.key].name
@@ -160,10 +167,6 @@ resource "github_branch_protection" "this" {
   restrict_pushes {
     push_allowances = each.value.push_allowances
   }
-
-  depends_on = [
-    github_repository.this
-  ]
 }
 
 # GitHub Issue Labels Resource
@@ -223,6 +226,33 @@ resource "github_organization_settings" "this" {
   secret_scanning_push_protection_enabled_for_new_repositories = true
   web_commit_signoff_required                                  = false
 }
+
+# GitHub Organization Membership Management - Split resources for lifecycle protection
+# Organization owners are protected from deletion to maintain platform access
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
+
+# Regular GitHub Members - Can be destroyed normally
+resource "github_membership" "members" {
+  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
+
+  role     = "member"
+  username = each.value
+}
+
+# GitHub Organization Owners - Protected from deletion
+resource "github_membership" "owners" {
+  for_each = toset(local.github_organization_owners)
+
+  # Protect organization owners from accidental deletion
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role] # Prevent accidental demotion
+  }
+
+  role     = "admin"
+  username = each.value
+}
+
 # Github Repository Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository
 
@@ -263,11 +293,13 @@ resource "github_repository_file" "release" {
     github_repository.this
   ]
 
-  branch              = "main"
-  commit_author       = "Open Source Infrastructure as Code Service Account"
-  commit_email        = "github-sa@osinfra.io"
-  commit_message      = "Update .github/release.yml"
-  content             = file("${path.module}/markdown/release.yml")
+  branch         = "main"
+  commit_author  = "Open Source Infrastructure as Code Service Account"
+  commit_email   = "github-sa@osinfra.io"
+  commit_message = "Update .github/release.yml"
+
+  content = file("${path.module}/markdown/release.yml")
+
   file                = ".github/release.yml"
   overwrite_on_create = true
   repository          = each.key
@@ -284,9 +316,11 @@ resource "github_repository_file" "security_policy" {
   commit_author  = "Open Source Infrastructure as Code Service Account"
   commit_email   = "github-sa@osinfra.io"
   commit_message = "Update SECURITY.md"
+
   content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
     repository = each.key
   })
+
   file                = "SECURITY.md"
   overwrite_on_create = true
   repository          = each.key
@@ -294,24 +328,6 @@ resource "github_repository_file" "security_policy" {
 
 # Github Repository Webhook Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
-
-resource "github_repository_webhook" "discord" {
-  for_each = local.discord_webhooks
-
-  depends_on = [
-    github_repository.this
-  ]
-
-  active = true
-  configuration {
-    content_type = "json"
-    insecure_ssl = false
-    url          = "https://discord.com/api/webhooks/1175823442415722517/${var.discord_webhook_api_key}/github"
-  }
-  events = ["*"]
-
-  repository = each.key
-}
 
 resource "github_repository_webhook" "datadog" {
   for_each = local.datadog_webhooks
@@ -321,11 +337,13 @@ resource "github_repository_webhook" "datadog" {
   ]
 
   active = true
+
   configuration {
     content_type = "json"
     insecure_ssl = false
     url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_webhook_api_key}"
   }
+
   events = [
     "branch_protection_rule",         # This event occurs when there is activity relating to branch protection rules
     "commit_comment",                 # This event occurs when there is activity relating to commit comments
@@ -342,6 +360,26 @@ resource "github_repository_webhook" "datadog" {
     "repository_vulnerability_alert", # This event occurs when there is activity relating to a security vulnerability alert in a repository
     "team_add"                        # This event occurs when a team is added to a repository
   ]
+
+  repository = each.key
+}
+
+resource "github_repository_webhook" "discord" {
+  for_each = local.discord_webhooks
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  active = true
+
+  configuration {
+    content_type = "json"
+    insecure_ssl = false
+    url          = "https://discord.com/api/webhooks/1175823442415722517/${var.discord_webhook_api_key}/github"
+  }
+
+  events = ["*"]
 
   repository = each.key
 }
@@ -423,32 +461,6 @@ resource "github_team" "children" {
   privacy        = each.value.privacy
 }
 
-# GitHub Organization Membership Management - Split resources for lifecycle protection
-# Organization owners are protected from deletion to maintain platform access
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
-
-# GitHub Organization Owners - Protected from deletion
-resource "github_membership" "owners" {
-  for_each = toset(local.github_organization_owners)
-
-  # Protect organization owners from accidental deletion
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes  = [role] # Prevent accidental demotion
-  }
-
-  role     = "admin"
-  username = each.value
-}
-
-# Regular GitHub Members - Can be destroyed normally
-resource "github_membership" "members" {
-  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
-
-  role     = "member"
-  username = each.value
-}
-
 # GitHub Team Resource - Parent Teams
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
 
@@ -477,6 +489,7 @@ resource "github_team_settings" "this" {
     member_count = each.value.member_count
     notify       = false
   }
+
   team_id = github_team.parents[each.key].id
 }
 
@@ -506,19 +519,25 @@ resource "google_billing_budget" "teams" {
       units         = var.monthly_budget_amount
     }
   }
+
   billing_account = var.billing_account
+
   budget_filter {
     resource_ancestors = [google_folder.team[each.key].id]
   }
+
   display_name = "${each.value.display_name} Monthly"
+
   threshold_rules {
     threshold_percent = 0.50
     spend_basis       = "CURRENT_SPEND"
   }
+
   threshold_rules {
     threshold_percent = 0.75
     spend_basis       = "CURRENT_SPEND"
   }
+
   threshold_rules {
     threshold_percent = 1.0
     spend_basis       = "CURRENT_SPEND"
@@ -537,14 +556,18 @@ resource "google_cloud_identity_group" "this" {
 
   description  = each.value.description
   display_name = each.value.display_name
+
   group_key {
     id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.key}@${var.primary_domain}"
   }
+
   initial_group_config = "EMPTY"
+
   labels = {
     # Must not contain more than one entry and must contain the following entry:
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
+
   parent = "customers/${var.customer_id}"
 }
 
@@ -556,9 +579,11 @@ resource "google_cloud_identity_group_membership" "managers" {
   for_each = local.managers
 
   group = google_cloud_identity_group.this[each.value.group].id
+
   preferred_member_key {
     id = each.value.manager
   }
+
   # MEMBER role must be specified. The order of roles should not be changed.
   roles { name = "MEMBER" }
   roles { name = "MANAGER" }
@@ -569,9 +594,11 @@ resource "google_cloud_identity_group_membership" "members" {
   for_each = local.members
 
   group = google_cloud_identity_group.this[each.value.group].id
+
   preferred_member_key {
     id = each.value.member
   }
+
   roles { name = "MEMBER" }
 }
 
@@ -580,9 +607,11 @@ resource "google_cloud_identity_group_membership" "owners" {
   for_each = local.owners
 
   group = google_cloud_identity_group.this[each.value.group].id
+
   preferred_member_key {
     id = each.value.owner
   }
+
   # MEMBER role must be specified. The order of roles should not be changed.
   roles { name = "OWNER" }
   roles { name = "MEMBER" }
