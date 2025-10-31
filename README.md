@@ -18,7 +18,7 @@ The foundational infrastructure automates the creation of:
 - **User Management** with lifecycle protection for organization owners and admins
 - **Foundational outputs** for downstream consumption
 
-This establishes the foundational order and provides structured outputs that enable downstream repositories to deploy projects with proper folder placement, access controls, and governance. Teams can operate autonomously with consistent security practices across sandbox, non-production, and production environments while maintaining robust administrative protections.
+This establishes the foundational order creating the organizational hierarchy, team structures, GitHub repositories, and identity management. Teams can operate autonomously with consistent security practices across sandbox, non-production, and production environments while maintaining robust administrative protections.
 
 ## 🏭 Platform Information
 
@@ -275,7 +275,7 @@ Each team has a hierarchical GitHub team structure with parent and child teams:
 
 ## Outputs for Downstream Consumption
 
-This foundational infrastructure provides outputs designed for consumption by downstream project deployment repositories:
+This foundational infrastructure provides outputs designed for consumption by downstream repositories that may need foundational infrastructure information:
 
 ### `teams`
 
@@ -285,7 +285,7 @@ Complete team infrastructure information including:
 - Folder hierarchy (team type folder, team folder ID, environment folder IDs)
 - Identity groups with email addresses, display names, descriptions, and roles
 
-These outputs provide downstream repositories with all necessary information to deploy projects in the correct folders with appropriate access controls and governance.
+These outputs provide downstream repositories with foundational infrastructure information including folder placement and access controls for any additional resource deployments.
 
 ## Validation Rules
 
