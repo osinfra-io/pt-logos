@@ -7,6 +7,39 @@
 
 locals {
 
+  # Combine team users with Datadog admins and standard users to get complete Datadog user set
+  all_datadog_users = toset(concat(
+    tolist(local.datadog_users),
+    local.datadog_organization_admins,
+    local.datadog_organization_standard_users
+  ))
+
+  # Combine team users with organization owners to get complete GitHub user set
+  all_github_users = toset(concat(
+    tolist(local.github_users),
+    local.github_organization_owners
+  ))
+
+  # Create normalized mappings for Datadog admin users (protected from deletion)
+  datadog_admin_users = {
+    for email in local.datadog_organization_admins :
+    replace(replace(email, "@", "-at-"), ".", "-") => email
+  }
+
+  # Hardcoded Datadog organization admins - users who should have admin role
+  # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
+  # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via Datadog UI
+  datadog_organization_admins = ["brett@osinfra.io"]
+
+  # Hardcoded Datadog standard users - users who should have standard role (vs read-only default)
+  datadog_organization_standard_users = []
+
+  # Create normalized mappings for regular Datadog users
+  datadog_regular_users = {
+    for email in setsubtract(local.all_datadog_users, toset(local.datadog_organization_admins)) :
+    replace(replace(email, "@", "-at-"), ".", "-") => email
+  }
+
   # Flatten Datadog team memberships with role handling and deduplication
   datadog_team_memberships = { for membership in flatten([
     for team_key, team in local.datadog_teams : concat(
@@ -40,6 +73,20 @@ locals {
     }
   }
 
+  # Helper function to extract user names from email addresses
+  datadog_user_names = {
+    for email in local.all_datadog_users :
+    email => split("@", email)[0]
+  }
+
+  # Determine Datadog user role IDs (admin > standard > read-only as default)
+  datadog_user_roles = {
+    for email in local.all_datadog_users :
+    email => contains(local.datadog_organization_admins, email) ? data.datadog_role.this["Datadog Admin Role"].id : (
+      contains(local.datadog_organization_standard_users, email) ? data.datadog_role.this["Datadog Standard Role"].id : data.datadog_role.this["Datadog Read Only Role"].id
+    )
+  }
+
   # Extract all unique Datadog users from team configurations (excluding organization admins)
   datadog_users = toset(flatten([
     for team_key, team in local.datadog_teams : concat(team.admins, team.members)
@@ -67,90 +114,6 @@ locals {
     ]
   ]) : repository.key => repository }
 
-  # Create branch protection configurations for repositories
-  github_branch_protections = { for repository in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
-        key                             = repo_key
-        required_status_checks_contexts = []
-        push_allowances                 = repo.push_allowances
-      }
-    ]
-  ]) : repository.key => repository }
-
-  # Extract all unique GitHub users from team configurations (excluding organization owners)
-  github_users = toset(flatten([
-    for team_key, team in var.team : concat(
-      team.github_parent_team.maintainers,
-      team.github_parent_team.members,
-      flatten([for child_team in values(team.github_child_teams) : concat(child_team.maintainers, child_team.members)])
-    )
-  ]))
-
-  # Hardcoded GitHub organization owners - users who should have admin/owner role
-  # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
-  # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via GitHub UI
-  github_organization_owners = ["brettcurtis"]
-
-  # Hardcoded Datadog organization admins - users who should have admin role
-  # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
-  # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via Datadog UI
-  datadog_organization_admins = ["brett@osinfra.io"]
-
-  # Hardcoded Datadog standard users - users who should have standard role (vs read-only default)
-  datadog_organization_standard_users = []
-
-  # Combine team users with organization owners to get complete GitHub user set
-  all_github_users = toset(concat(
-    tolist(local.github_users),
-    local.github_organization_owners
-  ))
-
-  # Combine team users with Datadog admins and standard users to get complete Datadog user set
-  all_datadog_users = toset(concat(
-    tolist(local.datadog_users),
-    local.datadog_organization_admins,
-    local.datadog_organization_standard_users
-  ))
-
-  # Create normalized mappings for Datadog admin users (protected from deletion)
-  datadog_admin_users = {
-    for email in local.datadog_organization_admins :
-    replace(replace(email, "@", "-at-"), ".", "-") => email
-  }
-
-  # Create normalized mappings for regular Datadog users
-  datadog_regular_users = {
-    for email in setsubtract(local.all_datadog_users, toset(local.datadog_organization_admins)) :
-    replace(replace(email, "@", "-at-"), ".", "-") => email
-  }
-
-  # Helper function to normalize email addresses for resource keys
-  normalize_email = {
-    for email in local.all_datadog_users :
-    email => replace(replace(email, "@", "-at-"), ".", "-")
-  }
-
-  # Helper function to extract user names from email addresses
-  datadog_user_names = {
-    for email in local.all_datadog_users :
-    email => split("@", email)[0]
-  }
-
-  # Determine user roles (admin for org owners, member for others)
-  github_user_roles = {
-    for username in local.all_github_users :
-    username => contains(local.github_organization_owners, username) ? "admin" : "member"
-  }
-
-  # Determine Datadog user role IDs (admin > standard > read-only as default)
-  datadog_user_roles = {
-    for email in local.all_datadog_users :
-    email => contains(local.datadog_organization_admins, email) ? data.datadog_role.this["Datadog Admin Role"].id : (
-      contains(local.datadog_organization_standard_users, email) ? data.datadog_role.this["Datadog Standard Role"].id : data.datadog_role.this["Datadog Read Only Role"].id
-    )
-  }
-
   # Flatten all environments from all teams into a single map
   # Creates keys like "logos-sandbox" for each team-environment combination
   # Structure: team_types → teams → hardcoded environments
@@ -162,6 +125,17 @@ locals {
       }
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
+
+  # Create branch protection configurations for repositories
+  github_branch_protections = { for repository in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.repositories : {
+        key                             = repo_key
+        required_status_checks_contexts = []
+        push_allowances                 = repo.push_allowances
+      }
+    ]
+  ]) : repository.key => repository }
 
   # Flatten GitHub child team maintainer memberships
   github_child_team_maintainers = { for item in flatten([
@@ -192,6 +166,11 @@ locals {
       }
     ]
   ]) : github_team.key => github_team }
+
+  # Hardcoded GitHub organization owners - users who should have admin/owner role
+  # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
+  # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via GitHub UI
+  github_organization_owners = ["brettcurtis"]
 
   # Flatten GitHub parent team memberships (configured members/maintainers plus child team maintainers)
   github_parent_team_memberships = { for item in flatten([
@@ -232,7 +211,7 @@ locals {
         key                    = repo_key
         team_key               = team_key
         description            = repo.description
-        topics                 = repo.topics
+        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, "${local.team_type_short_names[team.team_type]}-${team_key}"]))
         push_allowances        = repo.push_allowances
         enable_discord_webhook = repo.enable_discord_webhook
         enable_datadog_webhook = repo.enable_datadog_webhook
@@ -265,17 +244,20 @@ locals {
     ]
   ]) : permission.key => permission }
 
-  # Review request delegations for GitHub teams with sufficient members
-  # Requires 3+ total members since PR author can't review their own code
-  review_request_delegations = {
-    for team_key, team in var.team : team_key => {
-      team_key      = team_key
-      total_members = length(concat(team.github_parent_team.maintainers, team.github_parent_team.members))
-      # Request (total_members - 1) reviewers, max 2, to account for PR author
-      member_count = min(max(length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) - 1, 1), 2)
-    }
-    if length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) >= 3
+  # Determine user roles (admin for org owners, member for others)
+  github_user_roles = {
+    for username in local.all_github_users :
+    username => contains(local.github_organization_owners, username) ? "admin" : "member"
   }
+
+  # Extract all unique GitHub users from team configurations (excluding organization owners)
+  github_users = toset(flatten([
+    for team_key, team in var.team : concat(
+      team.github_parent_team.maintainers,
+      team.github_parent_team.members,
+      flatten([for child_team in values(team.github_child_teams) : concat(child_team.maintainers, child_team.members)])
+    )
+  ]))
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
@@ -329,12 +311,30 @@ locals {
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, member = item.user } }
 
+  # Helper function to normalize email addresses for resource keys
+  normalize_email = {
+    for email in local.all_datadog_users :
+    email => replace(replace(email, "@", "-at-"), ".", "-")
+  }
+
   # Flatten identity group owner memberships
   owners = { for item in flatten([
     for group_key, group in local.identity_groups : [
       for user in group.owners : { group = group_key, user = user }
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
+
+  # Review request delegations for GitHub teams with sufficient members
+  # Requires 3+ total members since PR author can't review their own code
+  review_request_delegations = {
+    for team_key, team in var.team : team_key => {
+      team_key      = team_key
+      total_members = length(concat(team.github_parent_team.maintainers, team.github_parent_team.members))
+      # Request (total_members - 1) reviewers, max 2, to account for PR author
+      member_count = min(max(length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) - 1, 1), 2)
+    }
+    if length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) >= 3
+  }
 
   # Map team type keys to plural display names for folder creation
   # Used for team type folders (e.g., "Platform Teams", "Stream-aligned Teams")

@@ -34,7 +34,8 @@ Top Level Folder → Team Type Folders → Team Folders → Environment Folders
 - **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
 - **Resource arguments**: All remaining arguments within a resource must be in strict alphabetical order, regardless of whether they're required or optional
 - **Nested block ordering**: Within nested blocks (lifecycle, provisioner, etc.), use normal alphabetical ordering
-- **List/Map formatting**: Newline before and after any list or map; line after list/map only if it's the first argument in a resource
+- **List/Map formatting**: Always have an empty newline before any list or map or any logic unless it's the first argument. Always have an empty newline after any list or map or any logic unless it's the last argument.
+- **Function formatting**: All function calls should use single-line formatting for better readability and consistency.
 - **Meta-argument ordering example**:
   ```hcl
   resource "example_resource" "this" {
