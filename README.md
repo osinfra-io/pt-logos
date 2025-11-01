@@ -254,17 +254,7 @@ These outputs provide downstream repositories with foundational infrastructure i
 - **Team Type folders**: Team Topologies categories with "Teams" suffix (e.g., "Platform Teams", "Stream-aligned Teams")
 - **Team folders**: Use team display names from configuration (e.g., "Logos", "Ethos")
 - **Environment folders**: Hardcoded environment names (e.g., "Sandbox", "Non-Production", "Production")
-- **Google Identity groups**:
-  - **Email format**: `{team_prefix}-{team_key}-{role}@{domain}` (e.g., `pt-logos-admin@osinfra.io`)
-  - **Display name**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform Team: Logos Admin")
-- **GitHub Parent teams**: `{team_prefix}-{team_key}` (e.g., "pt-logos", "st-ethos")
-- **GitHub Child teams**:
-  - **Name format**: Hardcoded functional names (`sandbox-approver`, `non-production-approver`, `production-approver`, `repository-administrators`)
-  - **Full team name**: `{parent_team}-{child_name}` (e.g., "pt-logos-sandbox-approver")
-- **Datadog Teams**:
-  - **Name**: `"{Team Type}: {Team Name}"` (e.g., "Platform Team: Logos")
-  - **Handle**: `{team_prefix}-{team_key}` (e.g., "pt-logos")
-- **GitHub Repositories**:
-  - **Repository names**: Team-defined in repositories configuration
-  - **Topics**: Include team type and relevant technology tags
-  - **Push allowances**: Follow team naming pattern `{org}/{team}` (e.g., "osinfra-io/pt-logos")
+- **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
+- **Google Identity groups**: `{team_prefix}-{team_key}-{role}@{domain}`
+- **GitHub teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
+- **Datadog teams**: `{team_prefix}-{team_key}` handle format

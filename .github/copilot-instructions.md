@@ -155,6 +155,10 @@ This project uses a single environment workflow since we are managing foundation
 4. Validate configuration with `tofu validate` and `pre-commit run` before committing
 5. Deployment will be handled automatically by GitHub Actions after merge to main
 
+### Error Handling & Debugging
+- **Validation failures**: Check team configuration against validation rules in `variables.tofu`
+- **Pre-commit failures**: Run individual hooks with `pre-commit run <hook-name>` to isolate issues
+
 ### Local Development Setup
 ```bash
 # Speed up local validation with plugin cache
