@@ -31,8 +31,8 @@ output "teams" {
         if startswith(group_key, "${team_key}-")
       }
 
-      # Repositories for this team
-      repositories = {
+      # GitHub Repositories for this team
+      github_repositories = {
         for repo_key, repo in local.github_repositories :
         repo_key => {
           full_name = github_repository.this[repo_key].full_name

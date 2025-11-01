@@ -67,8 +67,8 @@ locals {
       name        = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
       handle      = "${local.team_type_short_names[team.team_type]}-${team_key}"
-      admins      = team.datadog_team.admins
-      members     = team.datadog_team.members
+      admins      = team.datadog_team_memberships.admins
+      members     = team.datadog_team_memberships.members
     }
   }
 
@@ -106,7 +106,7 @@ locals {
   # Create branch protection configurations for repositories
   github_branch_protections = { for repo in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key                             = repo_key
         required_status_checks_contexts = []
         push_allowances                 = repo.push_allowances
@@ -132,17 +132,19 @@ locals {
   # Team descriptions are generated dynamically from the team key with "team for GitHub Actions" suffix for approvers
   github_child_teams = { for github_team in flatten([
     for team_key, team in var.team : [
-      for github_team_key in ["sandbox-approver", "non-production-approver", "production-approver", "repository-administrators"] : {
+      for github_team_key in ["sandbox-approvers", "non-production-approvers", "production-approvers", "repository-administrators"] : {
         key         = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
         parent_team = team_key
         name        = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
-        description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approver") ? " team for GitHub Actions" : ""}."
+        description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approvers") ? " team for GitHub Actions" : ""}."
         privacy     = "closed"
-        maintainers = team.github_child_teams[github_team_key].maintainers
-        members     = team.github_child_teams[github_team_key].members
+        maintainers = team.github_child_teams_memberships[github_team_key].maintainers
+        members     = team.github_child_teams_memberships[github_team_key].members
       }
     ]
   ]) : github_team.key => github_team }
+
+
 
   # Hardcoded GitHub organization owners - users who should have admin/owner role
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
@@ -154,20 +156,20 @@ locals {
     for team_key, team in var.team : concat(
       # Configured parent team maintainers
       [
-        for username in team.github_parent_team.maintainers :
+        for username in team.github_parent_team_memberships.maintainers :
         { team_key = team_key, username = username, role = "maintainer" }
       ],
       # Configured parent team members
       [
-        for username in team.github_parent_team.members :
+        for username in team.github_parent_team_memberships.members :
         { team_key = team_key, username = username, role = "member" }
       ],
       # Auto-add child team maintainers as members (deduplicated)
       [
         for username in distinct(flatten([
-          for github_team_key, github_team in team.github_child_teams : github_team.maintainers
+          for github_team_key, github_team in team.github_child_teams_memberships : github_team.maintainers
         ])) : { team_key = team_key, username = username, role = "member" }
-        if !contains(concat(team.github_parent_team.maintainers, team.github_parent_team.members), username)
+        if !contains(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members), username)
       ]
     )
   ]) : "${item.team_key}-${item.username}" => item }
@@ -184,7 +186,7 @@ locals {
   # Flatten GitHub repositories from team configurations
   github_repositories = { for repo in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key                    = repo_key
         team_key               = team_key
         description            = repo.description
@@ -199,7 +201,7 @@ locals {
   # Filter GitHub repositories that have Datadog webhooks enabled
   github_repository_datadog_webhooks = { for repo in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key                    = repo_key
         enable_datadog_webhook = repo.enable_datadog_webhook
       }
@@ -210,7 +212,7 @@ locals {
   # Filter GitHub repositories that have Discord webhooks enabled
   github_repository_discord_webhooks = { for repo in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key                    = repo_key
         enable_discord_webhook = repo.enable_discord_webhook
       }
@@ -221,7 +223,7 @@ locals {
   # Flatten GitHub repository environments for each repository that has environments configured
   github_repository_environments = { for env in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : [
+      for repo_key, repo in team.github_repositories : [
         for env_key, environment in repo.environments : {
           key                      = "${repo_key}-${env_key}"
           repo_key                 = repo_key
@@ -236,7 +238,7 @@ locals {
   # Flatten GitHub team repository permissions - repository administrators get admin access
   github_team_repository_child_permissions = { for permission in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key            = "${repo_key}-repository-administrators"
         repository     = repo_key
         team_key       = team_key
@@ -249,7 +251,7 @@ locals {
   # Flatten GitHub team repository permissions for parent teams - write access only
   github_team_repository_parent_permissions = { for permission in flatten([
     for team_key, team in var.team : [
-      for repo_key, repo in team.repositories : {
+      for repo_key, repo in team.github_repositories : {
         key        = "${repo_key}-parent"
         repository = repo_key
         team_key   = team_key
@@ -267,9 +269,9 @@ locals {
   # Extract all unique GitHub users from team configurations (excluding organization owners)
   github_users = toset(flatten([
     for team_key, team in var.team : concat(
-      team.github_parent_team.maintainers,
-      team.github_parent_team.members,
-      flatten([for child_team in values(team.github_child_teams) : concat(child_team.maintainers, child_team.members)])
+      team.github_parent_team_memberships.maintainers,
+      team.github_parent_team_memberships.members,
+      flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
     )
   ]))
 
@@ -278,11 +280,11 @@ locals {
   github_review_request_delegations = {
     for team_key, team in var.team : team_key => {
       team_key      = team_key
-      total_members = length(concat(team.github_parent_team.maintainers, team.github_parent_team.members))
+      total_members = length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members))
       # Request (total_members - 1) reviewers, max 2, to account for PR author
-      member_count = min(max(length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) - 1, 1), 2)
+      member_count = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
     }
-    if length(concat(team.github_parent_team.maintainers, team.github_parent_team.members)) >= 3
+    if length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) >= 3
   }
 
   # Default GitHub repository labels with consistent colors and descriptions
@@ -303,7 +305,7 @@ locals {
   github_repository_labels = {
     for label in flatten([
       for team_key, team in var.team : [
-        for repo_key, repo in team.repositories : [
+        for repo_key, repo in team.github_repositories : [
           for label_key, label in local.github_repository_default_labels : {
             name        = label_key
             color       = label.color
@@ -319,6 +321,13 @@ locals {
     "reader" = "Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data."
     "writer" = "All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources."
     "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
+  }
+
+  # Google Cloud role display names mapping (plural forms for group names)
+  google_role_display_names = {
+    "admin"  = "Administrators"
+    "reader" = "Readers"
+    "writer" = "Writers"
   }
 
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
@@ -343,10 +352,10 @@ locals {
         key          = "${team_key}-${group_key}"
         team         = team_key
         description  = local.google_role_descriptions[group_key]
-        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(group_key)}"
-        managers     = team.google_identity_groups[group_key].managers
-        members      = team.google_identity_groups[group_key].members
-        owners       = team.google_identity_groups[group_key].owners
+        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
+        managers     = team.google_identity_groups_memberships[group_key].managers
+        members      = team.google_identity_groups_memberships[group_key].members
+        owners       = team.google_identity_groups_memberships[group_key].owners
         roles        = ["roles/${group_key}"]
       }
     ]

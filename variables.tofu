@@ -75,22 +75,28 @@ variable "team" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
-    Structure: team_key => { display_name, team_type, github_parent_team{maintainers,members}, google_identity_groups{admin,writer,reader}, github_child_teams{}, datadog_team{}, repositories{}, projects{} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{hardcoded}, google_identity_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, projects{} }
   EOT
   type = map(object({
-    datadog_team = object({
+    datadog_team_memberships = object({
       admins  = list(string)
       members = list(string)
     })
 
     display_name = string
 
-    github_child_teams = object({
-      non-production-approver = object({
+    github_parent_team_memberships = object({
+      maintainers = list(string)
+      members     = list(string)
+    })
+
+    # GitHub child teams (hardcoded teams - only add members to predefined teams)
+    github_child_teams_memberships = object({
+      non-production-approvers = object({
         maintainers = list(string)
         members     = list(string)
       })
-      production-approver = object({
+      production-approvers = object({
         maintainers = list(string)
         members     = list(string)
       })
@@ -98,18 +104,13 @@ variable "team" {
         maintainers = list(string)
         members     = list(string)
       })
-      sandbox-approver = object({
+      sandbox-approvers = object({
         maintainers = list(string)
         members     = list(string)
       })
     })
 
-    github_parent_team = object({
-      maintainers = list(string)
-      members     = list(string)
-    })
-
-    google_identity_groups = object({
+    google_identity_groups_memberships = object({
       admin = object({
         managers = list(string)
         members  = list(string)
@@ -131,7 +132,7 @@ variable "team" {
       services = list(string)
     })), {})
 
-    repositories = optional(map(object({
+    github_repositories = optional(map(object({
       description            = string
       enable_datadog_webhook = optional(bool, true)
       enable_discord_webhook = optional(bool, true)

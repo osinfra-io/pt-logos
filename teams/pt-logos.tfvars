@@ -1,18 +1,23 @@
 team = {
   logos = {
-    datadog_team = {
+    datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []
     }
 
     display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
 
-    github_child_teams = {
-      non-production-approver = {
+    github_parent_team_memberships = {
+      maintainers = ["brettcurtis"]
+      members     = []
+    }
+
+    github_child_teams_memberships = {
+      non-production-approvers = {
         maintainers = ["brettcurtis"]
         members     = []
       }
-      production-approver = {
+      production-approvers = {
         maintainers = ["brettcurtis"]
         members     = []
       }
@@ -20,36 +25,13 @@ team = {
         maintainers = ["brettcurtis"]
         members     = []
       }
-      sandbox-approver = {
+      sandbox-approvers = {
         maintainers = ["brettcurtis"]
         members     = []
       }
     }
 
-    github_parent_team = {
-      maintainers = ["brettcurtis"]
-      members     = []
-    }
-
-    google_identity_groups = {
-      admin = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      reader = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      writer = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-    }
-
-    repositories = {
+    github_repositories = {
       "pt-logos" = {
         description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously." # This can be inferred from the team description (NOTE: need a description in the variable).
 
@@ -64,7 +46,7 @@ team = {
             }
             name = "Production: Main"
             reviewers = {
-              teams = ["pt-logos-production-approver"]
+              teams = ["pt-logos-production-approvers"]
             }
           }
         }
@@ -76,6 +58,24 @@ team = {
         topics = [
           "opentofu"
         ]
+      }
+    }
+
+    google_identity_groups_memberships = {
+      admin = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      reader = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      writer = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
       }
     }
 

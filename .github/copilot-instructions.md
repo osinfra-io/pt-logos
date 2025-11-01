@@ -38,17 +38,21 @@ team = {
     team_type    = "platform-team"    # One of 4 Team Topologies types
 
     # Hardcoded structures with customizable membership:
-    github_parent_team = { maintainers = [], members = [] }
-    github_child_teams = {
-      sandbox-approver = { maintainers = [], members = [] }
-      # ... 3 more hardcoded child teams
+    github_parent_team_memberships = { maintainers = [], members = [] }
+
+    # GitHub child teams (hardcoded teams - only add members to predefined teams)
+    github_child_teams_memberships = {
+      non-production-approvers = { maintainers = [], members = [] }
+      production-approvers = { maintainers = [], members = [] }
+      repository-administrators = { maintainers = [], members = [] }
+      sandbox-approvers = { maintainers = [], members = [] }
     }
-    google_identity_groups = {
+    google_identity_groups_memberships = {
       admin = { managers = [], members = [], owners = [] }
       # ... writer, reader (3 hardcoded roles)
     }
-    datadog_team = { admins = [], members = [] }
-    repositories = {
+    datadog_team_memberships = { admins = [], members = [] }
+    github_repositories = {
       repo_name = {
         description = "Repository description"
         enable_datadog_webhook = true
@@ -61,7 +65,7 @@ team = {
             }
             name = "Production: Main"
             reviewers = {
-              teams = ["team-prefix-team-key-production-approver"]
+              teams = ["team-prefix-team-key-production-approvers"]
             }
           }
         }
@@ -97,6 +101,7 @@ lifecycle {
 ### File Structure & Formatting Standards
 - **File structure**: All variables, outputs, locals, and tfvars must be in strict alphabetical order
 - **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
+- **Logical grouping exception**: Related variables of the same type/purpose should be grouped together for readability, with alphabetical ordering within each group. Apply to team membership variables, related configuration blocks, etc.
 - **main.tofu structure**: Data sources first, then resources alphabetically by resource type
 - **Resource arguments**: All arguments within a resource must be in strict alphabetical order
 - **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
@@ -131,6 +136,26 @@ lifecycle {
     argument_a = "value"
     argument_b = "value"
   }
+  ```
+- **Logical grouping example**:
+  ```hcl
+  # Good: Related variables grouped together for readability
+  github_parent_team_memberships = { ... }
+
+  # GitHub child team memberships (grouped by purpose)
+  github_non_production_approvers_maintainers = []
+  github_production_approvers_maintainers = []
+  github_repository_administrators_maintainers = []
+  github_sandbox_approvers_maintainers = []
+
+  github_repositories = { ... }
+
+  # Bad: Strict alphabetical breaks up related concepts
+  github_non_production_approvers_maintainers = []
+  github_parent_team_memberships = { ... }  # Interrupts logical flow
+  github_production_approvers_maintainers = []
+  github_repositories = { ... }  # Large block interrupts
+  github_repository_administrators_maintainers = []
   ```
 - **Consistent ordering**: Maintains readability and makes code easier to navigate
 
