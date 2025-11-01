@@ -129,7 +129,7 @@ Users can be assigned to one of three roles within each group:
 **Auto-generated fields:**
 
 - **`description`**: Uses official Google Cloud role descriptions (e.g., "All of the permissions in the Writer role, plus permissions for actions like...")
-- **`display_name`**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform Team: Logos Admin")
+- **`display_name`**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform Team: Logos Administrators")
 
 **Access Scope**: Groups have access to the entire team folder and all child environment folders.
 
@@ -137,7 +137,7 @@ Users can be assigned to one of three roles within each group:
 
 Each team can optionally define repositories that will be created and managed:
 
-- **`repositories`**: Optional map of repository configurations
+- **`github_repositories`**: Optional map of repository configurations
   - **`description`**: Repository description
   - **`topics`**: List of repository topics/tags for organization and discovery
   - **`push_allowances`**: List of teams allowed to push to the repository (typically includes the owning team)
@@ -159,7 +159,7 @@ Each repository can optionally define environments for deployment protection:
 - **`environments`**: Optional map of environment configurations
   - **`name`**: Display name for the environment (e.g., "Production: Main")
   - **`reviewers`**: Configuration for required reviews before deployment
-    - **`teams`**: List of team names that must approve deployments (use full child team names like "pt-logos-production-approver")
+    - **`teams`**: List of team names that must approve deployments (use full child team names like "pt-logos-production-approvers")
   - **`deployment_branch_policy`**: Optional deployment branch restrictions
     - **`protected_branches`**: Boolean to restrict deployments to protected branches only (default: true)
     - **`custom_branch_policies`**: Boolean to enable custom branch patterns (default: false)
@@ -175,22 +175,26 @@ Each repository can optionally define environments for deployment protection:
 
 Each team has a hierarchical GitHub team structure with parent and child teams:
 
-**Parent Team Configuration (`github_parent_team`):**
+**Parent Team Configuration (`github_parent_team_memberships`):**
 
 - **`maintainers`**: Users with full administrative access to the parent team
 - **`members`**: Users with member access to the parent team
 
-**Child Team Configuration (`github_child_teams`):**
+**Child Team Configuration (`github_child_teams_memberships`):**
 
-- **`sandbox-approver`**: Members who can approve sandbox environment changes
-- **`non-production-approver`**: Members who can approve Non-Production environment changes
-- **`production-approver`**: Members who can approve production environment changes
+Child teams are hardcoded with standardized names. Only membership is configurable:
+
+- **`sandbox-approvers`**: Members who can approve sandbox environment changes
+- **`non-production-approvers`**: Members who can approve Non-Production environment changes
+- **`production-approvers`**: Members who can approve production environment changes
 - **`repository-administrators`**: Repository administrators with full access
+
+Each team has `maintainers` and `members` lists that you populate with GitHub usernames.
 
 **Membership Logic:**
 
 - **Parent Team**: Gets configured maintainers/members PLUS child team maintainers (auto-inherited as members)
-- **Child Teams**: Independently configured maintainers and members
+- **Child Teams**: Hardcoded structure with configurable membership lists
 - **Deduplication**: Users configured directly on parent team take precedence over auto-inherited membership
 
 ### Datadog Teams

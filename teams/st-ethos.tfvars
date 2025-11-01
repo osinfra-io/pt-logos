@@ -1,18 +1,23 @@
 team = {
   ethos = {
-    datadog_team = {
+    datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []
     }
 
     display_name = "Ethos" # The guiding philosophy that shapes platform principles
 
-    github_child_teams = {
-      non-production-approver = {
+    github_parent_team_memberships = {
+      maintainers = []
+      members     = []
+    }
+
+    github_child_teams_memberships = {
+      non-production-approvers = {
         maintainers = []
         members     = []
       }
-      production-approver = {
+      production-approvers = {
         maintainers = []
         members     = []
       }
@@ -20,18 +25,13 @@ team = {
         maintainers = []
         members     = []
       }
-      sandbox-approver = {
+      sandbox-approvers = {
         maintainers = []
         members     = []
       }
     }
 
-    github_parent_team = {
-      maintainers = []
-      members     = []
-    }
-
-    google_identity_groups = {
+    google_identity_groups_memberships = {
       admin = {
         managers = []
         members  = []

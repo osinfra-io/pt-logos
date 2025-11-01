@@ -38,17 +38,21 @@ team = {
     team_type    = "platform-team"    # One of 4 Team Topologies types
 
     # Hardcoded structures with customizable membership:
-    github_parent_team = { maintainers = [], members = [] }
-    github_child_teams = {
-      sandbox-approver = { maintainers = [], members = [] }
-      # ... 3 more hardcoded child teams
+    github_parent_team_memberships = { maintainers = [], members = [] }
+
+    # GitHub child teams (hardcoded teams - only add members to predefined teams)
+    github_child_teams_memberships = {
+      non-production-approvers = { maintainers = [], members = [] }
+      production-approvers = { maintainers = [], members = [] }
+      repository-administrators = { maintainers = [], members = [] }
+      sandbox-approvers = { maintainers = [], members = [] }
     }
-    google_identity_groups = {
+    google_identity_groups_memberships = {
       admin = { managers = [], members = [], owners = [] }
       # ... writer, reader (3 hardcoded roles)
     }
-    datadog_team = { admins = [], members = [] }
-    repositories = {
+    datadog_team_memberships = { admins = [], members = [] }
+    github_repositories = {
       repo_name = {
         description = "Repository description"
         enable_datadog_webhook = true
@@ -61,7 +65,7 @@ team = {
             }
             name = "Production: Main"
             reviewers = {
-              teams = ["team-prefix-team-key-production-approver"]
+              teams = ["team-prefix-team-key-production-approvers"]
             }
           }
         }
@@ -97,6 +101,22 @@ lifecycle {
 ### File Structure & Formatting Standards
 - **File structure**: All variables, outputs, locals, and tfvars must be in strict alphabetical order
 - **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
+- **Logical grouping exception**: Limited exception to strict alphabetical ordering allowed ONLY under these conditions:
+  1. **Team membership variables**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
+  2. **Same resource type**: Variables that share the same resource type and are annotated with a grouping comment
+  3. **Alphabetical within groups**: Alphabetical ordering still applies within each grouped block
+
+  Examples:
+  ```hcl
+  # Team membership variables (grouped by purpose)
+  github_parent_team_memberships = { ... }
+  github_child_teams_memberships = { ... }
+  google_identity_groups_memberships = { ... }
+
+  # Other variables follow strict alphabetical order
+  display_name = "..."
+  team_type = "..."
+  ```
 - **main.tofu structure**: Data sources first, then resources alphabetically by resource type
 - **Resource arguments**: All arguments within a resource must be in strict alphabetical order
 - **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
@@ -131,6 +151,26 @@ lifecycle {
     argument_a = "value"
     argument_b = "value"
   }
+  ```
+- **Logical grouping example**:
+  ```hcl
+  # Good: Related membership variables grouped together for readability
+  github_parent_team_memberships = { maintainers = [], members = [] }
+
+  # GitHub child team memberships (nested map structure grouped by purpose)
+  github_child_teams_memberships = {
+    non-production-approvers = { maintainers = [], members = [] }
+    production-approvers = { maintainers = [], members = [] }
+    repository-administrators = { maintainers = [], members = [] }
+    sandbox-approvers = { maintainers = [], members = [] }
+  }
+
+  github_repositories = { ... }
+
+  # Bad: Strict alphabetical breaks up related membership concepts
+  github_child_teams_memberships = { ... }
+  github_parent_team_memberships = { ... }  # Interrupts logical flow
+  github_repositories = { ... }  # Large block interrupts nested membership structure
   ```
 - **Consistent ordering**: Maintains readability and makes code easier to navigate
 
@@ -178,7 +218,7 @@ The `locals.tofu` file contains complex flattening operations that transform nes
 
 ### Naming Conventions
 - **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
-- **Google Groups**: `{team_prefix}-{team_key}-{role}@{domain}`
+- **Google Groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-admins@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub Teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
 - **Folders**: Title case display names from team configuration
 
