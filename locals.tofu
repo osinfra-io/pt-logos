@@ -330,6 +330,13 @@ locals {
     "writer" = "Writers"
   }
 
+  # Google Cloud role email suffixes mapping (plural forms for email addresses)
+  google_role_email_suffixes = {
+    "admin"  = "administrators"
+    "reader" = "readers"
+    "writer" = "writers"
+  }
+
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
   # Groups get access to entire team folder and all child environments
   google_iam_bindings = { for binding in flatten([
@@ -350,6 +357,7 @@ locals {
     for team_key, team in var.team : [
       for group_key in ["admin", "writer", "reader"] : {
         key          = "${team_key}-${group_key}"
+        email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
         team         = team_key
         description  = local.google_role_descriptions[group_key]
         display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"

@@ -203,7 +203,7 @@ The `locals.tofu` file contains complex flattening operations that transform nes
 
 ### Naming Conventions
 - **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
-- **Google Groups**: `{team_prefix}-{team_key}-{role}@{domain}`
+- **Google Groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-admins@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub Teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
 - **Folders**: Title case display names from team configuration
 
