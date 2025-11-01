@@ -139,23 +139,23 @@ lifecycle {
   ```
 - **Logical grouping example**:
   ```hcl
-  # Good: Related variables grouped together for readability
-  github_parent_team_memberships = { ... }
+  # Good: Related membership variables grouped together for readability
+  github_parent_team_memberships = { maintainers = [], members = [] }
 
-  # GitHub child team memberships (grouped by purpose)
-  github_non_production_approvers_maintainers = []
-  github_production_approvers_maintainers = []
-  github_repository_administrators_maintainers = []
-  github_sandbox_approvers_maintainers = []
+  # GitHub child team memberships (nested map structure grouped by purpose)
+  github_child_teams_memberships = {
+    non-production-approvers = { maintainers = [], members = [] }
+    production-approvers = { maintainers = [], members = [] }
+    repository-administrators = { maintainers = [], members = [] }
+    sandbox-approvers = { maintainers = [], members = [] }
+  }
 
   github_repositories = { ... }
 
-  # Bad: Strict alphabetical breaks up related concepts
-  github_non_production_approvers_maintainers = []
+  # Bad: Strict alphabetical breaks up related membership concepts
+  github_child_teams_memberships = { ... }
   github_parent_team_memberships = { ... }  # Interrupts logical flow
-  github_production_approvers_maintainers = []
-  github_repositories = { ... }  # Large block interrupts
-  github_repository_administrators_maintainers = []
+  github_repositories = { ... }  # Large block interrupts nested membership structure
   ```
 - **Consistent ordering**: Maintains readability and makes code easier to navigate
 
