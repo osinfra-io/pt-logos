@@ -282,6 +282,36 @@ resource "github_repository" "this" {
   vulnerability_alerts        = true
 }
 
+# GitHub Repository Environment Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_environment
+
+resource "github_repository_environment" "this" {
+  for_each = local.github_repository_environments
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  dynamic "deployment_branch_policy" {
+    for_each = each.value.deployment_branch_policy != null ? [each.value.deployment_branch_policy] : []
+
+    content {
+      custom_branch_policies = deployment_branch_policy.value.custom_branch_policies
+      protected_branches     = deployment_branch_policy.value.protected_branches
+    }
+  }
+
+  environment = each.value.environment
+  repository  = github_repository.this[each.value.repo_key].name
+
+  reviewers {
+    teams = [
+      for team_name in each.value.reviewing_teams :
+      github_team.children[team_name].id
+    ]
+  }
+}
+
 # GitHub Repository File Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
 

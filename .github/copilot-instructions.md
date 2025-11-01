@@ -14,7 +14,7 @@ Top Level Folder → Team Type Folders → Team Folders → Environment Folders
 
 ### Key Components Created
 - **Google Cloud**: Folder hierarchy + Identity Groups (admin/writer/reader roles) + IAM bindings + Billing budgets
-- **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Repositories with branch protection and webhooks
+- **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Repositories with branch protection, webhooks, and environments
 - **Datadog**: Teams with admin/member roles + User management
 
 ## Repository Structure
@@ -51,10 +51,22 @@ team = {
     repositories = {
       repo_name = {
         description = "Repository description"
-        topics = ["topic1", "topic2"]
-        push_allowances = ["org/team"]
-        enable_discord_webhook = true
         enable_datadog_webhook = true
+        enable_discord_webhook = true
+        environments = {
+          production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches = true
+            }
+            name = "Production: Main"
+            reviewers = {
+              teams = ["team-prefix-team-key-production-approver"]
+            }
+          }
+        }
+        push_allowances = ["org/team"]
+        topics = ["topic1", "topic2"]
       }
     }
   }

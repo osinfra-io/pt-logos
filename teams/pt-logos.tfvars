@@ -56,6 +56,19 @@ team = {
         enable_datadog_webhook = true
         enable_discord_webhook = true
 
+        environments = {
+          production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: Main"
+            reviewers = {
+              teams = ["pt-logos-production-approver"]
+            }
+          }
+        }
+
         push_allowances = [
           "osinfra-io/pt-logos" # This can be inferred from the team association.
         ]

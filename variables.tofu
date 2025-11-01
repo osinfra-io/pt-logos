@@ -135,8 +135,20 @@ variable "team" {
       description            = string
       enable_datadog_webhook = optional(bool, true)
       enable_discord_webhook = optional(bool, true)
-      push_allowances        = list(string)
-      topics                 = list(string)
+
+      environments = optional(map(object({
+        deployment_branch_policy = optional(object({
+          custom_branch_policies = optional(bool, false)
+          protected_branches     = optional(bool, true)
+        }))
+        name = string
+        reviewers = object({
+          teams = list(string)
+        })
+      })), {})
+
+      push_allowances = list(string)
+      topics          = list(string)
     })), {})
 
     team_type = string
