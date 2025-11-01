@@ -21,7 +21,7 @@ output "teams" {
 
       # Identity groups for this team
       identity_groups = {
-        for group_key, group in local.identity_groups :
+        for group_key, group in local.google_identity_groups :
         split("-", group_key)[1] => {
           description  = group.description
           display_name = group.display_name

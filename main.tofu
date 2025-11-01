@@ -172,15 +172,14 @@ resource "github_branch_protection" "this" {
 # GitHub Issue Labels Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/issue_label
 
-# TODO: Implement repository labels when label configuration is defined
-# resource "github_issue_label" "this" {
-#   for_each = local.repository_labels
-#
-#   name        = each.value.name
-#   color       = each.value.color
-#   description = each.value.description
-#   repository  = github_repository.this[each.value.repository].name
-# }
+resource "github_issue_label" "this" {
+  for_each = local.github_repository_labels
+
+  name        = each.value.name
+  color       = each.value.color
+  description = each.value.description
+  repository  = github_repository.this[each.value.repository].name
+}
 
 # Github Organization Security Manager Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/organization_security_manager
@@ -330,7 +329,7 @@ resource "github_repository_file" "security_policy" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
 
 resource "github_repository_webhook" "datadog" {
-  for_each = local.datadog_webhooks
+  for_each = local.github_repository_datadog_webhooks
 
   depends_on = [
     github_repository.this
@@ -365,7 +364,7 @@ resource "github_repository_webhook" "datadog" {
 }
 
 resource "github_repository_webhook" "discord" {
-  for_each = local.discord_webhooks
+  for_each = local.github_repository_discord_webhooks
 
   depends_on = [
     github_repository.this
@@ -376,7 +375,7 @@ resource "github_repository_webhook" "discord" {
   configuration {
     content_type = "json"
     insecure_ssl = false
-    url          = "https://discord.com/api/webhooks/1175823442415722517/${var.discord_webhook_api_key}/github"
+    url          = "https://discord.com/api/webhooks/1175823442415722517/${var.github_discord_webhook_api_key}/github"
   }
 
   events = ["*"]
@@ -482,7 +481,7 @@ resource "github_team" "parents" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_settings
 
 resource "github_team_settings" "this" {
-  for_each = local.review_request_delegations
+  for_each = local.github_review_request_delegations
 
   review_request_delegation {
     algorithm    = "LOAD_BALANCE"
@@ -511,16 +510,16 @@ resource "github_team_settings" "this" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_budget
 
 resource "google_billing_budget" "teams" {
-  for_each = var.billing_account != null ? var.team : {}
+  for_each = var.google_billing_account != null ? var.team : {}
 
   amount {
     specified_amount {
       currency_code = "USD"
-      units         = var.monthly_budget_amount
+      units         = var.google_monthly_budget_amount
     }
   }
 
-  billing_account = var.billing_account
+  billing_account = var.google_billing_account
 
   budget_filter {
     resource_ancestors = [google_folder.team[each.key].id]
@@ -548,7 +547,7 @@ resource "google_billing_budget" "teams" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
 
 resource "google_cloud_identity_group" "this" {
-  for_each = local.identity_groups
+  for_each = local.google_identity_groups
 
   # When you signed up for Google Workspace or Cloud Identity, your account is assigned a unique customer ID.
   # You can look up this ID in your Admin console.
@@ -558,7 +557,7 @@ resource "google_cloud_identity_group" "this" {
   display_name = each.value.display_name
 
   group_key {
-    id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.key}@${var.primary_domain}"
+    id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.key}@${var.google_primary_domain}"
   }
 
   initial_group_config = "EMPTY"
@@ -568,15 +567,15 @@ resource "google_cloud_identity_group" "this" {
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
 
-  parent = "customers/${var.customer_id}"
+  parent = "customers/${var.google_customer_id}"
 }
 
 # Cloud Identity Group Membership Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "managers" {
-  # Iterate over local.managers to create a resource for each user in the manager list.
-  for_each = local.managers
+  # Iterate over local.google_identity_managers to create a resource for each user in the manager list.
+  for_each = local.google_identity_managers
 
   group = google_cloud_identity_group.this[each.value.group].id
 
@@ -590,8 +589,8 @@ resource "google_cloud_identity_group_membership" "managers" {
 }
 
 resource "google_cloud_identity_group_membership" "members" {
-  # Iterate over local.members to create a resource for each user in the member list.
-  for_each = local.members
+  # Iterate over local.google_identity_members to create a resource for each user in the member list.
+  for_each = local.google_identity_members
 
   group = google_cloud_identity_group.this[each.value.group].id
 
@@ -603,8 +602,8 @@ resource "google_cloud_identity_group_membership" "members" {
 }
 
 resource "google_cloud_identity_group_membership" "owners" {
-  # Iterate over local.owners to create a resource for each user in the owner list.
-  for_each = local.owners
+  # Iterate over local.google_identity_owners to create a resource for each user in the owner list.
+  for_each = local.google_identity_owners
 
   group = google_cloud_identity_group.this[each.value.group].id
 
@@ -623,7 +622,7 @@ resource "google_cloud_identity_group_membership" "owners" {
 # Assign identity groups to team folders with their specified roles
 # Groups inherit access to all child environment folders
 resource "google_folder_iam_member" "team_access" {
-  for_each = local.iam_bindings
+  for_each = local.google_iam_bindings
 
   depends_on = [
     google_cloud_identity_group.this,
@@ -667,5 +666,5 @@ resource "google_folder" "team_type" {
 
   deletion_protection = false
   display_name        = local.team_type_display_names[each.value]
-  parent              = "folders/${var.top_level_folder_id}"
+  parent              = "folders/${var.google_top_level_folder_id}"
 }
