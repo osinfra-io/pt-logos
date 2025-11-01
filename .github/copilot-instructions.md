@@ -101,7 +101,22 @@ lifecycle {
 ### File Structure & Formatting Standards
 - **File structure**: All variables, outputs, locals, and tfvars must be in strict alphabetical order
 - **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
-- **Logical grouping exception**: Related variables of the same type/purpose should be grouped together for readability, with alphabetical ordering within each group. Apply to team membership variables, related configuration blocks, etc.
+- **Logical grouping exception**: Limited exception to strict alphabetical ordering allowed ONLY under these conditions:
+  1. **Team membership variables**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
+  2. **Same resource type**: Variables that share the same resource type and are annotated with a grouping comment
+  3. **Alphabetical within groups**: Alphabetical ordering still applies within each grouped block
+
+  Examples:
+  ```hcl
+  # Team membership variables (grouped by purpose)
+  github_parent_team_memberships = { ... }
+  github_child_teams_memberships = { ... }
+  google_identity_groups_memberships = { ... }
+
+  # Other variables follow strict alphabetical order
+  display_name = "..."
+  team_type = "..."
+  ```
 - **main.tofu structure**: Data sources first, then resources alphabetically by resource type
 - **Resource arguments**: All arguments within a resource must be in strict alphabetical order
 - **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
