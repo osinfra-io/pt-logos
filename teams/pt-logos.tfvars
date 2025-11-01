@@ -1,12 +1,11 @@
 team = {
   logos = {
-    display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
-    team_type    = "platform-team"
-
     datadog_team = {
       admins  = ["brett@osinfra.io"]
       members = []
     }
+
+    display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
 
     github_child_teams = {
       non-production-approver = {
@@ -66,5 +65,7 @@ team = {
         ]
       }
     }
+
+    team_type = "platform-team"
   }
 }

@@ -11,11 +11,6 @@ output "teams" {
     for team_key, team in var.team : team_key => {
       # Team metadata
       display_name = team.display_name
-      team_type    = team.team_type
-
-      # Folder hierarchy
-      team_type_folder = local.team_type_display_names[team.team_type]
-      team_folder_id   = google_folder.team[team_key].id
 
       # Environment folders
       environments = {
@@ -28,14 +23,29 @@ output "teams" {
       identity_groups = {
         for group_key, group in local.identity_groups :
         split("-", group_key)[1] => {
-          email        = google_cloud_identity_group.this[group_key].group_key[0].id
-          display_name = group.display_name
           description  = group.description
+          display_name = group.display_name
+          email        = google_cloud_identity_group.this[group_key].group_key[0].id
           role         = split("-", group_key)[1]
         }
         if startswith(group_key, "${team_key}-")
       }
 
+      # Repositories for this team
+      repositories = {
+        for repo_key, repo in local.github_repositories :
+        repo_key => {
+          full_name = github_repository.this[repo_key].full_name
+          html_url  = github_repository.this[repo_key].html_url
+          name      = github_repository.this[repo_key].name
+        }
+        if repo.team_key == team_key
+      }
+
+      # Folder hierarchy
+      team_folder_id   = google_folder.team[team_key].id
+      team_type        = team.team_type
+      team_type_folder = local.team_type_display_names[team.team_type]
     }
   }
 }
