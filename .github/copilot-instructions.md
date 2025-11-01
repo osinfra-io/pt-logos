@@ -91,7 +91,17 @@ lifecycle {
 - **Resource arguments**: All remaining arguments within a resource must be in strict alphabetical order, regardless of whether they're required or optional
 - **Nested block ordering**: Within nested blocks (lifecycle, provisioner, etc.), use normal alphabetical ordering
 - **List/Map formatting**: Always have an empty newline before any list or map or any logic unless it's the first argument. Always have an empty newline after any list or map or any logic unless it's the last argument.
-- **Function formatting**: All function calls should use single-line formatting for better readability and consistency.
+- **Function formatting**: Use single-line formatting for simple function calls. For complex functions with long lines or multiple arguments, break into multiple lines for readability. Prioritize readability over strict single-line requirements.
+  ```hcl
+  # Simple function - single line
+  name = upper(var.environment)
+
+  # Complex function - multiple lines for readability
+  user_id = try(
+    datadog_user.admins[local.normalize_email[each.value.user_id]].id,
+    datadog_user.this[local.normalize_email[each.value.user_id]].id
+  )
+  ```
 - **Meta-argument ordering example**:
   ```hcl
   resource "example_resource" "this" {

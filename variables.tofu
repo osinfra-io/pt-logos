@@ -1,24 +1,6 @@
 # Input Variables
 # https://opentofu.org/docs/language/values/variables
 
-variable "billing_account" {
-  description = "The billing account ID to associate with budgets"
-  type        = string
-  default     = "01C550-A2C86B-B8F16B"
-}
-
-# This is only needed during bootstrapping.
-variable "billing_project" {
-  description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
-  type        = string
-}
-
-variable "customer_id" {
-  description = "The unique customer ID assigned to you when you signed up for Google Workspace or Cloud Identity. You can look up this ID in your Admin console"
-  type        = string
-  default     = "C01hd34v8"
-}
-
 variable "datadog_api_key" {
   description = "Datadog API key"
   type        = string
@@ -37,7 +19,7 @@ variable "datadog_webhook_api_key" {
   sensitive   = true
 }
 
-variable "discord_webhook_api_key" {
+variable "github_discord_webhook_api_key" {
   description = "The Discord API key used for creating webhooks"
   type        = string
   sensitive   = true
@@ -49,16 +31,40 @@ variable "github_token" {
   sensitive   = true
 }
 
-variable "monthly_budget_amount" {
+variable "google_billing_account" {
+  description = "The billing account ID to associate with budgets"
+  type        = string
+  default     = "01C550-A2C86B-B8F16B"
+}
+
+# This is only needed during bootstrapping.
+variable "google_billing_project" {
+  description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
+  type        = string
+}
+
+variable "google_customer_id" {
+  description = "The unique customer ID assigned to you when you signed up for Google Workspace or Cloud Identity. You can look up this ID in your Admin console"
+  type        = string
+  default     = "C01hd34v8"
+}
+
+variable "google_monthly_budget_amount" {
   description = "Monthly budget amount in USD for environment folders"
   type        = number
   default     = 100
 }
 
-variable "primary_domain" {
+variable "google_primary_domain" {
   description = "The main domain associated with your Google Workspace account. By default, your users get a username at this domain"
   type        = string
   default     = "osinfra.io"
+}
+
+variable "google_top_level_folder_id" {
+  description = "The top level folder ID to create the team hierarchy under"
+  type        = string
+  default     = "405483259717"
 }
 
 variable "team" {
@@ -72,17 +78,14 @@ variable "team" {
     Structure: team_key => { display_name, team_type, github_parent_team{maintainers,members}, google_identity_groups{admin,writer,reader}, github_child_teams{}, datadog_team{}, repositories{}, projects{} }
   EOT
   type = map(object({
-    display_name = string
-    team_type    = string
-    github_parent_team = object({
-      maintainers = list(string)
-      members     = list(string)
+    datadog_team = object({
+      admins  = list(string)
+      members = list(string)
     })
+
+    display_name = string
+
     github_child_teams = object({
-      sandbox-approver = object({
-        maintainers = list(string)
-        members     = list(string)
-      })
       non-production-approver = object({
         maintainers = list(string)
         members     = list(string)
@@ -95,18 +98,19 @@ variable "team" {
         maintainers = list(string)
         members     = list(string)
       })
+      sandbox-approver = object({
+        maintainers = list(string)
+        members     = list(string)
+      })
     })
-    datadog_team = object({
-      admins  = list(string)
-      members = list(string)
+
+    github_parent_team = object({
+      maintainers = list(string)
+      members     = list(string)
     })
+
     google_identity_groups = object({
       admin = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
-      })
-      writer = object({
         managers = list(string)
         members  = list(string)
         owners   = list(string)
@@ -116,17 +120,26 @@ variable "team" {
         members  = list(string)
         owners   = list(string)
       })
+      writer = object({
+        managers = list(string)
+        members  = list(string)
+        owners   = list(string)
+      })
     })
+
     projects = optional(map(object({
       services = list(string)
     })), {})
+
     repositories = optional(map(object({
       description            = string
-      topics                 = list(string)
-      push_allowances        = list(string)
-      enable_discord_webhook = optional(bool, true)
       enable_datadog_webhook = optional(bool, true)
+      enable_discord_webhook = optional(bool, true)
+      push_allowances        = list(string)
+      topics                 = list(string)
     })), {})
+
+    team_type = string
   }))
 
   validation {
@@ -143,13 +156,6 @@ variable "team" {
     error_message = "Team display_name must be in Title Case with no special characters except spaces. The word 'and' is allowed in lowercase (e.g., 'Platform Team', 'Trust and Safety')."
   }
 
-
-}
-
-variable "top_level_folder_id" {
-  description = "The top level folder ID to create the team hierarchy under"
-  type        = string
-  default     = "405483259717"
 }
 
 # These three state_* variables are required for early variable evaluation for backend and provider configuration.

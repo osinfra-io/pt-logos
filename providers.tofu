@@ -93,6 +93,6 @@ provider "github" {
 # This is only needed during bootstrapping.
 
 provider "google" {
-  billing_project       = var.billing_project
+  billing_project       = var.google_billing_project
   user_project_override = true
 }
