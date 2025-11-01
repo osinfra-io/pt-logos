@@ -245,8 +245,8 @@ resource "github_membership" "owners" {
 
   # Protect organization owners from accidental deletion
   lifecycle {
-    prevent_destroy = true
     ignore_changes  = [role] # Prevent accidental demotion
+    prevent_destroy = true
   }
 
   role     = "admin"

@@ -1,12 +1,11 @@
 team = {
   ethos = {
-    display_name = "Ethos" # Devoted to the living promise of reliability and integrity, ensuring that every product, service, and interaction reinforces the confidence of those we serve.
-    team_type    = "stream-aligned-team"
-
     datadog_team = {
-      admins  = []
+      admins  = ["brett@osinfra.io"]
       members = []
     }
+
+    display_name = "Ethos" # The guiding philosophy that shapes platform principles
 
     github_child_teams = {
       non-production-approver = {
@@ -49,5 +48,7 @@ team = {
         owners   = []
       }
     }
+
+    team_type = "stream-aligned-team"
   }
 }

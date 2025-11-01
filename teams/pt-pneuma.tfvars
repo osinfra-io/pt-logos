@@ -1,12 +1,11 @@
 team = {
   pneuma = {
-    display_name = "Pneuma" # The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation.
-    team_type    = "platform-team"
-
     datadog_team = {
       admins  = ["brett@osinfra.io"]
       members = []
     }
+
+    display_name = "Pneuma" # The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation.
 
     github_child_teams = {
       non-production-approver = {
@@ -49,5 +48,7 @@ team = {
         owners   = ["brett@osinfra.io"]
       }
     }
+
+    team_type = "platform-team"
   }
 }

@@ -1,12 +1,11 @@
 team = {
   corpus = {
-    display_name = "Corpus" # The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate.
-    team_type    = "platform-team"
-
     datadog_team = {
       admins  = ["brett@osinfra.io"]
       members = []
     }
+
+    display_name = "Corpus" # The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate.
 
     github_child_teams = {
       non-production-approver = {
@@ -49,5 +48,7 @@ team = {
         owners   = ["brett@osinfra.io"]
       }
     }
+
+    team_type = "platform-team"
   }
 }
