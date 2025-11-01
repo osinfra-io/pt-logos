@@ -13,7 +13,7 @@ The foundational infrastructure automates the creation of:
 - **Google Cloud folder hierarchy** following Team Topologies (Platform Teams, Stream-aligned Teams, etc.)
 - **Google Cloud Identity Groups** with role-based access (admin, writer, reader)
 - **GitHub Teams** with hierarchical structure and environment-specific approval workflows
-- **GitHub Repositories** with branch protection, webhooks, and team-based access control
+- **GitHub Repositories** with branch protection, webhooks, environments, and team-based access control
 - **Datadog Teams** for monitoring and observability
 - **User Management** with lifecycle protection for organization owners and admins
 - **Foundational outputs** for downstream consumption
@@ -78,7 +78,7 @@ Additionally, it creates:
 
 - **Google Cloud Identity Groups** with 3 standard roles per team (admin, writer, reader) applied at team folder level
 - **GitHub Teams** with hierarchical structure (parent team with child teams for GitHub Actions approvers and repository administrators)
-- **GitHub Repositories** with branch protection rules, webhook configurations, and team-based access control
+- **GitHub Repositories** with branch protection rules, webhook configurations, environment protection, and team-based access control
 - **GitHub Users** with organization membership management and admin protection
 - **Datadog Teams** for monitoring and observability with admin/member roles, one per top-level team
 - **Datadog Users** with role-based access and admin protection
@@ -91,77 +91,7 @@ Additionally, it creates:
 
 A map of teams with their team type and membership configuration for hardcoded structures.
 
-```hcl
-team = {
-  logos = {
-    display_name = "Logos"
-    team_type    = "platform-team"
-
-    github_parent_team = {
-      maintainers = ["brettcurtis"]
-      members     = []
-    }
-
-    github_child_teams = {
-      sandbox-approver = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-      non-production-approver = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-      production-approver = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-      repository-administrators = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-    }
-
-    datadog_team = {
-      admins  = ["brett@osinfra.io"]
-      members = []
-    }
-
-    google_identity_groups = {
-      admin = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      writer = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      reader = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-    }
-
-    repositories = {
-      "pt-logos" = {
-        description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously."
-        topics = [
-          "osinfra",
-          "platform-team",
-          "opentofu"
-        ]
-        push_allowances = [
-          "osinfra-io/pt-logos"
-        ]
-        enable_discord_webhook = true
-        enable_datadog_webhook = true
-      }
-    }
-  }
-}
-```
+For a complete example of team configuration including all features (GitHub teams, repositories, environments, Google identity groups, Datadog teams), see [`teams/pt-logos.tfvars`](teams/pt-logos.tfvars).
 
 ## Team Structure
 
@@ -220,6 +150,26 @@ Each team can optionally define repositories that will be created and managed:
 - Team-based access control via push allowances
 - Webhook integration for Discord and Datadog notifications
 - Consistent repository settings and security policies
+- GitHub Environments with deployment protection rules
+
+### GitHub Repository Environments
+
+Each repository can optionally define environments for deployment protection:
+
+- **`environments`**: Optional map of environment configurations
+  - **`name`**: Display name for the environment (e.g., "Production: Main")
+  - **`reviewers`**: Configuration for required reviews before deployment
+    - **`teams`**: List of team names that must approve deployments (use full child team names like "pt-logos-production-approver")
+  - **`deployment_branch_policy`**: Optional deployment branch restrictions
+    - **`protected_branches`**: Boolean to restrict deployments to protected branches only (default: true)
+    - **`custom_branch_policies`**: Boolean to enable custom branch patterns (default: false)
+
+**Environment Features:**
+
+- Team-based deployment approvals using existing child teams
+- Branch protection for deployments (restricts to protected branches by default)
+- Optional custom branch policies for advanced deployment patterns
+- Automatic team ID resolution from configured team names
 
 ### GitHub Team Structure
 

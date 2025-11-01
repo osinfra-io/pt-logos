@@ -218,6 +218,21 @@ locals {
     ]
   ]) : repo.key => repo }
 
+  # Flatten GitHub repository environments for each repository that has environments configured
+  github_repository_environments = { for env in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.repositories : [
+        for env_key, environment in repo.environments : {
+          key                      = "${repo_key}-${env_key}"
+          repo_key                 = repo_key
+          environment              = environment.name
+          reviewing_teams          = environment.reviewers.teams
+          deployment_branch_policy = environment.deployment_branch_policy
+        }
+      ]
+    ]
+  ]) : env.key => env }
+
   # Flatten GitHub team repository permissions - repository administrators get admin access
   github_team_repository_child_permissions = { for permission in flatten([
     for team_key, team in var.team : [

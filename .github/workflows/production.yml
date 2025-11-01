@@ -1,4 +1,4 @@
-name: Main
+name: Production
 
 on:
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
-      github_environment: "Production: ${{ matrix.team }}"
+      github_environment: "Production: Main"
       service_account: pt-logos-github@pt-logos-tf5f-prod.iam.gserviceaccount.com
       opentofu_kms_encryption_key: projects/pt-logos-tf5f-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
       opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
