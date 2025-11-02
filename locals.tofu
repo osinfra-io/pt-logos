@@ -434,8 +434,6 @@ locals {
     for team_key, team in var.team : team.team_type
   ])
 
-  # If we are within Logos, create the foundational order
-  # within_logos = terraform.workspace == "pt-logos"
-  # Use while testing locally this will be removed in the future
-  within_logos = terraform.workspace == "default"
+  # If we are within Logos, create the foundational order (team type folders and organization-level resources)
+  within_logos = terraform.workspace == "logos-production-main"
 }

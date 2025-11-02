@@ -370,7 +370,7 @@ resource "github_repository_webhook" "datadog" {
   configuration {
     content_type = "json"
     insecure_ssl = false
-    url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_webhook_api_key}"
+    url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.github_datadog_webhook_api_key}"
   }
 
   events = [

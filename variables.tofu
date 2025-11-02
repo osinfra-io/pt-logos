@@ -13,14 +13,14 @@ variable "datadog_app_key" {
   sensitive   = true
 }
 
-variable "datadog_webhook_api_key" {
-  description = "The Datadog API key used for creating webhooks"
+variable "github_datadog_webhook_api_key" {
+  description = "The Datadog API key used for creating GitHub webhooks"
   type        = string
   sensitive   = true
 }
 
 variable "github_discord_webhook_api_key" {
-  description = "The Discord API key used for creating webhooks"
+  description = "The Discord API key used for creating GitHub webhooks"
   type        = string
   sensitive   = true
 }
