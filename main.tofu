@@ -20,6 +20,7 @@ data "datadog_role" "this" {
 
 # Currently private GitHub Apps can only use this endpoint on themselves and if we use a private GitHub App for authentication, we can't
 # use this data source to get the node_id of another GitHub App.
+# Only fetch in logos-production-main workspace to avoid conflicts
 
 data "github_app" "pr_approve_and_merge_osinfra_io" {
   count = local.within_logos ? 1 : 0
@@ -30,15 +31,46 @@ data "github_app" "pr_approve_and_merge_osinfra_io" {
 # Resources
 # https://opentofu.org/docs/language/resources
 
+# Datadog Team Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
+
+resource "datadog_team" "this" {
+  for_each = local.datadog_teams
+
+  description = each.value.description
+  handle      = each.value.handle
+  name        = each.value.name
+}
+
+# Datadog Team Membership Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_membership
+
+resource "datadog_team_membership" "this" {
+  for_each = local.datadog_team_memberships
+
+  depends_on = [
+    datadog_user.this
+  ]
+
+  role    = each.value.role
+  team_id = datadog_team.this[each.value.team_id].id
+
+  # Try admin user first (if within_logos), fall back to regular user
+  user_id = local.within_logos ? try(
+    datadog_user.admins[local.normalize_email[each.value.user_id]].id,
+    datadog_user.this[local.normalize_email[each.value.user_id]].id
+  ) : datadog_user.this[local.normalize_email[each.value.user_id]].id
+}
+
 # Datadog User Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/user
 
 # Datadog User Management - Split resources for lifecycle protection
-# Organization admins are protected from deletion to maintain platform access
+# Organization admins are conditionally created only in logos-production-main workspace to prevent conflicts
 # Note: Resource keys use normalized email addresses (@ -> -at-, . -> -) but actual email values are preserved
 # Datadog Organization Admins - Protected from deletion
 resource "datadog_user" "admins" {
-  for_each = local.datadog_admin_users
+  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
 
   depends_on = [
     data.datadog_role.this
@@ -77,39 +109,9 @@ resource "datadog_user" "this" {
   ]
 }
 
-# Datadog Team Resource
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
-
-resource "datadog_team" "this" {
-  for_each = local.datadog_teams
-
-  description = each.value.description
-  handle      = each.value.handle
-  name        = each.value.name
-}
-
-# Datadog Team Membership Resource
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_membership
-
-resource "datadog_team_membership" "this" {
-  for_each = local.datadog_team_memberships
-
-  depends_on = [
-    datadog_user.admins,
-    datadog_user.this
-  ]
-
-  role    = each.value.role
-  team_id = datadog_team.this[each.value.team_id].id
-
-  user_id = try(
-    datadog_user.admins[local.normalize_email[each.value.user_id]].id,
-    datadog_user.this[local.normalize_email[each.value.user_id]].id
-  )
-}
-
 # GitHub Actions Organization Permissions Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_organization_permissions
+# Organization-level resource managed only in logos-production-main workspace
 
 resource "github_actions_organization_permissions" "this" {
   count = local.within_logos ? 1 : 0
@@ -188,8 +190,9 @@ resource "github_issue_label" "this" {
 #   team_slug = github_team.parents["enabling-security"].slug
 # }
 
-# Github Organization Settings Resource
+# GitHub Organization Settings Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/organization_settings
+# Organization-level resource managed only in logos-production-main workspace
 
 resource "github_organization_settings" "this" {
   count = local.within_logos ? 1 : 0
@@ -238,9 +241,9 @@ resource "github_membership" "members" {
   username = each.value
 }
 
-# GitHub Organization Owners - Protected from deletion
+# GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
 resource "github_membership" "owners" {
-  for_each = toset(local.github_organization_owners)
+  for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
 
   # Protect organization owners from accidental deletion
   lifecycle {
@@ -413,13 +416,40 @@ resource "github_repository_webhook" "discord" {
   repository = each.key
 }
 
+# GitHub Team Resource - Parent Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+
+# If you need to import a team, you can do so with the following command:
+# tofu import github_team.parents\["team-key"\] <team_id>
+
+# To get the team ids, you can run the following curl command with a token that has the read:org scope against your own organization.
+# curl -H "Authorization: token $GITHUB_READ_ORG_TOKEN" https://api.github.com/orgs/osinfra-io/teams
+
+resource "github_team" "parents" {
+  for_each = local.github_parent_teams
+
+  description = each.value.description
+  name        = each.value.name
+  privacy     = each.value.privacy
+}
+
+# GitHub Team Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+
+resource "github_team" "children" {
+  for_each = local.github_child_teams
+
+  description    = each.value.description
+  name           = each.value.name
+  parent_team_id = github_team.parents[each.value.parent_team].id
+  privacy        = each.value.privacy
+}
+
 # GitHub Team Membership Resource - Child Teams
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
 
 resource "github_team_membership" "child_maintainers" {
   for_each = local.github_child_team_maintainers
-
-  depends_on = [github_membership.owners, github_membership.members]
 
   role     = each.value.role
   team_id  = github_team.children[each.value.team_key].id
@@ -428,8 +458,6 @@ resource "github_team_membership" "child_maintainers" {
 
 resource "github_team_membership" "child_members" {
   for_each = local.github_child_team_members
-
-  depends_on = [github_membership.owners, github_membership.members]
 
   role     = each.value.role
   team_id  = github_team.children[each.value.team_key].id
@@ -441,8 +469,6 @@ resource "github_team_membership" "child_members" {
 
 resource "github_team_membership" "parents" {
   for_each = local.github_parent_team_memberships
-
-  depends_on = [github_membership.owners, github_membership.members]
 
   role     = each.value.role
   team_id  = github_team.parents[each.value.team_key].id
@@ -476,35 +502,6 @@ resource "github_team_repository" "parents" {
   permission = each.value.permission
   repository = github_repository.this[each.value.repository].name
   team_id    = github_team.parents[each.value.team_key].id
-}
-
-# GitHub Team Resource - Child Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
-
-resource "github_team" "children" {
-  for_each = local.github_child_teams
-
-  description    = each.value.description
-  name           = each.value.name
-  parent_team_id = github_team.parents[each.value.parent_team].id
-  privacy        = each.value.privacy
-}
-
-# GitHub Team Resource - Parent Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
-
-# If you need to import a team, you can do so with the following command:
-# tofu import github_team.parents\["team-key"\] <team_id>
-
-# To get the team ids, you can run the following curl command with a token that has the read:org scope against your own organization.
-# curl -H "Authorization: token $GITHUB_READ_ORG_TOKEN" https://api.github.com/orgs/osinfra-io/teams
-
-resource "github_team" "parents" {
-  for_each = local.github_parent_teams
-
-  description = each.value.description
-  name        = each.value.name
-  privacy     = each.value.privacy
 }
 
 # GitHub Team Settings Resource
@@ -646,24 +643,6 @@ resource "google_cloud_identity_group_membership" "owners" {
   roles { name = "MEMBER" }
 }
 
-# Google Folder IAM Member Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
-
-# Assign identity groups to team folders with their specified roles
-# Groups inherit access to all child environment folders
-resource "google_folder_iam_member" "team_access" {
-  for_each = local.google_iam_bindings
-
-  depends_on = [
-    google_cloud_identity_group.this,
-    google_folder.team
-  ]
-
-  folder = google_folder.team[each.value.team_key].name
-  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
-  role   = each.value.role
-}
-
 # Google Folder Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
 
@@ -688,4 +667,22 @@ resource "google_folder" "team" {
   deletion_protection = false
   display_name        = each.value.display_name
   parent              = "folders/${var.google_team_type_folder_ids[each.value.team_type]}"
+}
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
+
+# Assign identity groups to team folders with their specified roles
+# Groups inherit access to all child environment folders
+resource "google_folder_iam_member" "team_access" {
+  for_each = local.google_iam_bindings
+
+  depends_on = [
+    google_cloud_identity_group.this,
+    google_folder.team
+  ]
+
+  folder = google_folder.team[each.value.team_key].name
+  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
+  role   = each.value.role
 }
