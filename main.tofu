@@ -55,11 +55,8 @@ resource "datadog_team_membership" "this" {
   role    = each.value.role
   team_id = datadog_team.this[each.value.team_id].id
 
-  # Try admin user first (if within_logos), fall back to regular user
-  user_id = local.within_logos ? try(
-    datadog_user.admins[local.normalize_email[each.value.user_id]].id,
-    datadog_user.this[local.normalize_email[each.value.user_id]].id
-  ) : datadog_user.this[local.normalize_email[each.value.user_id]].id
+  # User ID lookup logic handled in locals for cleaner main.tofu
+  user_id = each.value.user_id_lookup == "admin" ? datadog_user.admins[local.normalize_email[each.value.user_email]].id : datadog_user.this[local.normalize_email[each.value.user_email]].id
 }
 
 # Datadog User Resource

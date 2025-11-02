@@ -40,23 +40,33 @@ locals {
   }
 
   # Flatten Datadog team memberships with role handling and deduplication
+  # Filter out organization admin users when not in logos workspace to prevent resource not found errors
+  # Include resolved user_id to simplify main.tofu resource logic
   datadog_team_memberships = { for membership in flatten([
     for team_key, team in local.datadog_teams : concat(
       [
         for user_email in team.admins : {
-          key     = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
-          team_id = team_key
-          user_id = user_email
-          role    = "admin"
+          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
+          role       = "admin"
+          team_id    = team_key
+          user_email = user_email
+          user_id_lookup = local.within_logos ? (
+            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
+          ) : "regular"
         }
+        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ],
       [
         for user_email in setsubtract(toset(team.members), toset(team.admins)) : {
-          key     = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
-          team_id = team_key
-          user_id = user_email
-          role    = "member"
+          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
+          role       = "member"
+          team_id    = team_key
+          user_email = user_email
+          user_id_lookup = local.within_logos ? (
+            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
+          ) : "regular"
         }
+        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ]
     )
   ]) : membership.key => membership }
