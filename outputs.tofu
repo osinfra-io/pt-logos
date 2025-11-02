@@ -43,9 +43,9 @@ output "teams" {
       }
 
       # Folder hierarchy
-      team_folder_id   = google_folder.team[team_key].id
-      team_type        = team.team_type
-      team_type_folder = local.team_type_display_names[team.team_type]
+      team_folder_id      = google_folder.team[team_key].id
+      team_type           = team.team_type
+      team_type_folder_id = var.google_team_type_folder_ids[team.team_type]
     }
   }
 }
