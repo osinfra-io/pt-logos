@@ -13,7 +13,7 @@ Top Level Folder → Team Type Folders → Team Folders → Environment Folders
 ```
 
 ### Key Components Created
-- **Google Cloud**: Folder hierarchy + Identity Groups (admin/writer/reader roles) + IAM bindings + Billing budgets
+- **Google Cloud**: Team and environment folders (team type folders are pre-created) + Identity Groups (admin/writer/reader roles) + IAM bindings + Billing budgets
 - **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Repositories with branch protection, webhooks, and environments
 - **Datadog**: Teams with admin/member roles + User management
 

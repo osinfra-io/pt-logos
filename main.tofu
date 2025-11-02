@@ -668,12 +668,11 @@ resource "google_folder_iam_member" "team_access" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
 
 # Folder resources provide grouping mechanism and isolation boundaries between projects.
-# This creates a 3-level hierarchy following Team Topologies methodology:
-#   Team Types (Platform Teams, Stream-aligned Teams, etc.)
-#   └── Teams (Logos, Pneuma, Ethos, etc.)
-#       └── Environments (Sandbox, Non-Production, Production)
+# This creates a 2-level hierarchy following Team Topologies methodology:
+#   Teams (Logos, Pneuma, Ethos, etc.) - created under pre-existing team type folders
+#   └── Environments (Sandbox, Non-Production, Production)
 #
-# https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy#folders
+# Team type folders (Platform Teams, Stream-aligned Teams, etc.) are pre-created and referenced via google_team_type_folder_ids variable.
 
 resource "google_folder" "environment" {
   for_each = local.environments
@@ -688,13 +687,5 @@ resource "google_folder" "team" {
 
   deletion_protection = false
   display_name        = each.value.display_name
-  parent              = google_folder.team_type[each.value.team_type].name
-}
-
-resource "google_folder" "team_type" {
-  for_each = local.team_types
-
-  deletion_protection = false
-  display_name        = local.team_type_display_names[each.value]
-  parent              = "folders/${var.google_top_level_folder_id}"
+  parent              = "folders/${var.google_team_type_folder_ids[each.value.team_type]}"
 }

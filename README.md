@@ -54,25 +54,27 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## Architecture
 
-The module creates a three-level Google Cloud Platform folder hierarchy following Team Topologies principles:
+The module creates a two-level Google Cloud Platform folder hierarchy following Team Topologies principles, using pre-created team type folders:
 
 ```text
-Top Level Folder (provided)
-├── Platform Teams/
-│   ├── Logos/
-│   │   ├── Sandbox/
-│   │   ├── Non-Production/
-│   │   └── Production/
-│   └── Pneuma/
-│       ├── Sandbox/
-│       ├── Non-Production/
-│       └── Production/
-└── Stream-aligned Teams/
-    └── Ethos/
-        ├── Sandbox/
-        ├── Non-Production/
-        └── Production/
+Platform Teams/ (pre-created)
+├── Logos/
+│   ├── Sandbox/
+│   ├── Non-Production/
+│   └── Production/
+└── Pneuma/
+    ├── Sandbox/
+    ├── Non-Production/
+    └── Production/
+
+Stream-aligned Teams/ (pre-created)
+└── Ethos/
+    ├── Sandbox/
+    ├── Non-Production/
+    └── Production/
 ```
+
+**Note**: Team type folders (Platform Teams, Stream-aligned Teams, etc.) must be pre-created and their IDs provided via the `google_team_type_folder_ids` variable.
 
 Additionally, it creates:
 
@@ -86,6 +88,19 @@ Additionally, it creates:
 ## Interface
 
 ### Required Variables
+
+#### `google_team_type_folder_ids`
+
+A map of team types to their pre-created Google Cloud folder IDs. These folders must be created before running this configuration.
+
+```hcl
+google_team_type_folder_ids = {
+  "platform-team"              = "123456789012"  # Platform Teams folder ID
+  "stream-aligned-team"        = "123456789013"  # Stream-aligned Teams folder ID
+  "complicated-subsystem-team" = "123456789014"  # Complicated-subsystem Teams folder ID
+  "enabling-team"              = "123456789015"  # Enabling Teams folder ID
+}
+```
 
 #### `team`
 

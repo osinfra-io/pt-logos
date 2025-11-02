@@ -425,14 +425,10 @@ locals {
     "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
     "platform-team"              = "providing a compelling internal product to accelerate delivery by Stream-aligned teams"
     "complicated-subsystem-team" = "where significant mathematics/calculation/technical expertise is needed"
-    "enabling-team"              = "helps  Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
+    "enabling-team"              = "helps Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
   }
 
-  # Extract unique team types from all teams to create team type folders
-  # Results in a set like: ["platform-team", "stream-aligned-team"]
-  team_types = toset([
-    for team_key, team in var.team : team.team_type
-  ])
+
 
   # If we are within Logos, create the foundational order (team type folders and organization-level resources)
   within_logos = terraform.workspace == "logos-production-main"

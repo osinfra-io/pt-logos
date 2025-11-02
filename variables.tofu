@@ -61,10 +61,15 @@ variable "google_primary_domain" {
   default     = "osinfra.io"
 }
 
-variable "google_top_level_folder_id" {
-  description = "The top level folder ID to create the team hierarchy under"
-  type        = string
-  default     = "405483259717"
+variable "google_team_type_folder_ids" {
+  description = "Map of team type to their pre-created folder IDs"
+  type        = map(string)
+  default = {
+    "platform-team"              = "831575438843" # Platform Teams folder ID
+    "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
+    "complicated-subsystem-team" = "195659428881" # Complicated-subsystem Teams folder ID
+    "enabling-team"              = "141076777961" # Enabling Teams folder ID
+  }
 }
 
 variable "team" {
