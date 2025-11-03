@@ -6,10 +6,10 @@ This OpenTofu project establishes foundational platform order (**Logos**) across
 ## Architecture & Core Concepts
 
 ### Team Topologies Structure
-The project implements a 3-level Google Cloud folder hierarchy:
+The project uses a 3-level Google Cloud folder hierarchy (team type folders are pre-created):
 ```
 Top Level Folder → Team Type Folders → Team Folders → Environment Folders
-                   (Platform Teams)    (Logos/Pneuma)  (Sandbox/Non-Production/Production)
+                   (pre-created)       (Logos/Pneuma)  (Sandbox/Non-Production/Production)
 ```
 
 ### Key Components Created
@@ -83,16 +83,27 @@ team = {
 - **State management**: Per-team workspaces with GCS backend + KMS encryption
 
 ### Admin Protection Pattern
-Organization owners/admins are **hardcoded in `locals.tofu`** and protected via lifecycle rules:
+Organization owners/admins are **hardcoded in `locals.tofu`** and conditionally created only in the `logos-production-main` workspace to prevent conflicts across team deployments:
 ```hcl
 # In locals.tofu
 github_organization_owners = ["brettcurtis"]
 datadog_organization_admins = ["brett@osinfra.io"]
+within_logos = terraform.workspace == "logos-production-main"
 
-# In main.tofu resources
-lifecycle {
-  prevent_destroy = true
-  ignore_changes  = [role] # Prevent accidental demotion
+# In main.tofu resources - only created when within_logos is true
+resource "datadog_user" "admins" {
+  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
+  # ... configuration
+}
+
+resource "github_membership" "owners" {
+  for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [role] # Prevent accidental demotion
+  }
+  # ... configuration
 }
 ```
 
@@ -186,7 +197,9 @@ lifecycle {
 ## Development Guidelines
 
 ### Single Environment GitHub Actions Workflow
-This project uses a single environment workflow since we are managing foundational platform resources at the organizational level. This means there is no sandbox/non-production/production separation within the IaC itself or workflows. Instead, all changes are made directly to the main branch and deployed via GitHub Actions. This approach is suitable for foundational resources that require consistent configuration across the organization.
+This project uses a single environment workflow since we are managing foundational platform resources at the organizational level. This means there is no sandbox/non-production/production separation within the IaC itself or workflows. Instead, all changes are made directly to the main branch and deployed via GitHub Actions.
+
+**Important**: Organization admin/owner resources (`datadog_user.admins`, `github_membership.owners`) are conditionally created only when running in the `logos-production-main` workspace. This prevents resource conflicts when multiple teams deploy their configurations, as these shared organizational resources should only be managed by the central platform team.
 
 ### Adding New Teams
 1. Create new `.tfvars` file in `teams/` directory using naming convention `{team_prefix}-{team_name}.tfvars`

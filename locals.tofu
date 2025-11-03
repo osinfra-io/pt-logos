@@ -40,23 +40,33 @@ locals {
   }
 
   # Flatten Datadog team memberships with role handling and deduplication
+  # Filter out organization admin users when not in logos workspace to prevent resource not found errors
+  # Include resolved user_id to simplify main.tofu resource logic
   datadog_team_memberships = { for membership in flatten([
     for team_key, team in local.datadog_teams : concat(
       [
         for user_email in team.admins : {
-          key     = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
-          team_id = team_key
-          user_id = user_email
-          role    = "admin"
+          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
+          role       = "admin"
+          team_id    = team_key
+          user_email = user_email
+          user_id_lookup = local.within_logos ? (
+            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
+          ) : "regular"
         }
+        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ],
       [
         for user_email in setsubtract(toset(team.members), toset(team.admins)) : {
-          key     = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
-          team_id = team_key
-          user_id = user_email
-          role    = "member"
+          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
+          role       = "member"
+          team_id    = team_key
+          user_email = user_email
+          user_id_lookup = local.within_logos ? (
+            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
+          ) : "regular"
         }
+        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ]
     )
   ]) : membership.key => membership }
@@ -133,13 +143,13 @@ locals {
   github_child_teams = { for github_team in flatten([
     for team_key, team in var.team : [
       for github_team_key in ["sandbox-approvers", "non-production-approvers", "production-approvers", "repository-administrators"] : {
-        key         = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
-        parent_team = team_key
-        name        = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
         description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approvers") ? " team for GitHub Actions" : ""}."
-        privacy     = "closed"
+        key         = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
         maintainers = team.github_child_teams_memberships[github_team_key].maintainers
         members     = team.github_child_teams_memberships[github_team_key].members
+        name        = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
+        parent_team = team_key
+        privacy     = "closed"
       }
     ]
   ]) : github_team.key => github_team }
@@ -187,16 +197,28 @@ locals {
   github_repositories = { for repo in flatten([
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
-        key                    = repo_key
-        team_key               = team_key
         description            = repo.description
-        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, "${local.team_type_short_names[team.team_type]}-${team_key}"]))
-        push_allowances        = repo.push_allowances
-        enable_discord_webhook = repo.enable_discord_webhook
         enable_datadog_webhook = repo.enable_datadog_webhook
+        enable_discord_webhook = repo.enable_discord_webhook
+        key                    = repo_key
+        push_allowances        = repo.push_allowances
+        team_key               = team_key
+        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, "${local.team_type_short_names[team.team_type]}-${team_key}"]))
       }
     ]
   ]) : repo.key => repo }
+
+  # Review request delegations for GitHub teams with sufficient members
+  # Requires 3+ total members since PR author can't review their own code
+  github_review_request_delegations = {
+    for team_key, team in var.team : team_key => {
+      team_key      = team_key
+      total_members = length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members))
+      # Request (total_members - 1) reviewers, max 2, to account for PR author
+      member_count = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
+    }
+    if length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) >= 3
+  }
 
   # Filter GitHub repositories that have Datadog webhooks enabled
   github_repository_datadog_webhooks = { for repo in flatten([
@@ -235,58 +257,6 @@ locals {
     ]
   ]) : env.key => env }
 
-  # Flatten GitHub team repository permissions - repository administrators get admin access
-  github_team_repository_child_permissions = { for permission in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.github_repositories : {
-        key            = "${repo_key}-repository-administrators"
-        repository     = repo_key
-        team_key       = team_key
-        child_team_key = "${local.team_type_short_names[team.team_type]}-${team_key}-repository-administrators"
-        permission     = "admin"
-      }
-    ]
-  ]) : permission.key => permission }
-
-  # Flatten GitHub team repository permissions for parent teams - write access only
-  github_team_repository_parent_permissions = { for permission in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.github_repositories : {
-        key        = "${repo_key}-parent"
-        repository = repo_key
-        team_key   = team_key
-        permission = "push"
-      }
-    ]
-  ]) : permission.key => permission }
-
-  # Determine user roles (admin for org owners, member for others)
-  github_user_roles = {
-    for username in local.all_github_users :
-    username => contains(local.github_organization_owners, username) ? "admin" : "member"
-  }
-
-  # Extract all unique GitHub users from team configurations (excluding organization owners)
-  github_users = toset(flatten([
-    for team_key, team in var.team : concat(
-      team.github_parent_team_memberships.maintainers,
-      team.github_parent_team_memberships.members,
-      flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
-    )
-  ]))
-
-  # Review request delegations for GitHub teams with sufficient members
-  # Requires 3+ total members since PR author can't review their own code
-  github_review_request_delegations = {
-    for team_key, team in var.team : team_key => {
-      team_key      = team_key
-      total_members = length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members))
-      # Request (total_members - 1) reviewers, max 2, to account for PR author
-      member_count = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
-    }
-    if length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) >= 3
-  }
-
   # Default GitHub repository labels with consistent colors and descriptions
   github_repository_default_labels = {
     "bug"              = { color = "84A255", description = "Something is not working" }
@@ -315,6 +285,40 @@ locals {
         ]
       ]
   ]) : "${label.repository}-${label.name}" => label }
+
+  # Flatten GitHub team repository permissions - repository administrators get admin access
+  github_team_repository_child_permissions = { for permission in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.github_repositories : {
+        key            = "${repo_key}-repository-administrators"
+        repository     = repo_key
+        team_key       = team_key
+        child_team_key = "${local.team_type_short_names[team.team_type]}-${team_key}-repository-administrators"
+        permission     = "admin"
+      }
+    ]
+  ]) : permission.key => permission }
+
+  # Flatten GitHub team repository permissions for parent teams - write access only
+  github_team_repository_parent_permissions = { for permission in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.github_repositories : {
+        key        = "${repo_key}-parent"
+        repository = repo_key
+        team_key   = team_key
+        permission = "push"
+      }
+    ]
+  ]) : permission.key => permission }
+
+  # Extract all unique GitHub users from team configurations (excluding organization owners)
+  github_users = toset(flatten([
+    for team_key, team in var.team : concat(
+      team.github_parent_team_memberships.maintainers,
+      team.github_parent_team_memberships.members,
+      flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
+    )
+  ]))
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
@@ -356,15 +360,15 @@ locals {
   google_identity_groups = { for identity_group in flatten([
     for team_key, team in var.team : [
       for group_key in ["admin", "writer", "reader"] : {
-        key          = "${team_key}-${group_key}"
-        email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
-        team         = team_key
         description  = local.google_role_descriptions[group_key]
         display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
+        email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
+        key          = "${team_key}-${group_key}"
         managers     = team.google_identity_groups_memberships[group_key].managers
         members      = team.google_identity_groups_memberships[group_key].members
         owners       = team.google_identity_groups_memberships[group_key].owners
         roles        = ["roles/${group_key}"]
+        team         = team_key
       }
     ]
   ]) : identity_group.key => identity_group }
@@ -383,12 +387,6 @@ locals {
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, member = item.user } }
 
-  # Helper function to normalize email addresses for resource keys
-  normalize_email = {
-    for email in local.all_datadog_users :
-    email => replace(replace(email, "@", "-at-"), ".", "-")
-  }
-
   # Flatten Google identity group owner memberships
   google_identity_owners = { for item in flatten([
     for group_key, group in local.google_identity_groups : [
@@ -396,8 +394,14 @@ locals {
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
-  # Map team type keys to plural display names for folder creation
-  # Used for team type folders (e.g., "Platform Teams", "Stream-aligned Teams")
+  # Helper function to normalize email addresses for resource keys
+  normalize_email = {
+    for email in local.all_datadog_users :
+    email => replace(replace(email, "@", "-at-"), ".", "-")
+  }
+
+  # Map team type keys to plural display names for reference
+  # Used for team type folder names (e.g., "Platform Teams", "Stream-aligned Teams") - folders are pre-created
   team_type_display_names = {
     "stream-aligned-team"        = "Stream-aligned Teams"
     "platform-team"              = "Platform Teams"
@@ -430,6 +434,6 @@ locals {
 
 
 
-  # If we are within Logos, create the foundational order (team type folders and organization-level resources)
+  # If we are within Logos workspace, create admin/owner resources (prevents conflicts across team deployments)
   within_logos = terraform.workspace == "logos-production-main"
 }
