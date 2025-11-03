@@ -34,39 +34,34 @@ locals {
   datadog_organization_standard_users = []
 
   # Create normalized mappings for regular Datadog users
+  # Admin users are always excluded since they're managed separately (only in logos workspace)
   datadog_regular_users = {
     for email in setsubtract(local.all_datadog_users, toset(local.datadog_organization_admins)) :
     replace(replace(email, "@", "-at-"), ".", "-") => email
   }
 
-  # Flatten Datadog team memberships with role handling and deduplication
-  # Filter out organization admin users when not in logos workspace to prevent resource not found errors
-  # Include resolved user_id to simplify main.tofu resource logic
+  # Flatten Datadog team memberships with role handling
+  # Admin users can be team members in any workspace using data source lookups for cross-workspace references
+  # Regular users are managed in current workspace only
   datadog_team_memberships = { for membership in flatten([
     for team_key, team in local.datadog_teams : concat(
       [
         for user_email in team.admins : {
-          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
-          role       = "admin"
-          team_id    = team_key
-          user_email = user_email
-          user_id_lookup = local.within_logos ? (
-            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
-          ) : "regular"
+          key            = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-admin"
+          role           = "admin"
+          team_id        = team_key
+          user_email     = user_email
+          user_id_lookup = contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
         }
-        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ],
       [
         for user_email in setsubtract(toset(team.members), toset(team.admins)) : {
-          key        = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
-          role       = "member"
-          team_id    = team_key
-          user_email = user_email
-          user_id_lookup = local.within_logos ? (
-            contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
-          ) : "regular"
+          key            = "${team_key}-${replace(replace(user_email, "@", "-at-"), ".", "-")}-member"
+          role           = "member"
+          team_id        = team_key
+          user_email     = user_email
+          user_id_lookup = contains(local.datadog_organization_admins, user_email) ? "admin" : "regular"
         }
-        if local.within_logos || !contains(local.datadog_organization_admins, user_email)
       ]
     )
   ]) : membership.key => membership }
@@ -80,12 +75,6 @@ locals {
       admins      = team.datadog_team_memberships.admins
       members     = team.datadog_team_memberships.members
     }
-  }
-
-  # Helper function to extract user names from email addresses
-  datadog_user_names = {
-    for email in local.all_datadog_users :
-    email => split("@", email)[0]
   }
 
   # Determine Datadog user role IDs (admin > standard > read-only as default)

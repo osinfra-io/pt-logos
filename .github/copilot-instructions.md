@@ -186,12 +186,10 @@ resource "github_membership" "owners" {
 - **Consistent ordering**: Maintains readability and makes code easier to navigate
 
 ### Required Before Each Commit
-- Execute `pre-commit run` to run all configured hooks
+- Execute `pre-commit run -a` to run all configured hooks (includes formatting and validation)
 
 ### Development Flow
-- **Format**: `tofu fmt -recursive`
-- **Validate**: `tofu validate`
-- **Pre-commit**: `pre-commit run --all-files`
+- **Pre-commit**: `pre-commit run -a` (runs tofu fmt and validate automatically)
 - **Deployment**: All changes deployed via GitHub Actions workflows after merge to main
 
 ## Development Guidelines
@@ -205,7 +203,7 @@ This project uses a single environment workflow since we are managing foundation
 1. Create new `.tfvars` file in `teams/` directory using naming convention `{team_prefix}-{team_name}.tfvars`
 2. Add team to GitHub workflow matrix in `.github/workflows/production.yml`
 3. Team type must be one of: `platform-team`, `stream-aligned-team`, `complicated-subsystem-team`, `enabling-team`
-4. Validate configuration with `tofu validate` and `pre-commit run` before committing
+4. Validate configuration with `pre-commit run -a` before committing
 5. Deployment will be handled automatically by GitHub Actions after merge to main
 
 ### Error Handling & Debugging
@@ -218,8 +216,8 @@ This project uses a single environment workflow since we are managing foundation
 mkdir -p $HOME/.opentofu.d/plugin-cache
 export TF_PLUGIN_CACHE_DIR=$HOME/.opentofu.d/plugin-cache
 
-# Run pre-commit hooks locally
-pre-commit run --all-files
+# Run pre-commit hooks locally (includes formatting and validation)
+pre-commit run -a
 ```
 
 ### Understanding Data Transformations
@@ -282,3 +280,53 @@ resource "datadog_user" "this" {
 ❌ **Don't**: Skip validation rules - they enforce organizational standards
 ❌ **Don't**: Create static mappings when descriptions can be generated dynamically
 ❌ **Don't**: Use email addresses directly as resource keys without normalization
+
+## Comprehensive Cleanup Protocol
+
+### When User Says "cleanup"
+
+Execute this comprehensive checklist to ensure code quality, documentation accuracy, and standards compliance:
+
+#### 1. Code Comment Review
+- **Scan all comments** in `main.tofu`, `locals.tofu`, `variables.tofu`, `outputs.tofu` for accuracy
+- **Verify architectural comments** reflect current implementation (especially cross-workspace patterns, data source usage, conditional resource creation)
+- **Update resource-level comments** to match current resource behavior and dependencies
+- **Check lifecycle protection comments** are accurate for admin resources
+
+#### 2. Unused Resource Detection
+- **Search for unused locals** by cross-referencing definitions in `locals.tofu` with usage in `main.tofu`
+- **Identify unused variables** that may have become obsolete through refactoring
+- **Check for unused data sources** that are no longer referenced
+- **Verify all resources are properly utilized** and not orphaned from architectural changes
+
+#### 3. Coding Standards Compliance
+- **Run `pre-commit run -a`** to ensure formatting, validation, and linting compliance
+- **Verify alphabetical ordering** in all configuration files (variables, outputs, locals, resources)
+- **Check meta-argument positioning** (lifecycle, for_each, depends_on should be first in resources)
+- **Validate consistent formatting patterns** (newlines, indentation, argument alignment)
+- **Ensure proper nested block ordering** within resources and data sources
+
+#### 4. Documentation Updates
+- **Update README.md sections** that may be affected by recent changes
+- **Verify architecture diagrams and examples** reflect current implementation
+- **Check cross-workspace documentation** is accurate and complete
+- **Update interface documentation** for any new variables or outputs
+- **Validate example configurations** still work with current structure
+
+#### 5. Cross-Workspace Architecture Verification
+- **Verify data source patterns** for admin user lookups across workspaces
+- **Check conditional resource creation** using `local.within_logos` flag
+- **Validate admin protection patterns** are maintained and documented
+- **Ensure proper workspace isolation** for organization-level resources
+
+#### 6. Validation and Testing
+- **Run complete validation suite** with `pre-commit run -a`
+- **Verify no breaking changes** to existing interfaces
+
+### Quality Gates
+- ✅ All pre-commit hooks pass
+- ✅ No unused locals, variables, or resources
+- ✅ Documentation reflects current architecture
+- ✅ Comments are accurate and helpful
+- ✅ Coding standards are maintained
+- ✅ Cross-workspace patterns work correctly

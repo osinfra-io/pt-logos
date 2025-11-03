@@ -243,6 +243,57 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 **Security**: This two-step process prevents accidental loss of organization access during infrastructure changes.
 
+## Cross-Workspace Architecture
+
+This infrastructure uses a sophisticated cross-workspace architecture that enables clean separation of concerns while allowing shared resources:
+
+### Workspace Separation
+
+- **`logos-production-main`**: Central workspace that manages organization-level admin resources (GitHub owners, Datadog admin users)
+- **Team Workspaces** (e.g., `corpus-production-main`, `pneuma-production-main`): Individual team workspaces that manage team-specific resources
+
+### Admin User Management
+
+**Admin User Resources**:
+
+- Created only in the `logos-production-main` workspace to prevent resource conflicts
+- Protected by lifecycle rules (`prevent_destroy = true`) to maintain platform access
+- Include GitHub organization owners and Datadog organization admin users
+
+**Team Membership for Admin Users**:
+
+- Admin users can be members of teams across all workspaces using data source lookups
+- Non-logos workspaces use `datadog_user` data sources to reference admin users created in the logos workspace
+- This allows admin users to be team members without creating duplicate user resources
+
+**Example**:
+
+```hcl
+# In logos-production-main workspace
+resource "datadog_user" "admins" {
+  # Creates admin user resources
+}
+
+# In team workspaces (e.g., corpus-production-main)
+data "datadog_user" "existing_admins" {
+  # References admin users created in logos workspace
+}
+
+resource "datadog_team_membership" "this" {
+  # Uses data source reference for admin users
+  user_id = each.value.user_id_lookup == "admin" ?
+    data.datadog_user.existing_admins[...].id :
+    datadog_user.this[...].id
+}
+```
+
+### Benefits
+
+✅ **No Resource Conflicts**: Admin users created once in logos workspace, referenced elsewhere via data sources
+✅ **Clean Separation**: Team workspaces focus on team-specific resources
+✅ **Scalable Architecture**: Works for any number of teams and admin users
+✅ **Maintains Security**: Admin user lifecycle controlled centrally while allowing team participation
+
 ## Outputs for Downstream Consumption
 
 This foundational infrastructure provides outputs designed for consumption by downstream repositories that may need foundational infrastructure information:
