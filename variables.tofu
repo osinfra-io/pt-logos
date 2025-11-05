@@ -174,6 +174,18 @@ variable "team" {
     error_message = "Team display_name must be in Title Case with no special characters except spaces. The word 'and' is allowed in lowercase (e.g., 'Platform Team', 'Trust and Safety')."
   }
 
+  validation {
+    condition = alltrue([
+      for team_key, team in var.team : (
+        (team.team_type == "platform-team" && startswith(team_key, "pt-")) ||
+        (team.team_type == "stream-aligned-team" && startswith(team_key, "st-")) ||
+        (team.team_type == "complicated-subsystem-team" && startswith(team_key, "ct-")) ||
+        (team.team_type == "enabling-team" && startswith(team_key, "et-"))
+      )
+    ])
+    error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), cst- (complicated-subsystem-team), et- (enabling-team)."
+  }
+
 }
 
 # These three state_* variables are required for early variable evaluation for backend and provider configuration.

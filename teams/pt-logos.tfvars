@@ -1,5 +1,5 @@
 team = {
-  logos = {
+  pt-logos = {
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []

@@ -22,11 +22,11 @@ output "teams" {
       # Identity groups for this team
       identity_groups = {
         for group_key, group in local.google_identity_groups :
-        split("-", group_key)[1] => {
+        split("-", group_key)[length(split("-", team_key))] => {
           description  = group.description
           display_name = group.display_name
           email        = google_cloud_identity_group.this[group_key].group_key[0].id
-          role         = split("-", group_key)[1]
+          role         = split("-", group_key)[length(split("-", team_key))]
         }
         if startswith(group_key, "${team_key}-")
       }

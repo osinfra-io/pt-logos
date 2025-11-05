@@ -71,7 +71,7 @@ locals {
     for team_key, team in var.team : team_key => {
       name        = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
-      handle      = "${local.team_type_short_names[team.team_type]}-${team_key}"
+      handle      = team_key
       admins      = team.datadog_team_memberships.admins
       members     = team.datadog_team_memberships.members
     }
@@ -133,10 +133,10 @@ locals {
     for team_key, team in var.team : [
       for github_team_key in ["sandbox-approvers", "non-production-approvers", "production-approvers", "repository-administrators"] : {
         description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approvers") ? " team for GitHub Actions" : ""}."
-        key         = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
+        key         = "${team_key}-${github_team_key}"
         maintainers = team.github_child_teams_memberships[github_team_key].maintainers
         members     = team.github_child_teams_memberships[github_team_key].members
-        name        = "${local.team_type_short_names[team.team_type]}-${team_key}-${github_team_key}"
+        name        = "${team_key}-${github_team_key}"
         parent_team = team_key
         privacy     = "closed"
       }
@@ -176,7 +176,7 @@ locals {
   # Create parent GitHub teams for each team
   github_parent_teams = {
     for team_key, team in var.team : team_key => {
-      name        = "${local.team_type_short_names[team.team_type]}-${team_key}"
+      name        = team_key
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
       privacy     = "closed"
     }
@@ -192,7 +192,7 @@ locals {
         key                    = repo_key
         push_allowances        = repo.push_allowances
         team_key               = team_key
-        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, "${local.team_type_short_names[team.team_type]}-${team_key}"]))
+        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
       }
     ]
   ]) : repo.key => repo }
@@ -282,7 +282,7 @@ locals {
         key            = "${repo_key}-repository-administrators"
         repository     = repo_key
         team_key       = team_key
-        child_team_key = "${local.team_type_short_names[team.team_type]}-${team_key}-repository-administrators"
+        child_team_key = "${team_key}-repository-administrators"
         permission     = "admin"
       }
     ]
@@ -405,14 +405,6 @@ locals {
     key => trimsuffix(display_name, "s")
   }
 
-  # Map team type keys to short abbreviations for compact identifiers
-  team_type_short_names = {
-    "stream-aligned-team"        = "st"
-    "platform-team"              = "pt"
-    "complicated-subsystem-team" = "cst"
-    "enabling-team"              = "et"
-  }
-
   # Team Topologies descriptions mapping
   team_topologies_descriptions = {
     "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
@@ -420,8 +412,6 @@ locals {
     "complicated-subsystem-team" = "where significant mathematics/calculation/technical expertise is needed"
     "enabling-team"              = "helps Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
   }
-
-
 
   # If we are within Logos workspace, create admin/owner resources (prevents conflicts across team deployments)
   within_logos = terraform.workspace == "logos-production-main"

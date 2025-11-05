@@ -554,7 +554,7 @@ resource "google_cloud_identity_group" "this" {
   display_name = each.value.display_name
 
   group_key {
-    id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.value.email_key}@${var.google_primary_domain}"
+    id = "${each.value.email_key}@${var.google_primary_domain}"
   }
 
   initial_group_config = "EMPTY"

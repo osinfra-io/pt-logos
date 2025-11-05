@@ -1,5 +1,5 @@
 team = {
-  corpus = {
+  pt-corpus = {
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []
