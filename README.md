@@ -225,7 +225,7 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 - **GitHub**: Hardcoded organization owners in `locals.tofu` get admin role and lifecycle protection
 - **Datadog**: Hardcoded organization admins in `locals.tofu` get admin role and lifecycle protection
-- **Conditional Creation**: Admin/owner resources are only created when running in the `logos-production-main` workspace to prevent conflicts across team deployments
+- **Conditional Creation**: Admin/owner resources are only created when running in the `pt-logos-main-production` workspace to prevent conflicts across team deployments
 - **Protection**: Admin users cannot be destroyed via `tofu destroy` due to `prevent_destroy = true` lifecycle rules
 - **Role Protection**: Admin roles cannot be accidentally changed via `ignore_changes` lifecycle rules
 
