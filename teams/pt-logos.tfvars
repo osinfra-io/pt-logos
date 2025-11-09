@@ -44,7 +44,19 @@ team = {
               custom_branch_policies = false
               protected_branches     = true
             }
-            name = "Production: Main"
+            name = "Production: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+            name = "Production: pt-logos"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+            name = "Production: pt-pneuma"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+            name = "Production: st-ethos"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
             }

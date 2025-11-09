@@ -21,6 +21,7 @@ jobs:
     uses: osinfra-io/github-opentofu-gcp-called-workflows/.github/workflows/plan-and-apply.yml@e3c59e43f2458550c7f13b6369fb6978b6f42c6e # v0.2.9
     if: github.actor != 'dependabot[bot]'
     strategy:
+      fail-fast: false
       matrix:
         team:
           - pt-logos
@@ -29,7 +30,7 @@ jobs:
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
-      github_environment: "Production: Main"
+      github_environment: "Production: ${{ matrix.team }}"
 
       # This service account needs to be added to the Groups Admin system role in the the Google Workspace Admin Console
       service_account: pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com
