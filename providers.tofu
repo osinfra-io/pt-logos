@@ -18,8 +18,8 @@ terraform {
     }
 
     plan {
-      method   = method.aes_gcm.default
-      enforced = true
+      method = method.aes_gcm.default
+      # enforced = true
 
       fallback {
         method = method.unencrypted.migrate
@@ -27,8 +27,8 @@ terraform {
     }
 
     state {
-      method   = method.aes_gcm.default
-      enforced = true
+      method = method.aes_gcm.default
+      # enforced = true
 
       fallback {
         method = method.unencrypted.migrate
