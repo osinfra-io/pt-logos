@@ -24,12 +24,14 @@ jobs:
       matrix:
         team:
           - pt-logos
-          # - pt-corpus
-          # - pt-pneuma
-          # - st-ethos
+          - pt-corpus
+          - pt-pneuma
+          - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
       github_environment: "Production: Main"
+
+      # This service account needs to be added to the Groups Admin system role in the the Google Workspace Admin Console
       service_account: pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com
       opentofu_kms_encryption_key: projects/pt-corpus-tf16-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
       opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
