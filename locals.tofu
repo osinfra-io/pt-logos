@@ -414,5 +414,5 @@ locals {
   }
 
   # If we are within Logos workspace, create admin/owner resources (prevents conflicts across team deployments)
-  within_logos = terraform.workspace == "logos-production-main"
+  within_logos = terraform.workspace == "logos-main-production"
 }

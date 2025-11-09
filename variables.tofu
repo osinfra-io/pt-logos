@@ -38,7 +38,7 @@ variable "google_billing_account" {
 }
 
 # This is only needed during bootstrapping.
-variable "google_billing_project" {
+variable "billing_project" {
   description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
   type        = string
 }
