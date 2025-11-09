@@ -249,14 +249,14 @@ This infrastructure uses a sophisticated cross-workspace architecture that enabl
 
 ### Workspace Separation
 
-- **`logos-production-main`**: Central workspace that manages organization-level admin resources (GitHub owners, Datadog admin users)
-- **Team Workspaces** (e.g., `corpus-production-main`, `pneuma-production-main`): Individual team workspaces that manage team-specific resources
+- **`pt-logos-main-production`**: Central workspace that manages organization-level admin resources (GitHub owners, Datadog admin users)
+- **Team Workspaces** (e.g., `pt-corpus-main-production`, `pt-pneuma-main-production`): Individual team workspaces that manage team-specific resources
 
 ### Admin User Management
 
 **Admin User Resources**:
 
-- Created only in the `logos-production-main` workspace to prevent resource conflicts
+- Created only in the `pt-logos-main-production` workspace to prevent resource conflicts
 - Protected by lifecycle rules (`prevent_destroy = true`) to maintain platform access
 - Include GitHub organization owners and Datadog organization admin users
 
@@ -269,12 +269,12 @@ This infrastructure uses a sophisticated cross-workspace architecture that enabl
 **Example**:
 
 ```hcl
-# In logos-production-main workspace
+# In pt-logos-main-production workspace
 resource "datadog_user" "admins" {
   # Creates admin user resources
 }
 
-# In team workspaces (e.g., corpus-production-main)
+# In team workspaces (e.g., pt-corpus-main-production)
 data "datadog_user" "existing_admins" {
   # References admin users created in logos workspace
 }
