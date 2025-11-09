@@ -183,7 +183,7 @@ variable "team" {
         (team.team_type == "enabling-team" && startswith(team_key, "et-"))
       )
     ])
-    error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), cst- (complicated-subsystem-team), et- (enabling-team)."
+    error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), ct- (complicated-subsystem-team), et- (enabling-team)."
   }
 
 }
