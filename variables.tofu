@@ -38,10 +38,10 @@ variable "google_billing_account" {
 }
 
 # This is only needed during bootstrapping.
-variable "google_billing_project" {
-  description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
-  type        = string
-}
+# variable "billing_project" {
+#   description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
+#   type        = string
+# }
 
 variable "google_customer_id" {
   description = "The unique customer ID assigned to you when you signed up for Google Workspace or Cloud Identity. You can look up this ID in your Admin console"
@@ -174,22 +174,34 @@ variable "team" {
     error_message = "Team display_name must be in Title Case with no special characters except spaces. The word 'and' is allowed in lowercase (e.g., 'Platform Team', 'Trust and Safety')."
   }
 
+  validation {
+    condition = alltrue([
+      for team_key, team in var.team : (
+        (team.team_type == "platform-team" && startswith(team_key, "pt-")) ||
+        (team.team_type == "stream-aligned-team" && startswith(team_key, "st-")) ||
+        (team.team_type == "complicated-subsystem-team" && startswith(team_key, "ct-")) ||
+        (team.team_type == "enabling-team" && startswith(team_key, "et-"))
+      )
+    ])
+    error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), ct- (complicated-subsystem-team), et- (enabling-team)."
+  }
+
 }
 
 # These three state_* variables are required for early variable evaluation for backend and provider configuration.
 # They are defined in the GitHub Actions called workflows and should NOT be set in the OpenTofu configuration.
 
-# variable "state_bucket" {
-#   description = "The name of the GCS bucket to store state files"
-#   type        = string
-# }
+variable "state_bucket" {
+  description = "The name of the GCS bucket to store state files"
+  type        = string
+}
 
-# variable "state_kms_encryption_key" {
-#   description = "The KMS encryption key for state and plan files"
-#   type        = string
-# }
+variable "state_kms_encryption_key" {
+  description = "The KMS encryption key for state and plan files"
+  type        = string
+}
 
-# variable "state_prefix" {
-#   description = "The prefix for state files in the GCS bucket"
-#   type        = string
-# }
+variable "state_prefix" {
+  description = "The prefix for state files in the GCS bucket"
+  type        = string
+}

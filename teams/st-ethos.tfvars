@@ -1,5 +1,5 @@
 team = {
-  ethos = {
+  st-ethos = {
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []

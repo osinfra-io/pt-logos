@@ -17,23 +17,23 @@ permissions:
 
 jobs:
   main:
-    name: "${{ matrix.team }}"
+    name: "Team: ${{ matrix.team }}"
     uses: osinfra-io/github-opentofu-gcp-called-workflows/.github/workflows/plan-and-apply.yml@e3c59e43f2458550c7f13b6369fb6978b6f42c6e # v0.2.9
     if: github.actor != 'dependabot[bot]'
     strategy:
       matrix:
         team:
           - pt-logos
-          - pt-corpus
-          - pt-pneuma
-          - st-ethos
+          # - pt-corpus
+          # - pt-pneuma
+          # - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
       github_environment: "Production: Main"
-      service_account: pt-logos-github@pt-logos-tf5f-prod.iam.gserviceaccount.com
-      opentofu_kms_encryption_key: projects/pt-logos-tf5f-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
+      service_account: pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com
+      opentofu_kms_encryption_key: projects/pt-corpus-tf16-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
       opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
-      opentofu_state_bucket: pt-logos-tf5f-prod
+      opentofu_state_bucket: pt-logos-state-prod
       opentofu_version: ${{ vars.OPENTOFU_VERSION }}
-      opentofu_workspace: ${{ matrix.team }}
-      workload_identity_provider: projects/134040294660/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc
+      opentofu_workspace: "${{ matrix.team }}-main-production"
+      workload_identity_provider: projects/557265520053/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc

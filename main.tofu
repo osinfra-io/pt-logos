@@ -1,33 +1,3 @@
-# Data Sources
-# https://opentofu.org/docs/language/data-sources
-
-# Datadog Role Data Sources
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/role
-
-# Fetch all required Datadog roles
-data "datadog_role" "this" {
-  for_each = toset([
-    "Datadog Admin Role",
-    "Datadog Read Only Role",
-    "Datadog Standard Role"
-  ])
-
-  filter = each.key
-}
-
-# GitHub Application Data Source
-# https://search.opentofu.org/provider/integrations/github/latest/docs/data-sources/app
-
-# Currently private GitHub Apps can only use this endpoint on themselves and if we use a private GitHub App for authentication, we can't
-# use this data source to get the node_id of another GitHub App.
-# Only fetch in logos-production-main workspace to avoid conflicts
-
-data "github_app" "pr_approve_and_merge_osinfra_io" {
-  count = local.within_logos ? 1 : 0
-
-  slug = "pr-approve-and-merge-osinfra-io"
-}
-
 # Resources
 # https://opentofu.org/docs/language/resources
 
@@ -55,8 +25,11 @@ resource "datadog_team_membership" "this" {
   role    = each.value.role
   team_id = datadog_team.this[each.value.team_id].id
 
-  # User ID lookup logic handled in locals for cleaner main.tofu
-  user_id = each.value.user_id_lookup == "admin" ? datadog_user.admins[local.normalize_email[each.value.user_email]].id : datadog_user.this[local.normalize_email[each.value.user_email]].id
+  # User ID lookup: admin users managed in logos workspace, regular users in current workspace
+  # In non-logos workspaces, admin users are referenced via data source lookup
+  user_id = each.value.user_id_lookup == "admin" ? (
+    local.within_logos ? datadog_user.admins[local.normalize_email[each.value.user_email]].id : data.datadog_user.existing_admins[local.normalize_email[each.value.user_email]].id
+  ) : datadog_user.this[local.normalize_email[each.value.user_email]].id
 }
 
 # Datadog User Resource
@@ -83,7 +56,7 @@ resource "datadog_user" "admins" {
   }
 
   email = each.value
-  name  = local.datadog_user_names[each.value]
+  name  = each.value
 
   roles = [
     local.datadog_user_roles[each.value]
@@ -99,7 +72,7 @@ resource "datadog_user" "this" {
   ]
 
   email = each.value
-  name  = local.datadog_user_names[each.value]
+  name  = each.value
 
   roles = [
     local.datadog_user_roles[each.value]
@@ -581,7 +554,7 @@ resource "google_cloud_identity_group" "this" {
   display_name = each.value.display_name
 
   group_key {
-    id = "${local.team_type_short_names[var.team[each.value.team].team_type]}-${each.value.email_key}@${var.google_primary_domain}"
+    id = "${each.value.email_key}@${var.google_primary_domain}"
   }
 
   initial_group_config = "EMPTY"
