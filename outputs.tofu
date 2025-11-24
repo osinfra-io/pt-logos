@@ -19,6 +19,14 @@ output "teams" {
         if startswith(env_key, "${team_key}-")
       }
 
+      # Billing users group
+      billing_users_group = local.within_logos ? {
+        description  = local.billing_users_groups[team_key].description
+        display_name = local.billing_users_groups[team_key].display_name
+        email        = google_cloud_identity_group.billing_users[team_key].group_key[0].id
+        name         = google_cloud_identity_group.billing_users[team_key].name
+      } : null
+
       # Identity groups for this team
       identity_groups = {
         for group_key, group in local.google_identity_groups :
