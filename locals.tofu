@@ -102,6 +102,20 @@ locals {
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
 
+  # Team environment project creator groups - provides centralized access management for service accounts
+  # Service accounts need projectCreator role on their respective environment folders to create projects
+  team_environment_project_creator_groups = { for group in flatten([
+    for team_key, team in var.team : [
+      for environment in ["sandbox", "non-production", "production"] : {
+        description  = "Service accounts authorized to create projects in ${team.display_name} ${replace(environment, "-", " ")} environment folders"
+        display_name = "${team.display_name} ${title(replace(environment, "-", " "))} Project Creators"
+        environment  = environment
+        group_key    = "${team_key}-${environment}-project-creators"
+        team_key     = team_key
+      }
+    ]
+  ]) : group.group_key => group }
+
   # Create branch protection configurations for repositories
   github_branch_protections = { for repo in flatten([
     for team_key, team in var.team : [
