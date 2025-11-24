@@ -692,6 +692,6 @@ resource "google_folder_iam_member" "team_environment_project_creators" {
   ]
 
   folder = google_folder.environment[each.key].name
-  member = "group:${google_cloud_identity_group.team_environment_project_creators["${each.value.team}-${each.value.environment == "Sandbox" ? "sandbox" : each.value.environment == "Non-Production" ? "non-production" : "production"}"].group_key[0].id}"
+  member = "group:${google_cloud_identity_group.team_environment_project_creators["${each.value.team}-${lower(each.value.environment)}"].group_key[0].id}"
   role   = "roles/resourcemanager.projectCreator"
 }
