@@ -567,6 +567,30 @@ resource "google_cloud_identity_group" "this" {
   parent = "customers/${var.google_customer_id}"
 }
 
+# Google Cloud Identity Group for Team Environment Project Creators
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
+# Provides centralized access management for service accounts that need to create projects
+# Groups are scoped to team + environment for proper isolation (e.g., pt-corpus-sandbox-project-creators)
+resource "google_cloud_identity_group" "team_environment_project_creators" {
+  for_each = local.team_environment_project_creator_groups
+
+  description  = each.value.description
+  display_name = each.value.display_name
+
+  group_key {
+    id = "${each.key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
+
 # Cloud Identity Group Membership Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
@@ -655,4 +679,19 @@ resource "google_folder_iam_member" "team_access" {
   folder = google_folder.team[each.value.team_key].name
   member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
   role   = each.value.role
+}
+
+# Grant team environment project creator groups access to their respective environment folders
+# Each group has projectCreator role scoped to specific team + environment combination
+resource "google_folder_iam_member" "team_environment_project_creators" {
+  for_each = local.environments
+
+  depends_on = [
+    google_cloud_identity_group.team_environment_project_creators,
+    google_folder.environment
+  ]
+
+  folder = google_folder.environment[each.key].name
+  member = "group:${google_cloud_identity_group.team_environment_project_creators["${each.value.team}-${lower(each.value.environment)}"].group_key[0].id}"
+  role   = "roles/resourcemanager.projectCreator"
 }
