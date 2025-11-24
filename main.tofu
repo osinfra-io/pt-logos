@@ -540,8 +540,44 @@ resource "google_billing_budget" "teams" {
   }
 }
 
+# Google Billing Account IAM Member
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
+
+# Grant billing user role to team billing users groups
+# Each team has its own billing users group for service account membership management
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_billing_account_iam_member" "billing_users" {
+  for_each = local.within_logos && var.google_billing_account != null ? local.billing_users_groups : {}
+
+  billing_account_id = var.google_billing_account
+  member             = "group:${google_cloud_identity_group.billing_users[each.key].group_key[0].id}"
+  role               = "roles/billing.user"
+}
+
 # Cloud Identity Group Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
+# Billing users groups - centralized management of service accounts with billing access
+# Team repos manage membership via google_cloud_identity_group_membership resources
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_cloud_identity_group" "billing_users" {
+  for_each = local.within_logos ? local.billing_users_groups : {}
+
+  description  = each.value.description
+  display_name = each.value.display_name
+
+  group_key {
+    id = "${each.value.group_key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
 
 resource "google_cloud_identity_group" "this" {
   for_each = local.google_identity_groups
@@ -561,6 +597,30 @@ resource "google_cloud_identity_group" "this" {
 
   labels = {
     # Must not contain more than one entry and must contain the following entry:
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
+
+# Google Cloud Identity Group for Team Environment Project Creators
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
+# Provides centralized access management for service accounts that need to create projects
+# Groups are scoped to team + environment for proper isolation (e.g., pt-corpus-sandbox-project-creators)
+resource "google_cloud_identity_group" "team_environment_project_creators" {
+  for_each = local.team_environment_project_creator_groups
+
+  description  = each.value.description
+  display_name = each.value.display_name
+
+  group_key {
+    id = "${each.key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
 
@@ -655,4 +715,19 @@ resource "google_folder_iam_member" "team_access" {
   folder = google_folder.team[each.value.team_key].name
   member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
   role   = each.value.role
+}
+
+# Grant team environment project creator groups access to their respective environment folders
+# Each group has projectCreator role scoped to specific team + environment combination
+resource "google_folder_iam_member" "team_environment_project_creators" {
+  for_each = local.environments
+
+  depends_on = [
+    google_cloud_identity_group.team_environment_project_creators,
+    google_folder.environment
+  ]
+
+  folder = google_folder.environment[each.key].name
+  member = "group:${google_cloud_identity_group.team_environment_project_creators["${each.value.team}-${lower(each.value.environment)}-project-creators"].group_key[0].id}"
+  role   = "roles/resourcemanager.projectCreator"
 }
