@@ -540,8 +540,42 @@ resource "google_billing_budget" "teams" {
   }
 }
 
+# Google Billing Account IAM Member
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
+
+# Grant billing user role to team billing users groups
+# Each team has its own billing users group for service account membership management
+resource "google_billing_account_iam_member" "billing_users" {
+  for_each = var.google_billing_account != null ? local.billing_users_groups : {}
+
+  billing_account_id = var.google_billing_account
+  member             = "group:${google_cloud_identity_group.billing_users[each.key].group_key[0].id}"
+  role               = "roles/billing.user"
+}
+
 # Cloud Identity Group Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
+# Billing users groups - centralized management of service accounts with billing access
+# Team repos manage membership via google_cloud_identity_group_membership resources
+resource "google_cloud_identity_group" "billing_users" {
+  for_each = local.billing_users_groups
+
+  description  = each.value.description
+  display_name = each.value.display_name
+
+  group_key {
+    id = "${each.value.group_key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
 
 resource "google_cloud_identity_group" "this" {
   for_each = local.google_identity_groups

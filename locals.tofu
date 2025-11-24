@@ -102,6 +102,15 @@ locals {
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
 
+  # Billing users groups - provides centralized management of service accounts that need billing access
+  # One group per team for billing account user role access
+  billing_users_groups = { for team_key, team in var.team : team_key => {
+    description  = "Service accounts authorized to use the billing account for ${team.display_name} projects"
+    display_name = "${team.display_name} Billing Users"
+    group_key    = "${team_key}-billing-users"
+    team_key     = team_key
+  } }
+
   # Team environment project creator groups - provides centralized access management for service accounts
   # Service accounts need projectCreator role on their respective environment folders to create projects
   team_environment_project_creator_groups = { for group in flatten([
