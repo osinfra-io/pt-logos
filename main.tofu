@@ -554,11 +554,6 @@ resource "google_billing_account_iam_member" "billing_users" {
   role               = "roles/billing.user"
 }
 
-moved {
-  from = google_billing_account_iam_member.billing_users["pt-logos"]
-  to   = google_billing_account_iam_member.billing_users[0]
-}
-
 # Cloud Identity Group Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
 
@@ -582,11 +577,6 @@ resource "google_cloud_identity_group" "billing_users" {
   }
 
   parent = "customers/${var.google_customer_id}"
-}
-
-moved {
-  from = google_cloud_identity_group.billing_users["pt-logos"]
-  to   = google_cloud_identity_group.billing_users[0]
 }
 
 resource "google_cloud_identity_group" "this" {
