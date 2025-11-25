@@ -102,14 +102,13 @@ locals {
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
 
-  # Billing users groups - provides centralized management of service accounts that need billing access
-  # One group per team for billing account user role access
-  billing_users_groups = { for team_key, team in var.team : team_key => {
-    description  = "Service accounts authorized to use the billing account for ${team.display_name} projects"
-    display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} Billing Users"
-    group_key    = "${team_key}-billing-users"
-    team_key     = team_key
-  } }
+  # Billing users group - single organization-wide group for all service accounts that need billing access
+  # All team service accounts are added to this group to enable project creation
+  billing_users_group = {
+    description  = "Service accounts authorized to use the billing account for projects"
+    display_name = "Platform Team: Logos Billing Users"
+    group_key    = "pt-logos-billing-users"
+  }
 
   # Team environment project creator groups - provides centralized access management for service accounts
   # Service accounts need projectCreator role on their respective environment folders to create projects

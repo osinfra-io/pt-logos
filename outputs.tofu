@@ -19,12 +19,12 @@ output "teams" {
         if startswith(env_key, "${team_key}-")
       }
 
-      # Billing users group
+      # Billing users group (organization-wide, same for all teams)
       billing_users_group = local.within_logos ? {
-        description  = local.billing_users_groups[team_key].description
-        display_name = local.billing_users_groups[team_key].display_name
-        email        = google_cloud_identity_group.billing_users[team_key].group_key[0].id
-        name         = google_cloud_identity_group.billing_users[team_key].name
+        description  = local.billing_users_group.description
+        display_name = local.billing_users_group.display_name
+        email        = google_cloud_identity_group.billing_users[0].group_key[0].id
+        name         = google_cloud_identity_group.billing_users[0].name
       } : null
 
       # Identity groups for this team
