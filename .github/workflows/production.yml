@@ -29,7 +29,7 @@ jobs:
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
-      github_environment: "Production: Main"
+      github_environment: "Production: ${{ matrix.team }}"
 
       # This service account needs to be added to the Groups Admin system role in the the Google Workspace Admin Console
       service_account: pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com

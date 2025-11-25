@@ -39,12 +39,42 @@ team = {
         enable_discord_webhook = true
 
         environments = {
-          production = {
+          corpus-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
               protected_branches     = true
             }
-            name = "Production: Main"
+            name = "Production: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          ethos-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: st-ethos"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          logos-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-logos"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          pneuma-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-pneuma"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
             }
