@@ -106,7 +106,7 @@ locals {
   # One group per team for billing account user role access
   billing_users_groups = { for team_key, team in var.team : team_key => {
     description  = "Service accounts authorized to use the billing account for ${team.display_name} projects"
-    display_name = "${team.display_name} Billing Users"
+    display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} Billing Users"
     group_key    = "${team_key}-billing-users"
     team_key     = team_key
   } }
@@ -117,7 +117,7 @@ locals {
     for team_key, team in var.team : [
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Service accounts authorized to create projects in ${team.display_name} ${replace(environment, "-", " ")} environment folders"
-        display_name = "${team.display_name} ${title(replace(environment, "-", " "))} Project Creators"
+        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(replace(environment, "-", " "))} Project Creators"
         environment  = environment
         group_key    = "${team_key}-${environment}-project-creators"
         team_key     = team_key

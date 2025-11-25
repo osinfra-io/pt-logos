@@ -615,7 +615,7 @@ resource "google_cloud_identity_group" "team_environment_project_creators" {
   display_name = each.value.display_name
 
   group_key {
-    id = "${each.key}@${var.google_primary_domain}"
+    id = "${each.value.group_key}@${var.google_primary_domain}"
   }
 
   initial_group_config = "EMPTY"
