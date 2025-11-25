@@ -116,8 +116,8 @@ locals {
   team_environment_project_creator_groups = { for group in flatten([
     for team_key, team in var.team : [
       for environment in ["sandbox", "non-production", "production"] : {
-        description  = "Service accounts authorized to create projects in ${team.display_name} ${replace(environment, "-", " ")} environment folders"
-        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(replace(environment, "-", " "))} Project Creators"
+        description  = "Service accounts authorized to create projects in ${team.display_name} ${join("-", [for word in split("-", environment) : title(word)])} environment folders"
+        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${join("-", [for word in split("-", environment) : title(word)])} Project Creators"
         environment  = environment
         group_key    = "${team_key}-${environment}-project-creators"
         team_key     = team_key
