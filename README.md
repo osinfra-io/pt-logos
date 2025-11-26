@@ -1,12 +1,16 @@
 # Logos
 
-**[GitHub Actions](https://github.com/osinfra-io/logos/actions):**
+**[GitHub Actions](https://github.com/osinfra-io/pt-logos/actions):**
 
-[![Dependabot](https://github.com/osinfra-io/logos/actions/workflows/dependabot.yml/badge.svg)](https://github.com/osinfra-io/logos/actions/workflows/dependabot.yml)
+[![Dependabot](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml/badge.svg)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml)
 
 ## 📄 Repository Description
 
-This repository provides Infrastructure as Code (IaC) automation for establishing foundational platform order across multiple cloud providers using OpenTofu. As the **Logos** - the foundational principle of order - it implements Team Topologies principles to create a structured organizational hierarchy with appropriate access controls, governance boundaries, and stable standards.
+This repository contains the Infrastructure as Code (IaC) that establishes the Logos layer — the platform’s primordial principle of order from which all other structure emerges. Using OpenTofu, it brings coherence across multiple cloud providers, setting the first boundaries that transform an undifferentiated technical landscape into a domain where disciplined creation is possible.
+
+As the grounding stratum of the platform hierarchy, Logos encodes the organizational logic itself: the clear lines of access, the governance boundaries that restrain chaos, and the stable standards that enable higher-level systems to flourish. Through the lens of Team Topologies, this layer defines the hierarchy of responsibility and relationship, ensuring that each team inhabits a space conducive to productive action.
+
+Logos is where the platform’s moral architecture begins — where order is spoken into being so that all subsequent layers may stand upon it.
 
 The foundational infrastructure automates the creation of:
 
@@ -23,7 +27,7 @@ This establishes the foundational order creating the organizational hierarchy, t
 ## 🏭 Platform Information
 
 - Documentation: [docs.osinfra.io](https://docs.osinfra.io/product-guides/google-cloud-platform/logos)
-- Service Interfaces: [github.com](https://github.com/osinfra-io/logos/issues/new/choose)
+- Service Interfaces: [github.com](https://github.com/osinfra-io/pt-logos/issues/new/choose)
 
 ## <img align="left" width="35" height="35" src="https://github.com/osinfra-io/github-organization-management/assets/1610100/39d6ae3b-ccc2-42db-92f1-276a5bc54e65"> Development
 
@@ -54,7 +58,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## Architecture
 
-The module creates a two-level Google Cloud Platform folder hierarchy following Team Topologies principles, using pre-created team type folders:
+The module creates a three-level Google Cloud Platform folder hierarchy following Team Topologies principles, using pre-created team type folders:
 
 ```text
 Platform Teams/ (pre-created)
@@ -326,6 +330,6 @@ These outputs provide downstream repositories with foundational infrastructure i
 - **Team folders**: Use team display names from configuration (e.g., "Logos", "Ethos")
 - **Environment folders**: Hardcoded environment names (e.g., "Sandbox", "Non-Production", "Production")
 - **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
-- **Google Identity groups**: `{team_prefix}-{team_key}-{role}@{domain}`
+- **Google Identity groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-administrators@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
 - **Datadog teams**: `{team_prefix}-{team_key}` handle format

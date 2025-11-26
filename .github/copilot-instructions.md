@@ -1,332 +1,263 @@
-# Logos Infrastructure as Code - AI Coding Guide
+# pt-logos Repository - Copilot Agent Onboarding Guide
 
-## Project Overview
-This OpenTofu project establishes foundational platform order (**Logos**) across Google Cloud, GitHub, and Datadog using **Team Topologies** methodology. It creates hierarchical organizational structures with consistent security, governance, and operational practices that enable team autonomy.
+## Repository Summary
+**Type**: Infrastructure as Code (OpenTofu/Terraform)
+**Purpose**: Foundational platform layer establishing organizational hierarchy, access controls, and team structures across Google Cloud, GitHub, and Datadog using Team Topologies methodology
+**Size**: ~20 files, ~500 lines of OpenTofu configuration
+**Language**: HCL (HashiCorp Configuration Language)
+**Runtime**: OpenTofu v1.10.7+
+**Providers**: Google Cloud (v7.9.0), GitHub (v6.7.5), Datadog (v3.78.0)
 
-## Architecture & Core Concepts
+## Critical Build & Validation Commands
 
-### Team Topologies Structure
-The project uses a 3-level Google Cloud folder hierarchy (team type folders are pre-created):
+**ALWAYS run these commands in this exact order before committing:**
+
+```bash
+# 1. Install pre-commit hooks (first time only)
+pre-commit install
+
+# 2. Run all validation checks (REQUIRED before every commit)
+cd /home/brett/Repositories/osinfra-io/pt-logos
+pre-commit run -a
 ```
-Top Level Folder → Team Type Folders → Team Folders → Environment Folders
-                   (pre-created)       (Logos/Pneuma)  (Sandbox/Non-Production/Production)
-```
 
-### Key Components Created
-- **Google Cloud**: Team and environment folders (team type folders are pre-created) + Identity Groups (admin/writer/reader roles) + IAM bindings + Billing budgets
-- **GitHub**: Parent teams + 4 child teams per team (sandbox/non-prod/prod approvers + repo admins) + Repositories with branch protection, webhooks, and environments
-- **Datadog**: Teams with admin/member roles + User management
+**Expected output**: All hooks should pass with "Passed" status. The hooks run:
+- `check-yaml` - Validates YAML syntax
+- `end-of-file-fixer` - Ensures files end with newline
+- `trailing-whitespace` - Removes trailing whitespace
+- `check-symlinks` - Validates symbolic links
+- `tofu-fmt` - Formats OpenTofu files (auto-fixes)
+- `tofu-validate` - Validates OpenTofu configuration
+
+**Common Issues**:
+- If `tofu-validate` fails with "Error: No valid credential sources found", this is expected for local development without GCP credentials. The CI/CD pipeline has proper credentials.
+- If `tofu-fmt` fails, it will auto-fix formatting. Run `pre-commit run -a` again to verify.
+
+**Plugin Cache Optimization** (speeds up local validation):
+```bash
+mkdir -p $HOME/.opentofu.d/plugin-cache
+export TF_PLUGIN_CACHE_DIR=$HOME/.opentofu.d/plugin-cache
+```
 
 ## Repository Structure
-- `main.tofu` - All resource definitions, organized with data sources first, then resources alphabetically by resource type
-- `locals.tofu` - Complex data transformations from team configs to flat resource maps (alphabetically ordered)
-- `variables.tofu` - Strongly typed team configuration with validation rules (alphabetically ordered)
+
+**Core OpenTofu Files** (root directory):
+- `main.tofu` - All resource definitions, alphabetically by resource type
+- `data.tofu` - All data source definitions
+- `locals.tofu` - Complex data transformations (team configs → flat resource maps)
+- `variables.tofu` - Input variables with validation rules (alphabetically ordered)
 - `outputs.tofu` - Output values (alphabetically ordered)
-- `providers.tofu` - Provider configurations and version constraints
-- `backend.tofu` - Remote state backend configuration
-- `teams/` - Per-team configuration files following `{team_prefix}-{team_name}.tfvars` pattern
-- `.github/` - CI/CD workflows and repository automation
+- `providers.tofu` - Provider configurations (Google, GitHub, Datadog)
+- `backend.tofu` - GCS backend with KMS encryption
 
-## Development Workflows
+**Configuration & Teams**:
+- `teams/*.tfvars` - Per-team configuration files (pattern: `{team_prefix}-{team_name}.tfvars`)
+  - `pt-logos.tfvars` - Platform team: Logos
+  - `pt-corpus.tfvars` - Platform team: Corpus
+  - `pt-pneuma.tfvars` - Platform team: Pneuma
+  - `st-ethos.tfvars` - Stream-aligned team: Ethos
 
-### Team Configuration Pattern
-Teams are defined in `teams/{team-prefix}-{team-name}.tfvars` following this structure:
+**CI/CD & Automation**:
+- `.github/workflows/production.yml` - Matrix deployment (one job per team)
+- `.github/workflows/dependabot.yml` - Dependency updates
+- `.pre-commit-config.yaml` - Pre-commit hook configuration
+
+**Documentation**:
+- `README.md` - Comprehensive project documentation
+- `.github/copilot-instructions.md` - This file
+
+## Architecture Overview
+
+**3-Level Folder Hierarchy**:
+```
+Team Type Folders (pre-created) → Team Folders → Environment Folders
+   Platform Teams                    Logos         Sandbox/Non-Production/Production
+   Stream-aligned Teams              Ethos         Sandbox/Non-Production/Production
+```
+
+**Resources Created Per Team**:
+- Google Cloud: Team/environment folders, 3 identity groups (admin/writer/reader), IAM bindings, billing budgets
+- GitHub: Parent team + 4 child teams (sandbox/non-prod/prod approvers + repo admins), repositories with branch protection
+- Datadog: Team with admin/member roles, user management
+
+**Critical Workspace Pattern**:
+- `pt-logos-main-production` workspace: Creates organization-level admin/owner resources
+- Other team workspaces: Reference admins via data sources to prevent conflicts
+- Controlled by `local.within_logos = terraform.workspace == "pt-logos-main-production"`
+
+## Code Standards (CRITICAL)
+
+### File Structure
+- **All configuration files**: Variables, outputs, locals, and tfvars MUST be in strict alphabetical order
+- **main.tofu structure**: Resources organized alphabetically by resource type (data sources in separate `data.tofu`)
+- **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
+
+### Alphabetical Ordering with Logical Grouping Exception
+Limited exception to strict alphabetical ordering allowed ONLY under these conditions:
+
+1. **Team membership variables**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
+2. **Same resource type**: Variables that share the same resource type and are annotated with a grouping comment
+3. **Alphabetical within groups**: Alphabetical ordering still applies within each grouped block
+
+**Example of valid logical grouping**:
 ```hcl
-team = {
-  team_key = {
-    display_name = "Title Case Name"  # Must pass validation regex
-    team_type    = "platform-team"    # One of 4 Team Topologies types
+# Team membership variables (grouped by purpose)
+github_parent_team_memberships = { maintainers = [], members = [] }
 
-    # Hardcoded structures with customizable membership:
-    github_parent_team_memberships = { maintainers = [], members = [] }
+# GitHub child team memberships (nested map structure grouped by purpose)
+github_child_teams_memberships = {
+  non-production-approvers = { maintainers = [], members = [] }
+  production-approvers = { maintainers = [], members = [] }
+  repository-administrators = { maintainers = [], members = [] }
+  sandbox-approvers = { maintainers = [], members = [] }
+}
 
-    # GitHub child teams (hardcoded teams - only add members to predefined teams)
-    github_child_teams_memberships = {
-      non-production-approvers = { maintainers = [], members = [] }
-      production-approvers = { maintainers = [], members = [] }
-      repository-administrators = { maintainers = [], members = [] }
-      sandbox-approvers = { maintainers = [], members = [] }
-    }
-    google_identity_groups_memberships = {
-      admin = { managers = [], members = [], owners = [] }
-      # ... writer, reader (3 hardcoded roles)
-    }
-    datadog_team_memberships = { admins = [], members = [] }
-    github_repositories = {
-      repo_name = {
-        description = "Repository description"
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
-        environments = {
-          production = {
-            deployment_branch_policy = {
-              custom_branch_policies = false
-              protected_branches = true
-            }
-            name = "Production: Main"
-            reviewers = {
-              teams = ["team-prefix-team-key-production-approvers"]
-            }
-          }
-        }
-        push_allowances = ["org/team"]
-        topics = ["topic1", "topic2"]
-      }
-    }
+google_identity_groups_memberships = { ... }
+
+# Other variables follow strict alphabetical order
+display_name = "..."
+team_type = "..."
+```
+
+### Meta-Arguments Priority
+Meta-arguments (`for_each`, `count`, `depends_on`, `lifecycle`, `provider`) MUST be the first arguments in resources/data sources when required:
+
+- **Position**: Always first, before all regular resource configuration arguments
+- **Multiple meta-arguments**: Ordered alphabetically among themselves
+- **lifecycle blocks**: Are meta-arguments and must be positioned before all regular resource configuration arguments
+- **Nested block ordering**: Within nested blocks (lifecycle, provisioner, etc.), use normal alphabetical ordering
+
+**Example**:
+```hcl
+resource "example_resource" "this" {
+  for_each = local.example_map
+
+  depends_on = [other_resource.this]
+
+  lifecycle {
+    ignore_changes  = [role]
+    prevent_destroy = true
   }
+
+  # Regular arguments in strict alphabetical order
+  argument_a = "value"
+  argument_b = "value"
+  description = "example"
 }
 ```
 
-### Validation & Deployment
-- **Pre-commit hooks**: `tofu-fmt`, `tofu-validate` (see `.pre-commit-config.yaml`)
-- **CI/CD**: Matrix deployment per team via `production.yml` workflow using reusable workflows
-- **State management**: Per-team workspaces with GCS backend + KMS encryption
+### Resource Arguments
+- **All remaining arguments**: Must be in strict alphabetical order after meta-arguments, regardless of whether they're required or optional
+- **No exceptions**: Alphabetical ordering applies to all standard resource arguments
 
-### Admin Protection Pattern
-Organization owners/admins are **hardcoded in `locals.tofu`** and conditionally created only in the `logos-production-main` workspace to prevent conflicts across team deployments:
+### Formatting Rules
+- **List/Map formatting**: Always have an empty newline before any list, map, or logic block unless it's the first argument. Always have an empty newline after any list, map, or logic block unless it's the last argument.
+- **Function formatting**: Use single-line formatting for simple function calls. For complex functions with long lines or multiple arguments, break into multiple lines for readability. Prioritize readability over strict single-line requirements.
+
+**Function formatting examples**:
 ```hcl
-# In locals.tofu
+# Simple function - single line
+name = upper(var.environment)
+
+# Complex function - multiple lines for readability
+user_id = try(
+  datadog_user.admins[local.normalize_email[each.value.user_id]].id,
+  datadog_user.this[local.normalize_email[each.value.user_id]].id
+)
+```
+
+## Admin Protection Pattern (DO NOT BREAK)
+
+**Organization owners/admins are hardcoded in `locals.tofu`**:
+```hcl
 github_organization_owners = ["brettcurtis"]
 datadog_organization_admins = ["brett@osinfra.io"]
-within_logos = terraform.workspace == "logos-production-main"
+within_logos = terraform.workspace == "pt-logos-main-production"
+```
 
-# In main.tofu resources - only created when within_logos is true
-resource "datadog_user" "admins" {
-  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
-  # ... configuration
-}
-
+**Resources have lifecycle protection**:
+```hcl
 resource "github_membership" "owners" {
   for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [role] # Prevent accidental demotion
+    ignore_changes  = [role]
   }
-  # ... configuration
+  # ...
 }
 ```
 
-## Code Standards
+**NEVER remove `prevent_destroy` or modify admin hardcoded lists without explicit user approval.**
 
-### File Structure & Formatting Standards
-- **File structure**: All variables, outputs, locals, and tfvars must be in strict alphabetical order
-- **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
-- **Logical grouping exception**: Limited exception to strict alphabetical ordering allowed ONLY under these conditions:
-  1. **Team membership variables**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
-  2. **Same resource type**: Variables that share the same resource type and are annotated with a grouping comment
-  3. **Alphabetical within groups**: Alphabetical ordering still applies within each grouped block
+## Team Configuration Pattern
 
-  Examples:
-  ```hcl
-  # Team membership variables (grouped by purpose)
-  github_parent_team_memberships = { ... }
-  github_child_teams_memberships = { ... }
-  google_identity_groups_memberships = { ... }
+Teams are defined in `teams/{team-prefix}-{team-name}.tfvars`:
+- `team_type`: One of `platform-team`, `stream-aligned-team`, `complicated-subsystem-team`, `enabling-team`
+- `display_name`: Title Case (validated by regex)
+- Hardcoded structures: 3 environments, 3 Google identity groups, 4 GitHub child teams
+- Customizable: Membership lists for all teams/groups
 
-  # Other variables follow strict alphabetical order
-  display_name = "..."
-  team_type = "..."
-  ```
-- **main.tofu structure**: Data sources first, then resources alphabetically by resource type
-- **Resource arguments**: All arguments within a resource must be in strict alphabetical order
-- **Meta-argument priority**: Any meta-arguments (for_each, count, depends_on, lifecycle, provider, and any argument that controls resource behavior rather than configuring the resource itself) must always be the first argument in a resource or data source if required. Multiple meta-arguments should be ordered alphabetically among themselves. Note: lifecycle blocks are meta-arguments and must be positioned before all regular resource configuration arguments
-- **Resource arguments**: All remaining arguments within a resource must be in strict alphabetical order, regardless of whether they're required or optional
-- **Nested block ordering**: Within nested blocks (lifecycle, provisioner, etc.), use normal alphabetical ordering
-- **List/Map formatting**: Always have an empty newline before any list or map or any logic unless it's the first argument. Always have an empty newline after any list or map or any logic unless it's the last argument.
-- **Function formatting**: Use single-line formatting for simple function calls. For complex functions with long lines or multiple arguments, break into multiple lines for readability. Prioritize readability over strict single-line requirements.
-  ```hcl
-  # Simple function - single line
-  name = upper(var.environment)
+**Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
 
-  # Complex function - multiple lines for readability
-  user_id = try(
-    datadog_user.admins[local.normalize_email[each.value.user_id]].id,
-    datadog_user.this[local.normalize_email[each.value.user_id]].id
-  )
-  ```
-- **Meta-argument ordering example**:
-  ```hcl
-  resource "example_resource" "this" {
-    for_each = local.example_map
+## Adding New Teams (Step-by-Step)
 
-    depends_on = [
-      other_resource.this
-    ]
+1. Create `teams/{team_prefix}-{team_name}.tfvars` with team configuration
+2. Add team to matrix in `.github/workflows/production.yml`
+3. Run `pre-commit run -a` to validate
+4. Commit to main branch
+5. GitHub Actions automatically deploys team infrastructure
 
-    lifecycle {
-      prevent_destroy = true
-    }
+## Email Normalization Pattern
 
-    # Regular arguments in alphabetical order
-    argument_a = "value"
-    argument_b = "value"
-  }
-  ```
-- **Logical grouping example**:
-  ```hcl
-  # Good: Related membership variables grouped together for readability
-  github_parent_team_memberships = { maintainers = [], members = [] }
+Email addresses in resource keys are normalized: `@` → `-at-`, `.` → `-`
+Example: `brett@osinfra.io` → `brett-at-osinfra-io`
 
-  # GitHub child team memberships (nested map structure grouped by purpose)
-  github_child_teams_memberships = {
-    non-production-approvers = { maintainers = [], members = [] }
-    production-approvers = { maintainers = [], members = [] }
-    repository-administrators = { maintainers = [], members = [] }
-    sandbox-approvers = { maintainers = [], members = [] }
-  }
-
-  github_repositories = { ... }
-
-  # Bad: Strict alphabetical breaks up related membership concepts
-  github_child_teams_memberships = { ... }
-  github_parent_team_memberships = { ... }  # Interrupts logical flow
-  github_repositories = { ... }  # Large block interrupts nested membership structure
-  ```
-- **Consistent ordering**: Maintains readability and makes code easier to navigate
-
-### Required Before Each Commit
-- Execute `pre-commit run -a` to run all configured hooks (includes formatting and validation)
-
-### Development Flow
-- **Pre-commit**: `pre-commit run -a` (runs tofu fmt and validate automatically)
-- **Deployment**: All changes deployed via GitHub Actions workflows after merge to main
-
-## Development Guidelines
-
-### Single Environment GitHub Actions Workflow
-This project uses a single environment workflow since we are managing foundational platform resources at the organizational level. This means there is no sandbox/non-production/production separation within the IaC itself or workflows. Instead, all changes are made directly to the main branch and deployed via GitHub Actions.
-
-**Important**: Organization admin/owner resources (`datadog_user.admins`, `github_membership.owners`) are conditionally created only when running in the `logos-production-main` workspace. This prevents resource conflicts when multiple teams deploy their configurations, as these shared organizational resources should only be managed by the central platform team.
-
-### Adding New Teams
-1. Create new `.tfvars` file in `teams/` directory using naming convention `{team_prefix}-{team_name}.tfvars`
-2. Add team to GitHub workflow matrix in `.github/workflows/production.yml`
-3. Team type must be one of: `platform-team`, `stream-aligned-team`, `complicated-subsystem-team`, `enabling-team`
-4. Validate configuration with `pre-commit run -a` before committing
-5. Deployment will be handled automatically by GitHub Actions after merge to main
-
-### Error Handling & Debugging
-- **Validation failures**: Check team configuration against validation rules in `variables.tofu`
-- **Pre-commit failures**: Run individual hooks with `pre-commit run <hook-name>` to isolate issues
-
-### Local Development Setup
-```bash
-# Speed up local validation with plugin cache
-mkdir -p $HOME/.opentofu.d/plugin-cache
-export TF_PLUGIN_CACHE_DIR=$HOME/.opentofu.d/plugin-cache
-
-# Run pre-commit hooks locally (includes formatting and validation)
-pre-commit run -a
-```
-
-### Understanding Data Transformations
-The `locals.tofu` file contains complex flattening operations that transform nested team configs into flat resource maps. Key patterns:
-- **Flattening loops**: `flatten([for team_key, team in var.team : [...]])`
-- **Deduplication**: `setsubtract()`, `distinct()` for handling overlapping memberships
-- **Key generation**: Consistent naming like `"${team_key}-${role}"` for resource identification
-- **Dynamic descriptions**: Generated from keys using string functions (e.g., `title(replace(key, "-", " "))`) rather than static mappings
-
-### Naming Conventions
-- **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
-- **Google Groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-admins@osinfra.io`, `pt-logos-readers@osinfra.io`)
-- **GitHub Teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
-- **Folders**: Title case display names from team configuration
-
-### Resource Name Normalization
-All resource keys containing user identifiers (email addresses) are normalized for ease of use, readability, and administration:
-- **Normalization rules**: `@` → `-at-`, `.` → `-` (e.g., `brett@osinfra.io` → `brett-at-osinfra-io`)
-- **Implementation**: Use helper locals (`normalize_email`, `datadog_user_names`) to centralize logic
-- **Scope**: Applied to all resource keys that use email addresses (Datadog users, team memberships, Google identity group memberships)
-- **Preservation**: Original email values are preserved in resource properties, only keys are normalized
-- **Pattern**: Create normalized mappings in `locals.tofu`, reference via helper functions in `main.tofu`
-
-**Example Implementation:**
+**Implementation in `locals.tofu`**:
 ```hcl
-# In locals.tofu
 normalize_email = {
   for email in local.all_datadog_users :
   email => replace(replace(email, "@", "-at-"), ".", "-")
 }
-
-# In main.tofu
-resource "datadog_user" "this" {
-  for_each = local.datadog_regular_users
-  email = each.value  # Original email preserved
-  # Resource key is normalized via the mapping
-}
 ```
 
+Original email values are preserved in resource properties; only keys are normalized.
+
+## Data Transformation Patterns
+
+`locals.tofu` uses complex flattening to transform nested team configs into flat resource maps:
+- `flatten([for team_key, team in var.team : [...]])` - Nested loop flattening
+- `setsubtract()`, `distinct()` - Deduplication of overlapping memberships
+- `"${team_key}-${role}"` - Consistent key generation
+- `title(replace(key, "-", " "))` - Dynamic description generation (DRY principle)
+
+## CI/CD Pipeline
+
+**Workflow**: `.github/workflows/production.yml`
+**Trigger**: Push to `main` branch (ignores `**.md` changes)
+**Strategy**: Matrix deployment (one job per team: pt-logos, pt-corpus, pt-pneuma, st-ethos)
+**Backend**: GCS bucket `pt-logos-state-prod` with KMS encryption
+**Workspace**: `{team}-main-production` (e.g., `pt-logos-main-production`)
+
+**Service Account**: `pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com` (requires Groups Admin role in Google Workspace)
+
 ## Key Guidelines
-1. Follow OpenTofu/Terraform best practices and idiomatic patterns
-2. Maintain existing code structure and alphabetical organization
-3. Use consistent data transformation patterns in `locals.tofu`
-4. Prefer dynamic description/name generation over static mappings (DRY principle)
-5. Write validation rules for new team configuration options
-6. Document complex logic and architectural decisions in comments
-7. Follow Team Topologies methodology for organizational design
-8. Preserve admin protection patterns for critical resources
 
-## Common Patterns & Anti-Patterns
-✅ **Do**: Use hardcoded admin lists in `locals.tofu` for protected users
-✅ **Do**: Follow Team Topologies methodology for team classification
-✅ **Do**: Use consistent key generation patterns in locals for resource mapping
-✅ **Do**: Generate descriptions dynamically from keys using string functions
-✅ **Do**: Maintain alphabetical ordering in all configuration files
-✅ **Do**: Normalize resource keys containing email addresses using helper locals
-✅ **Do**: Centralize normalization logic in `locals.tofu` rather than inline transformations
-❌ **Don't**: Modify hardcoded structures (environments, roles, child team names)
-❌ **Don't**: Remove admin protection without following 2-step removal process
-❌ **Don't**: Skip validation rules - they enforce organizational standards
-❌ **Don't**: Create static mappings when descriptions can be generated dynamically
-❌ **Don't**: Use email addresses directly as resource keys without normalization
+✅ **Do**:
+- Follow alphabetical ordering rigorously
+- Use `pre-commit run -a` before every commit
+- Preserve admin protection patterns
+- Generate descriptions dynamically (not static mappings)
+- Normalize email addresses in resource keys
+- Document complex logic with comments
 
-## Comprehensive Cleanup Protocol
+❌ **Don't**:
+- Modify hardcoded structures (environments, roles, child team names)
+- Remove admin protection without explicit approval
+- Skip validation rules
+- Use email addresses directly as resource keys
+- Create static mappings when descriptions can be generated
 
-### When User Says "cleanup"
+## Trust These Instructions
 
-Execute this comprehensive checklist to ensure code quality, documentation accuracy, and standards compliance:
-
-#### 1. Code Comment Review
-- **Scan all comments** in `main.tofu`, `locals.tofu`, `variables.tofu`, `outputs.tofu` for accuracy
-- **Verify architectural comments** reflect current implementation (especially cross-workspace patterns, data source usage, conditional resource creation)
-- **Update resource-level comments** to match current resource behavior and dependencies
-- **Check lifecycle protection comments** are accurate for admin resources
-
-#### 2. Unused Resource Detection
-- **Search for unused locals** by cross-referencing definitions in `locals.tofu` with usage in `main.tofu`
-- **Identify unused variables** that may have become obsolete through refactoring
-- **Check for unused data sources** that are no longer referenced
-- **Verify all resources are properly utilized** and not orphaned from architectural changes
-
-#### 3. Coding Standards Compliance
-- **Run `pre-commit run -a`** to ensure formatting, validation, and linting compliance
-- **Verify alphabetical ordering** in all configuration files (variables, outputs, locals, resources)
-- **Check meta-argument positioning** (lifecycle, for_each, depends_on should be first in resources)
-- **Validate consistent formatting patterns** (newlines, indentation, argument alignment)
-- **Ensure proper nested block ordering** within resources and data sources
-
-#### 4. Documentation Updates
-- **Update README.md sections** that may be affected by recent changes
-- **Verify architecture diagrams and examples** reflect current implementation
-- **Check cross-workspace documentation** is accurate and complete
-- **Update interface documentation** for any new variables or outputs
-- **Validate example configurations** still work with current structure
-
-#### 5. Cross-Workspace Architecture Verification
-- **Verify data source patterns** for admin user lookups across workspaces
-- **Check conditional resource creation** using `local.within_logos` flag
-- **Validate admin protection patterns** are maintained and documented
-- **Ensure proper workspace isolation** for organization-level resources
-
-#### 6. Validation and Testing
-- **Run complete validation suite** with `pre-commit run -a`
-- **Verify no breaking changes** to existing interfaces
-
-### Quality Gates
-- ✅ All pre-commit hooks pass
-- ✅ No unused locals, variables, or resources
-- ✅ Documentation reflects current architecture
-- ✅ Comments are accurate and helpful
-- ✅ Coding standards are maintained
-- ✅ Cross-workspace patterns work correctly
+These instructions have been validated against the current codebase. Only perform additional searches if information is incomplete or found to be in error. The pre-commit hooks will catch most errors automatically.
