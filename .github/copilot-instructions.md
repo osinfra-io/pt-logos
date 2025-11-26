@@ -80,6 +80,11 @@ Team Type Folders (pre-created) → Team Folders → Environment Folders
 - GitHub: Parent team + 4 child teams (sandbox/non-prod/prod approvers + repo admins), repositories with branch protection
 - Datadog: Team with admin/member roles, user management
 
+**Organization-Level Resources (logos workspace only)**:
+- Datadog: Log indexes with retention policies and exclusion filters, organization settings (SAML, widget sharing)
+- GitHub: Organization settings, actions permissions
+- Google Cloud: Billing account IAM, organization-wide identity groups
+
 **Critical Workspace Pattern**:
 - `pt-logos-main-production` workspace: Creates organization-level admin/owner resources
 - Other team workspaces: Reference admins via data sources to prevent conflicts
@@ -175,6 +180,10 @@ datadog_organization_admins = ["brett@osinfra.io"]
 within_logos = terraform.workspace == "pt-logos-main-production"
 ```
 
+**Organization-level settings are hardcoded in `locals.tofu`**:
+- `log_indexes` - Datadog log index configurations with retention, limits, and exclusion filters
+- Organization settings managed only in `pt-logos-main-production` workspace
+
 **Resources have lifecycle protection**:
 ```hcl
 resource "github_membership" "owners" {
@@ -252,11 +261,12 @@ Original email values are preserved in resource properties; only keys are normal
 - Document complex logic with comments
 
 ❌ **Don't**:
-- Modify hardcoded structures (environments, roles, child team names)
+- Modify hardcoded structures (environments, roles, child team names, log indexes)
 - Remove admin protection without explicit approval
 - Skip validation rules
 - Use email addresses directly as resource keys
 - Create static mappings when descriptions can be generated
+- Parameterize organization-wide settings (keep in locals.tofu)
 
 ## Trust These Instructions
 

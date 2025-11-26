@@ -331,6 +331,115 @@ locals {
     )
   ]))
 
+  # Datadog log indexes - organization-wide configuration for log routing and retention
+  # Only created in logos-production-main workspace
+  log_indexes = {
+    datadog = {
+      daily_limit                              = 30000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = null
+      filter_query                             = "service:(datadog-agent OR datadog-operator)"
+      retention_days                           = 3
+    }
+
+    debug = {
+      daily_limit                              = 30000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = null
+      filter_query                             = "status:debug"
+      retention_days                           = 3
+    }
+
+    envoy = {
+      daily_limit                              = 500000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = null
+      filter_query                             = "source:envoy"
+      retention_days                           = 7
+    }
+
+    istio = {
+      daily_limit                              = 25000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = null
+      filter_query                             = "source:istio"
+      retention_days                           = 7
+    }
+
+    k8s = {
+      daily_limit                              = 500000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "service:k8s.io"
+          is_enabled   = true
+          name         = "Exclude source:k8s.io"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "service:k8s.io"
+      retention_days = 3
+    }
+
+    main = {
+      daily_limit                              = 2000000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          # The Ingress controller performs periodic checks of service account permissions by fetching a test resource from your Google Cloud project.
+          # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress#implementation_details
+          filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
+          is_enabled   = true
+          name         = "Exclude source:gcp.gcs.backend.service check-probe"
+          sample_rate  = 1
+        },
+        {
+          filter_query = "service:monitoring.googleapis.com method:google.monitoring.v3.metricservice.*"
+          is_enabled   = true
+          name         = "Exclude service:monitoring.googleapis.com metrics service method"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = ""
+      retention_days = 15
+    }
+
+    subnet = {
+      daily_limit                              = 500000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.subnetwork"
+          is_enabled   = true
+          name         = "Exclude source:gcp.gce.subnetwork"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "source:gcp.gce.subnetwork"
+      retention_days = 7
+    }
+  }
+
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
     "reader" = "Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data."
