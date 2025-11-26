@@ -69,11 +69,12 @@ resource "datadog_organization_settings" "this" {
 
   settings {
     private_widget_share        = false
-    saml_autocreate_access_role = "st"
 
     saml {
       enabled = false
     }
+
+    saml_autocreate_access_role = "st"
 
     saml_autocreate_users_domains {
       domains = []
