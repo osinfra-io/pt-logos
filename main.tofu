@@ -68,7 +68,7 @@ resource "datadog_organization_settings" "this" {
   name = "osinfra.io"
 
   settings {
-    private_widget_share        = false
+    private_widget_share = false
 
     saml {
       enabled = false
