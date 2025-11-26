@@ -1,6 +1,95 @@
 # Resources
 # https://opentofu.org/docs/language/resources
 
+# Datadog Logs Index Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index
+# Organization-level resource managed only in logos-production-main workspace
+
+resource "datadog_logs_index" "this" {
+  for_each = local.within_logos ? local.log_indexes : {}
+
+  daily_limit = each.value.daily_limit
+
+  daily_limit_reset {
+    reset_time       = each.value.daily_limit_reset_time
+    reset_utc_offset = each.value.daily_limit_reset_utc_offset
+  }
+
+  daily_limit_warning_threshold_percentage = each.value.daily_limit_warning_threshold_percentage
+
+  dynamic "exclusion_filter" {
+    for_each = each.value.exclusion_filters == null ? [] : each.value.exclusion_filters
+
+    content {
+      filter {
+        query       = exclusion_filter.value.filter_query
+        sample_rate = exclusion_filter.value.sample_rate
+      }
+
+      is_enabled = exclusion_filter.value.is_enabled
+      name       = exclusion_filter.value.name
+    }
+  }
+
+  filter {
+    query = each.value.filter_query
+  }
+
+  name           = each.key
+  retention_days = each.value.retention_days
+}
+
+# Datadog Logs Index Order Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index_order
+# Organization-level resource managed only in logos-production-main workspace
+
+resource "datadog_logs_index_order" "this" {
+  count = local.within_logos && length(local.log_indexes) > 0 ? 1 : 0
+
+  depends_on = [
+    datadog_logs_index.this
+  ]
+
+  indexes = [
+    for index_name in keys(local.log_indexes) :
+    datadog_logs_index.this[index_name].id
+  ]
+
+  name = "logs-index-order"
+}
+
+# Datadog Organization Settings Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/organization_settings
+# Organization-level resource managed only in logos-production-main workspace
+
+resource "datadog_organization_settings" "this" {
+  count = local.within_logos ? 1 : 0
+
+  name = "osinfra.io"
+
+  settings {
+    private_widget_share        = false
+    saml_autocreate_access_role = "st"
+
+    saml {
+      enabled = false
+    }
+
+    saml_autocreate_users_domains {
+      domains = []
+      enabled = false
+    }
+
+    saml_idp_initiated_login {
+      enabled = false
+    }
+
+    saml_strict_mode {
+      enabled = false
+    }
+  }
+}
+
 # Datadog Team Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
 

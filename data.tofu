@@ -1,6 +1,11 @@
 # Data Sources
 # https://opentofu.org/docs/language/data-sources
 
+# Datadog Logs Index Order Data Source
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/logs_index_order
+
+data "datadog_logs_indexes_order" "this" {}
+
 # Datadog Role Data Sources
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/role
 

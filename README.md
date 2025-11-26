@@ -19,6 +19,8 @@ The foundational infrastructure automates the creation of:
 - **GitHub Teams** with hierarchical structure and environment-specific approval workflows
 - **GitHub Repositories** with branch protection, webhooks, environments, and team-based access control
 - **Datadog Teams** for monitoring and observability
+- **Datadog Logs Management** with organization-wide log indexes, retention policies, and exclusion filters
+- **Datadog Organization Settings** for SAML configuration, widget sharing, and security policies
 - **User Management** with lifecycle protection for organization owners and admins
 - **Foundational outputs** for downstream consumption
 
@@ -222,6 +224,22 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 - **Name format**: `"{Team Type}: {Team Name}"` (e.g., "Platform Team: Logos")
 - **Description format**: `"{Team Name} is a {Team Type} {Team Topologies description}."` (e.g., "Logos is a Platform Team providing a compelling internal product to accelerate delivery by Stream-aligned teams.")
 - **Handle format**: `{team_prefix}-{team_name}` (e.g., "pt-logos")
+
+### Datadog Organization Settings
+
+**Organization-Level Configuration (managed only in `pt-logos-main-production` workspace):**
+
+- **Log Indexes**: Organization-wide log routing and retention policies
+  - Hardcoded in `locals.tofu` with index configurations for different log sources (datadog, debug, envoy, k8s, istio, subnet, main)
+  - Each index defines daily limits, retention periods, filter queries, and optional exclusion filters
+  - Indexes are ordered automatically for proper log routing precedence
+
+- **Organization Settings**:
+  - SAML configuration (autocreate users, domains, IdP-initiated login, strict mode)
+  - Widget sharing policies
+  - Organization name and branding
+
+**Note**: These settings are hardcoded organizational configuration, not team-specific parameters. Modifications require updating `locals.tofu` directly.
 
 ### User Management & Admin Protection
 
