@@ -18,7 +18,7 @@ resource "datadog_logs_index" "this" {
   daily_limit_warning_threshold_percentage = each.value.daily_limit_warning_threshold_percentage
 
   dynamic "exclusion_filter" {
-    for_each = each.value.exclusion_filters == null ? [] : each.value.exclusion_filters
+    for_each = each.value.exclusion_filters
 
     content {
       filter {

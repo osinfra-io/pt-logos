@@ -339,7 +339,7 @@ locals {
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = null
+      exclusion_filters                        = []
       filter_query                             = "service:(datadog-agent OR datadog-operator)"
       retention_days                           = 3
     }
@@ -349,7 +349,7 @@ locals {
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = null
+      exclusion_filters                        = []
       filter_query                             = "status:debug"
       retention_days                           = 3
     }
@@ -359,7 +359,7 @@ locals {
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = null
+      exclusion_filters                        = []
       filter_query                             = "source:envoy"
       retention_days                           = 7
     }
@@ -369,7 +369,7 @@ locals {
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = null
+      exclusion_filters                        = []
       filter_query                             = "source:istio"
       retention_days                           = 7
     }
