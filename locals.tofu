@@ -353,7 +353,7 @@ locals {
       retention_days                           = 3
     }
 
-    isto-low-retention = {
+    istio-low-retention = {
       daily_limit                              = 750000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
@@ -363,7 +363,7 @@ locals {
       retention_days                           = 3
     }
 
-    k8s-low-retention = {
+    kubernetes-low-retention = {
       daily_limit                              = 500000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
