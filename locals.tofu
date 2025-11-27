@@ -331,10 +331,17 @@ locals {
     )
   ]))
 
-  # Datadog log indexes organized by retention period
-  # Ensures all existing use cases are covered: debug, datadog agent, istio/envoy, k8s, networking, GCP noise filters
   log_indexes = {
-    # These indexes are ordered, logs enter the first index whose filter they match on. Do not sort these in alphabetical order.
+    high-retention = {
+      daily_limit                              = 10000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = []
+      filter_query                             = "status:(error OR critical OR emergency OR alert)"
+      retention_days                           = 30
+    }
+
     low-retention = {
       daily_limit                              = 150000
       daily_limit_reset_time                   = "07:00"
@@ -352,35 +359,6 @@ locals {
 
       filter_query   = "status:debug OR service:(datadog-agent OR datadog-operator) OR service:k8s.io"
       retention_days = 3
-    }
-
-    medium-retention = {
-      daily_limit                              = 150000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-
-      exclusion_filters = [
-        {
-          filter_query = "source:gcp.gce.subnetwork"
-          is_enabled   = true
-          name         = "Exclude subnet control plane logs"
-          sample_rate  = 1
-        }
-      ]
-
-      filter_query   = "source:(envoy OR istio) OR source:gcp.gce.subnetwork"
-      retention_days = 7
-    }
-
-    high-retention = {
-      daily_limit                              = 10000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "status:(error OR critical OR emergency OR alert)"
-      retention_days                           = 30
     }
 
     main = {
@@ -407,8 +385,30 @@ locals {
       filter_query   = ""
       retention_days = 15
     }
+
+    medium-retention = {
+      daily_limit                              = 150000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.subnetwork"
+          is_enabled   = true
+          name         = "Exclude subnet control plane logs"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "source:(envoy OR istio) OR source:gcp.gce.subnetwork"
+      retention_days = 7
+    }
   }
 
+  # Ordered list of log index names - preserves declaration order from log_indexes map above
+  # Used by datadog_logs_index_order resource to ensure correct processing sequence
+  log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {

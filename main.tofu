@@ -42,6 +42,8 @@ resource "datadog_logs_index" "this" {
 # Datadog Logs Index Order Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index_order
 # Organization-level resource managed only in logos-production-main workspace
+# Index order is critical - logs enter the first index whose filter matches
+# Order is defined by local.log_indexes_order list to preserve declaration sequence
 
 resource "datadog_logs_index_order" "this" {
   count = local.within_logos && length(local.log_indexes) > 0 ? 1 : 0
@@ -51,7 +53,7 @@ resource "datadog_logs_index_order" "this" {
   ]
 
   indexes = [
-    for index_name in keys(local.log_indexes) :
+    for index_name in local.log_indexes_order :
     datadog_logs_index.this[index_name].id
   ]
 
