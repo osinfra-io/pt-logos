@@ -331,40 +331,12 @@ locals {
     )
   ]))
 
-  # Datadog log indexes aligned with Datadog recommended patterns
+  # Datadog log indexes organized by retention period
+  # Ensures all existing use cases are covered: debug, datadog agent, istio/envoy, k8s, networking, GCP noise filters
   log_indexes = {
-    datadog-low-retention = {
-      daily_limit                              = 30000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "service:(datadog-agent OR datadog-operator)"
-      retention_days                           = 3
-    }
-
-    debug-low-retention = {
-      daily_limit                              = 30000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "status:debug"
-      retention_days                           = 3
-    }
-
-    istio-low-retention = {
-      daily_limit                              = 750000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "source:(envoy OR istio)"
-      retention_days                           = 3
-    }
-
-    kubernetes-low-retention = {
-      daily_limit                              = 500000
+    # These indexes are ordered, logs enter the first index whose filter they match on. Do not sort these in alphabetical order.
+    low-retention = {
+      daily_limit                              = 150000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
@@ -378,12 +350,41 @@ locals {
         }
       ]
 
-      filter_query   = "service:k8s.io"
+      filter_query   = "status:debug OR service:(datadog-agent OR datadog-operator) OR service:k8s.io"
       retention_days = 3
     }
 
+    medium-retention = {
+      daily_limit                              = 150000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.subnetwork"
+          is_enabled   = true
+          name         = "Exclude subnet control plane logs"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "source:(envoy OR istio) OR source:gcp.gce.subnetwork"
+      retention_days = 7
+    }
+
+    high-retention = {
+      daily_limit                              = 10000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = []
+      filter_query                             = "status:(error OR critical OR emergency OR alert)"
+      retention_days                           = 30
+    }
+
     main = {
-      daily_limit                              = 2000000
+      daily_limit                              = 200000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
@@ -406,26 +407,8 @@ locals {
       filter_query   = ""
       retention_days = 15
     }
-
-    networking-low-retention = {
-      daily_limit                              = 500000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-
-      exclusion_filters = [
-        {
-          filter_query = "source:gcp.gce.subnetwork"
-          is_enabled   = true
-          name         = "Exclude subnet control plane logs"
-          sample_rate  = 1
-        }
-      ]
-
-      filter_query   = "source:gcp.gce.subnetwork"
-      retention_days = 3
-    }
   }
+
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
