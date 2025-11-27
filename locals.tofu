@@ -331,10 +331,9 @@ locals {
     )
   ]))
 
-  # Datadog log indexes - organization-wide configuration for log routing and retention
-  # Only created in logos-production-main workspace
+  # Datadog log indexes aligned with Datadog recommended patterns
   log_indexes = {
-    datadog = {
+    datadog-low-retention = {
       daily_limit                              = 30000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
@@ -344,7 +343,7 @@ locals {
       retention_days                           = 3
     }
 
-    debug = {
+    debug-low-retention = {
       daily_limit                              = 30000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
@@ -354,27 +353,17 @@ locals {
       retention_days                           = 3
     }
 
-    envoy = {
-      daily_limit                              = 500000
+    isto-low-retention = {
+      daily_limit                              = 750000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
       exclusion_filters                        = []
-      filter_query                             = "source:envoy"
-      retention_days                           = 7
+      filter_query                             = "source:(envoy OR istio)"
+      retention_days                           = 3
     }
 
-    istio = {
-      daily_limit                              = 25000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "source:istio"
-      retention_days                           = 7
-    }
-
-    k8s = {
+    k8s-low-retention = {
       daily_limit                              = 500000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
@@ -384,7 +373,7 @@ locals {
         {
           filter_query = "service:k8s.io"
           is_enabled   = true
-          name         = "Exclude source:k8s.io"
+          name         = "Exclude internal Kubernetes noise"
           sample_rate  = 1
         }
       ]
@@ -401,17 +390,15 @@ locals {
 
       exclusion_filters = [
         {
-          # The Ingress controller performs periodic checks of service account permissions by fetching a test resource from your Google Cloud project.
-          # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress#implementation_details
           filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
           is_enabled   = true
-          name         = "Exclude source:gcp.gcs.backend.service check-probe"
+          name         = "Exclude GKE ingress permission check probe"
           sample_rate  = 1
         },
         {
           filter_query = "service:monitoring.googleapis.com method:google.monitoring.v3.metricservice.*"
           is_enabled   = true
-          name         = "Exclude service:monitoring.googleapis.com metrics service method"
+          name         = "Exclude GCP monitoring metrics polling"
           sample_rate  = 1
         }
       ]
@@ -420,7 +407,7 @@ locals {
       retention_days = 15
     }
 
-    subnet = {
+    networking-low-retention = {
       daily_limit                              = 500000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
@@ -430,13 +417,13 @@ locals {
         {
           filter_query = "source:gcp.gce.subnetwork"
           is_enabled   = true
-          name         = "Exclude source:gcp.gce.subnetwork"
+          name         = "Exclude subnet control plane logs"
           sample_rate  = 1
         }
       ]
 
       filter_query   = "source:gcp.gce.subnetwork"
-      retention_days = 7
+      retention_days = 3
     }
   }
 
