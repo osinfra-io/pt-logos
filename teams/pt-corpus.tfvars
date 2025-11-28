@@ -63,14 +63,50 @@ team = {
               teams = ["pt-corpus-non-production-approvers"]
             }
           }
+          non-production-regional-us-east1 = {
+            name = "Non-Production: Regional - us-east1"
+            reviewers = {
+              teams = ["pt-corpus-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east4 = {
+            name = "Non-Production: Regional - us-east4"
+            reviewers = {
+              teams = ["pt-corpus-non-production-approvers"]
+            }
+          }
           production = {
             name = "Production: Main"
             reviewers = {
               teams = ["pt-corpus-production-approvers"]
             }
           }
+          production-regional-us-east1 = {
+            name = "Production: Regional - us-east1"
+            reviewers = {
+              teams = ["pt-corpus-production-approvers"]
+            }
+          }
+          production-regional-us-east4 = {
+            name = "Production: Regional - us-east4"
+            reviewers = {
+              teams = ["pt-corpus-production-approvers"]
+            }
+          }
           sandbox = {
             name = "Sandbox: Main"
+            reviewers = {
+              teams = ["pt-corpus-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east1 = {
+            name = "Sandbox: Regional - us-east1"
+            reviewers = {
+              teams = ["pt-corpus-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east4 = {
+            name = "Sandbox: Regional - us-east4"
             reviewers = {
               teams = ["pt-corpus-sandbox-approvers"]
             }
