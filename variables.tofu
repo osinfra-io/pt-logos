@@ -157,7 +157,7 @@ variable "team" {
       topics          = list(string)
     })), {})
 
-    subnets = optional(map(map(object({
+    google_subnets = optional(map(map(object({
       ip_cidr_range          = string
       pod_ip_cidr_range      = string
       service_project_number = string

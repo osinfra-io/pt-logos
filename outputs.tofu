@@ -50,8 +50,8 @@ output "teams" {
         if repo.team_key == team_key
       }
 
-      # Subnets for this team (regional organization)
-      subnets = lookup(team, "subnets", {})
+      # Google subnets for this team (regional organization)
+      google_subnets = lookup(team, "google_subnets", {})
 
       # Folder hierarchy
       team_folder_id      = google_folder.team[team_key].id
