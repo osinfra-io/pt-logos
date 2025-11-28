@@ -79,21 +79,21 @@ team = {
 
     google_subnets = {
       "us-east1" = {
-        "pt-corpus-us-east1-a" = {
+        "pt-pneuma-us-east1-a" = {
           ip_cidr_range          = "10.62.0.0/21"
           pod_ip_cidr_range      = "10.0.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
           services_ip_cidr_range = "10.63.0.0/21"
         }
 
-        "pt-corpus-us-east1-b" = {
+        "pt-pneuma-us-east1-b" = {
           ip_cidr_range          = "10.62.8.0/21"
           pod_ip_cidr_range      = "10.2.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
           services_ip_cidr_range = "10.63.8.0/21"
         }
 
-        "pt-corpus-us-east1-c" = {
+        "pt-pneuma-us-east1-c" = {
           ip_cidr_range          = "10.62.16.0/21"
           pod_ip_cidr_range      = "10.4.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
@@ -102,21 +102,21 @@ team = {
       }
 
       "us-east4" = {
-        "pt-corpus-us-east4-a" = {
+        "pt-pneuma-us-east4-a" = {
           ip_cidr_range          = "10.62.24.0/21"
           pod_ip_cidr_range      = "10.6.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
           services_ip_cidr_range = "10.63.16.0/21"
         }
 
-        "pt-corpus-us-east4-b" = {
+        "pt-pneuma-us-east4-b" = {
           ip_cidr_range          = "10.62.32.0/21"
           pod_ip_cidr_range      = "10.8.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
           services_ip_cidr_range = "10.63.24.0/21"
         }
 
-        "pt-corpus-us-east4-c" = {
+        "pt-pneuma-us-east4-c" = {
           ip_cidr_range          = "10.62.40.0/21"
           pod_ip_cidr_range      = "10.10.0.0/15"
           service_project_number = "362793201562" # plt-k8s-tf39-sb
