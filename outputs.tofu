@@ -50,6 +50,9 @@ output "teams" {
         if repo.team_key == team_key
       }
 
+      # Google Kubernetes Engine clusters for this team
+      google_kubernetes_engine_clusters = lookup(team, "google_kubernetes_engine_clusters", {})
+
       # Google subnets for this team (regional organization)
       google_subnets = lookup(team, "google_subnets", {})
 

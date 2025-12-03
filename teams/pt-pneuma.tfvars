@@ -49,6 +49,19 @@ team = {
       }
     }
 
+    google_kubernetes_engine_clusters = {
+      "pt-pneuma" = {
+        enable_gke_hub_host = true
+        node_pools = {
+          default-pool = {
+            machine_type   = "e2-standard-2"
+            max_node_count = 1
+            min_node_count = 0
+          }
+        }
+      }
+    }
+
     github_repositories = {
       "pt-pneuma" = {
         description = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation." # This can be inferred from the team description (NOTE: need a description in the variable).

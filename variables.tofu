@@ -157,6 +157,15 @@ variable "team" {
       topics          = list(string)
     })), {})
 
+    google_kubernetes_engine_clusters = optional(map(object({
+      enable_gke_hub_host = optional(bool, false)
+      node_pools = map(object({
+        machine_type   = string
+        max_node_count = number
+        min_node_count = number
+      }))
+    })), {})
+
     google_subnets = optional(map(map(object({
       ip_cidr_range          = string
       pod_ip_cidr_range      = string
