@@ -56,6 +56,13 @@ output "teams" {
       # Google subnets for this team (regional organization)
       google_subnets = lookup(team, "google_subnets", {})
 
+      # Project creator groups (team + environment scoped)
+      project_creator_groups = {
+        for group_key, group in local.team_environment_project_creator_groups :
+        group_key => google_cloud_identity_group.team_environment_project_creators[group_key].name
+        if group.team_key == team_key
+      }
+
       # Folder hierarchy
       team_folder_id      = google_folder.team[team_key].id
       team_type           = team.team_type
