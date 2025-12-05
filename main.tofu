@@ -785,29 +785,29 @@ resource "google_folder_iam_member" "team_access" {
   role   = each.value.role
 }
 
-# Grant corpus project creator groups access to team type folders for centralized project factory
-# Each corpus group (sandbox/non-production/production) has projectCreator role on all team type folders
-# This allows pt-corpus to create projects in any team's environment folders
+# Grant corpus project creator groups access to environment folders for centralized project factory
+# Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
+# This allows pt-corpus to create projects in the appropriate environment folders for any team
 # Only created when processing pt-corpus team workspace
 resource "google_folder_iam_member" "corpus_project_creators" {
   for_each = contains(keys(var.team), "pt-corpus") ? {
     for pair in flatten([
-      for environment in ["sandbox", "non-production", "production"] : [
-        for team_type, folder_id in var.google_team_type_folder_ids : {
-          key       = "${environment}-${team_type}"
-          env       = environment
-          folder_id = folder_id
-          group_key = "pt-corpus-${environment}-project-creator"
-        }
-      ]
+      for env_key, env in local.environments : {
+        key         = env_key
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-project-creator"
+        team        = env.team
+        environment = env.environment
+      }
     ]) : pair.key => pair
   } : {}
 
   depends_on = [
-    google_cloud_identity_group.this
+    google_cloud_identity_group.this,
+    google_folder.environment
   ]
 
-  folder = "folders/${each.value.folder_id}"
+  folder = each.value.folder
   member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
   role   = "roles/resourcemanager.projectCreator"
 }
