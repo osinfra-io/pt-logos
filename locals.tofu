@@ -110,20 +110,6 @@ locals {
     group_key    = "pt-logos-billing-users"
   }
 
-  # Team environment project creator groups - provides centralized access management for service accounts
-  # Service accounts need projectCreator role on their respective environment folders to create projects
-  team_environment_project_creator_groups = { for group in flatten([
-    for team_key, team in var.team : [
-      for environment in ["sandbox", "non-production", "production"] : {
-        description  = "Service accounts authorized to create projects in ${team.display_name} ${join("-", [for word in split("-", environment) : title(word)])} environment folders"
-        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${join("-", [for word in split("-", environment) : title(word)])} Project Creators"
-        environment  = environment
-        group_key    = "${team_key}-${environment}-project-creators"
-        team_key     = team_key
-      }
-    ]
-  ]) : group.group_key => group }
-
   # Create branch protection configurations for repositories
   github_branch_protections = { for repo in flatten([
     for team_key, team in var.team : [
@@ -446,22 +432,41 @@ locals {
 
   # Flatten Google identity groups with hardcoded definitions and customizable membership
   # Creates exactly 3 groups per team: admin, writer, reader
+  # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
-  google_identity_groups = { for identity_group in flatten([
-    for team_key, team in var.team : [
-      for group_key in ["admin", "writer", "reader"] : {
-        description  = local.google_role_descriptions[group_key]
-        display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
-        email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
-        key          = "${team_key}-${group_key}"
-        managers     = team.google_identity_groups_memberships[group_key].managers
-        members      = team.google_identity_groups_memberships[group_key].members
-        owners       = team.google_identity_groups_memberships[group_key].owners
-        roles        = ["roles/${group_key}"]
-        team         = team_key
+  google_identity_groups = merge(
+    # Standard groups for all teams (admin, writer, reader)
+    { for identity_group in flatten([
+      for team_key, team in var.team : [
+        for group_key in ["admin", "writer", "reader"] : {
+          description  = local.google_role_descriptions[group_key]
+          display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
+          email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
+          key          = "${team_key}-${group_key}"
+          managers     = team.google_identity_groups_memberships[group_key].managers
+          members      = team.google_identity_groups_memberships[group_key].members
+          owners       = team.google_identity_groups_memberships[group_key].owners
+          roles        = ["roles/${group_key}"]
+          team         = team_key
+        }
+      ]
+    ]) : identity_group.key => identity_group },
+
+    # Project creator groups for pt-corpus (centralized project factory)
+    { for identity_group in flatten([
+      for environment in ["sandbox", "non-production", "production"] : {
+        description  = "Corpus service accounts authorized to create projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
+        display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
+        email_key    = "pt-corpus-${environment}-project-creators"
+        key          = "pt-corpus-${environment}-project-creator"
+        managers     = []
+        members      = []
+        owners       = []
+        roles        = []
+        team         = "pt-corpus"
       }
-    ]
-  ]) : identity_group.key => identity_group }
+    ]) : identity_group.key => identity_group }
+  )
 
   # Flatten Google identity group manager memberships
   google_identity_managers = { for item in flatten([
