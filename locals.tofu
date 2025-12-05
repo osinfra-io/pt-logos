@@ -460,10 +460,9 @@ locals {
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
         email_key    = "pt-corpus-${environment}-project-creators"
         key          = "pt-corpus-${environment}-project-creator"
-        managers     = []
-        members      = []
-        owners       = []
-        roles        = []
+        managers     = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
     ]) : identity_group.key => identity_group } : {}
