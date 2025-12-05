@@ -453,7 +453,8 @@ locals {
     ]) : identity_group.key => identity_group },
 
     # Project creator groups for pt-corpus (centralized project factory)
-    { for identity_group in flatten([
+    # Only created when processing pt-corpus team workspace
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to create projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
@@ -465,7 +466,7 @@ locals {
         roles        = []
         team         = "pt-corpus"
       }
-    ]) : identity_group.key => identity_group }
+    ]) : identity_group.key => identity_group } : {}
   )
 
   # Flatten Google identity group manager memberships

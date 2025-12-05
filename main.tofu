@@ -788,8 +788,9 @@ resource "google_folder_iam_member" "team_access" {
 # Grant corpus project creator groups access to team type folders for centralized project factory
 # Each corpus group (sandbox/non-production/production) has projectCreator role on all team type folders
 # This allows pt-corpus to create projects in any team's environment folders
+# Only created when processing pt-corpus team workspace
 resource "google_folder_iam_member" "corpus_project_creators" {
-  for_each = {
+  for_each = contains(keys(var.team), "pt-corpus") ? {
     for pair in flatten([
       for environment in ["sandbox", "non-production", "production"] : [
         for team_type, folder_id in var.google_team_type_folder_ids : {
@@ -800,7 +801,7 @@ resource "google_folder_iam_member" "corpus_project_creators" {
         }
       ]
     ]) : pair.key => pair
-  }
+  } : {}
 
   depends_on = [
     google_cloud_identity_group.this
