@@ -419,6 +419,7 @@ locals {
 
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
   # Groups get access to entire team folder and all child environments
+  # Excludes project creator groups which have no team folder roles
   google_iam_bindings = { for binding in flatten([
     for identity_group_key, group in local.google_identity_groups : [
       for role in group.roles : {
@@ -427,7 +428,7 @@ locals {
         team_key    = group.team
         role        = role
       }
-    ]
+    ] if length(group.roles) > 0
   ]) : binding.binding_key => binding }
 
   # Flatten Google identity groups with hardcoded definitions and customizable membership
