@@ -70,10 +70,670 @@ team = {
         enable_discord_webhook = true
 
         environments = {
+          non-production = {
+            name = "Non-Production: Main"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east1-a = {
+            name = "Non-Production cert-manager: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east1-a = {
+            name = "Non-Production Datadog: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east1-a = {
+            name = "Non-Production Istio: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east1-a = {
+            name = "Non-Production Onboarding: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east1-a = {
+            name = "Non-Production OPA Gatekeeper: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east1-a = {
+            name = "Non-Production: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east1-b = {
+            name = "Non-Production cert-manager: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east1-b = {
+            name = "Non-Production Datadog: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east1-b = {
+            name = "Non-Production Istio: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east1-b = {
+            name = "Non-Production Onboarding: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east1-b = {
+            name = "Non-Production OPA Gatekeeper: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east1-b = {
+            name = "Non-Production: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east1-c = {
+            name = "Non-Production cert-manager: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east1-c = {
+            name = "Non-Production Datadog: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east1-c = {
+            name = "Non-Production Istio: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east1-c = {
+            name = "Non-Production Onboarding: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east1-c = {
+            name = "Non-Production OPA Gatekeeper: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east1-c = {
+            name = "Non-Production: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east4-a = {
+            name = "Non-Production cert-manager: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east4-a = {
+            name = "Non-Production Datadog: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east4-a = {
+            name = "Non-Production Istio: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east4-a = {
+            name = "Non-Production Onboarding: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east4-a = {
+            name = "Non-Production OPA Gatekeeper: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east4-a = {
+            name = "Non-Production: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east4-b = {
+            name = "Non-Production cert-manager: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east4-b = {
+            name = "Non-Production Datadog: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east4-b = {
+            name = "Non-Production Istio: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east4-b = {
+            name = "Non-Production Onboarding: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east4-b = {
+            name = "Non-Production OPA Gatekeeper: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east4-b = {
+            name = "Non-Production: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-cert-manager-us-east4-c = {
+            name = "Non-Production cert-manager: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-datadog-us-east4-c = {
+            name = "Non-Production Datadog: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-istio-us-east4-c = {
+            name = "Non-Production Istio: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-onboarding-us-east4-c = {
+            name = "Non-Production Onboarding: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-us-east4-c = {
+            name = "Non-Production OPA Gatekeeper: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-regional-us-east4-c = {
+            name = "Non-Production: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
           production = {
             name = "Production: Main"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east1-a = {
+            name = "Production cert-manager: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east1-a = {
+            name = "Production Datadog: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east1-a = {
+            name = "Production Istio: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east1-a = {
+            name = "Production Onboarding: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east1-a = {
+            name = "Production OPA Gatekeeper: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east1-a = {
+            name = "Production: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east1-b = {
+            name = "Production cert-manager: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east1-b = {
+            name = "Production Datadog: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east1-b = {
+            name = "Production Istio: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east1-b = {
+            name = "Production Onboarding: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east1-b = {
+            name = "Production OPA Gatekeeper: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east1-b = {
+            name = "Production: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east1-c = {
+            name = "Production cert-manager: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east1-c = {
+            name = "Production Datadog: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east1-c = {
+            name = "Production Istio: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east1-c = {
+            name = "Production Onboarding: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east1-c = {
+            name = "Production OPA Gatekeeper: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east1-c = {
+            name = "Production: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east4-a = {
+            name = "Production cert-manager: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east4-a = {
+            name = "Production Datadog: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east4-a = {
+            name = "Production Istio: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east4-a = {
+            name = "Production Onboarding: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east4-a = {
+            name = "Production OPA Gatekeeper: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east4-a = {
+            name = "Production: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east4-b = {
+            name = "Production cert-manager: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east4-b = {
+            name = "Production Datadog: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east4-b = {
+            name = "Production Istio: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east4-b = {
+            name = "Production Onboarding: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east4-b = {
+            name = "Production OPA Gatekeeper: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east4-b = {
+            name = "Production: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-cert-manager-us-east4-c = {
+            name = "Production cert-manager: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-us-east4-c = {
+            name = "Production Datadog: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-istio-us-east4-c = {
+            name = "Production Istio: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-onboarding-us-east4-c = {
+            name = "Production Onboarding: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-us-east4-c = {
+            name = "Production OPA Gatekeeper: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-regional-us-east4-c = {
+            name = "Production: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          sandbox = {
+            name = "Sandbox: Main"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east1-a = {
+            name = "Sandbox cert-manager: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east1-a = {
+            name = "Sandbox Datadog: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east1-a = {
+            name = "Sandbox Istio: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east1-a = {
+            name = "Sandbox Onboarding: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east1-a = {
+            name = "Sandbox OPA Gatekeeper: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east1-a = {
+            name = "Sandbox: us-east1-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east1-b = {
+            name = "Sandbox cert-manager: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east1-b = {
+            name = "Sandbox Datadog: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east1-b = {
+            name = "Sandbox Istio: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east1-b = {
+            name = "Sandbox Onboarding: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east1-b = {
+            name = "Sandbox OPA Gatekeeper: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east1-b = {
+            name = "Sandbox: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east1-c = {
+            name = "Sandbox cert-manager: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east1-c = {
+            name = "Sandbox Datadog: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east1-c = {
+            name = "Sandbox Istio: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east1-c = {
+            name = "Sandbox Onboarding: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east1-c = {
+            name = "Sandbox OPA Gatekeeper: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east1-c = {
+            name = "Sandbox: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east4-a = {
+            name = "Sandbox cert-manager: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east4-a = {
+            name = "Sandbox Datadog: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east4-a = {
+            name = "Sandbox Istio: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east4-a = {
+            name = "Sandbox Onboarding: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east4-a = {
+            name = "Sandbox OPA Gatekeeper: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east4-a = {
+            name = "Sandbox: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east4-b = {
+            name = "Sandbox cert-manager: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east4-b = {
+            name = "Sandbox Datadog: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east4-b = {
+            name = "Sandbox Istio: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east4-b = {
+            name = "Sandbox Onboarding: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east4-b = {
+            name = "Sandbox OPA Gatekeeper: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east4-b = {
+            name = "Sandbox: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-cert-manager-us-east4-c = {
+            name = "Sandbox cert-manager: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-us-east4-c = {
+            name = "Sandbox Datadog: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-istio-us-east4-c = {
+            name = "Sandbox Istio: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-onboarding-us-east4-c = {
+            name = "Sandbox Onboarding: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-us-east4-c = {
+            name = "Sandbox OPA Gatekeeper: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east4-c = {
+            name = "Sandbox: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
         }
