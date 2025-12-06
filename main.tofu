@@ -93,6 +93,36 @@ resource "datadog_organization_settings" "this" {
   }
 }
 
+# Datadog Service Account Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/service_account
+
+resource "datadog_service_account" "this" {
+  for_each = local.datadog_teams
+
+  email = "${each.value.handle}@osinfra.io"
+  name  = "${each.value.name} Service Account"
+  roles = [data.datadog_role.this["Datadog Standard Role"].id]
+}
+
+# Datadog API Key Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/api_key
+
+resource "datadog_api_key" "this" {
+  for_each = local.datadog_teams
+
+  name = "${each.value.name} API Key"
+}
+
+# Datadog Service Account Application Key Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/service_account_application_key
+
+resource "datadog_service_account_application_key" "this" {
+  for_each = local.datadog_teams
+
+  name               = "${each.value.name} Application Key"
+  service_account_id = datadog_service_account.this[each.key].id
+}
+
 # Datadog Team Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team
 
