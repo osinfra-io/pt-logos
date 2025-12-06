@@ -672,7 +672,7 @@ resource "google_cloud_identity_group" "billing_users" {
 }
 
 resource "google_cloud_identity_group" "this" {
-  for_each = local.google_identity_groups
+  for_each = local.google_cloud_identity_groups
 
   # When you signed up for Google Workspace or Cloud Identity, your account is assigned a unique customer ID.
   # You can look up this ID in your Admin console.
@@ -699,8 +699,8 @@ resource "google_cloud_identity_group" "this" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "managers" {
-  # Iterate over local.google_identity_managers to create a resource for each user in the manager list.
-  for_each = local.google_identity_managers
+  # Iterate over local.google_cloud_identity_group_managers to create a resource for each user in the manager list.
+  for_each = local.google_cloud_identity_group_managers
 
   group = google_cloud_identity_group.this[each.value.group].id
 
@@ -714,8 +714,8 @@ resource "google_cloud_identity_group_membership" "managers" {
 }
 
 resource "google_cloud_identity_group_membership" "members" {
-  # Iterate over local.google_identity_members to create a resource for each user in the member list.
-  for_each = local.google_identity_members
+  # Iterate over local.google_cloud_identity_group_members to create a resource for each user in the member list.
+  for_each = local.google_cloud_identity_group_members
 
   group = google_cloud_identity_group.this[each.value.group].id
 
@@ -727,8 +727,8 @@ resource "google_cloud_identity_group_membership" "members" {
 }
 
 resource "google_cloud_identity_group_membership" "owners" {
-  # Iterate over local.google_identity_owners to create a resource for each user in the owner list.
-  for_each = local.google_identity_owners
+  # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
+  for_each = local.google_cloud_identity_group_owners
 
   group = google_cloud_identity_group.this[each.value.group].id
 

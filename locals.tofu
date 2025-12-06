@@ -421,21 +421,21 @@ locals {
   # Groups get access to entire team folder and all child environments
   # Excludes project creator groups which have no team folder roles
   google_iam_bindings = { for binding in flatten([
-    for identity_group_key, group in local.google_identity_groups : [
-      for role in group.roles : {
+    for identity_group_key, group in local.google_cloud_identity_groups : [
+      for role in try(group.roles, []) : {
         binding_key = "${identity_group_key}-${replace(role, "/", "-")}"
         group_key   = identity_group_key
         team_key    = group.team
         role        = role
       }
-    ] if length(group.roles) > 0
+    ]
   ]) : binding.binding_key => binding }
 
-  # Flatten Google identity groups with hardcoded definitions and customizable membership
+  # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
   # Creates exactly 3 groups per team: admin, writer, reader
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
-  google_identity_groups = merge(
+  google_cloud_identity_groups = merge(
     # Standard groups for all teams (admin, writer, reader)
     { for identity_group in flatten([
       for team_key, team in var.team : [
@@ -444,9 +444,9 @@ locals {
           display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
           email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
           key          = "${team_key}-${group_key}"
-          managers     = team.google_identity_groups_memberships[group_key].managers
-          members      = team.google_identity_groups_memberships[group_key].members
-          owners       = team.google_identity_groups_memberships[group_key].owners
+          managers     = team.google_basic_groups_memberships[group_key].managers
+          members      = team.google_basic_groups_memberships[group_key].members
+          owners       = team.google_basic_groups_memberships[group_key].owners
           roles        = ["roles/${group_key}"]
           team         = team_key
         }
@@ -469,23 +469,23 @@ locals {
     ]) : identity_group.key => identity_group } : {}
   )
 
-  # Flatten Google identity group manager memberships
-  google_identity_managers = { for item in flatten([
-    for group_key, group in local.google_identity_groups : [
+  # Flatten Google Cloud identity group manager memberships
+  google_cloud_identity_group_managers = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
       for user in group.managers : { group = group_key, user = user }
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, manager = item.user } }
 
-  # Flatten Google identity group member memberships
-  google_identity_members = { for item in flatten([
-    for group_key, group in local.google_identity_groups : [
+  # Flatten Google Cloud identity group member memberships
+  google_cloud_identity_group_members = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
       for user in group.members : { group = group_key, user = user }
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, member = item.user } }
 
-  # Flatten Google identity group owner memberships
-  google_identity_owners = { for item in flatten([
-    for group_key, group in local.google_identity_groups : [
+  # Flatten Google Cloud identity group owner memberships
+  google_cloud_identity_group_owners = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
       for user in group.owners : { group = group_key, user = user }
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }

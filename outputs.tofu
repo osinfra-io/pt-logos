@@ -29,7 +29,7 @@ output "teams" {
 
       # Identity groups for this team
       identity_groups = {
-        for group_key, group in local.google_identity_groups :
+        for group_key, group in local.google_cloud_identity_groups :
         split("-", group_key)[length(split("-", team_key))] => {
           description  = group.description
           display_name = group.display_name

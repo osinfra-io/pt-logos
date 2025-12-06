@@ -115,7 +115,7 @@ variable "team" {
       })
     })
 
-    google_identity_groups_memberships = object({
+    google_basic_groups_memberships = object({
       admin = object({
         managers = list(string)
         members  = list(string)

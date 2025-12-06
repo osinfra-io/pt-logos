@@ -31,7 +31,7 @@ team = {
       }
     }
 
-    google_identity_groups_memberships = {
+    google_basic_groups_memberships = {
       admin = {
         managers = []
         members  = []
