@@ -452,6 +452,33 @@ resource "github_repository_file" "security_policy" {
   repository          = each.key
 }
 
+# GitHub Actions Secret Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
+
+resource "github_actions_secret" "datadog_api_key" {
+  for_each = local.github_repository_datadog_secrets
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  plaintext_value = datadog_api_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_API_KEY"
+}
+
+resource "github_actions_secret" "datadog_app_key" {
+  for_each = local.github_repository_datadog_secrets
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_APP_KEY"
+}
+
 # Github Repository Webhook Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
 

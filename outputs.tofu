@@ -63,23 +63,3 @@ output "teams" {
     }
   }
 }
-
-# Datadog API Keys
-output "datadog_api_keys" {
-  description = "Datadog API keys for each team"
-  sensitive   = true
-  value = {
-    for team_key in keys(local.datadog_teams) :
-    team_key => datadog_api_key.this[team_key].key
-  }
-}
-
-# Datadog Application Keys
-output "datadog_app_keys" {
-  description = "Datadog application keys for each team"
-  sensitive   = true
-  value = {
-    for team_key in keys(local.datadog_teams) :
-    team_key => datadog_service_account_application_key.this[team_key].key
-  }
-}
