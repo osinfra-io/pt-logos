@@ -101,7 +101,9 @@ resource "datadog_service_account" "this" {
 
   email = "${each.value.handle}@osinfra.io"
   name  = "${each.value.name} Service Account"
-  roles = [data.datadog_role.this["Datadog Standard Role"].id]
+  roles = [
+    each.key == "pt-logos" ? data.datadog_role.this["Datadog Admin Role"].id : data.datadog_role.this["Datadog Standard Role"].id
+  ]
 }
 
 # Datadog API Key Resource
