@@ -100,7 +100,7 @@ resource "datadog_service_account" "this" {
   for_each = local.datadog_teams
 
   email = "${each.value.handle}@osinfra.io"
-  name  = "${each.value.name} Service Account"
+  name  = each.value.handle
   roles = [
     each.key == "pt-logos" ? data.datadog_role.this["Datadog Admin Role"].id : data.datadog_role.this["Datadog Standard Role"].id
   ]
@@ -112,7 +112,7 @@ resource "datadog_service_account" "this" {
 resource "datadog_api_key" "this" {
   for_each = local.datadog_teams
 
-  name = "${each.value.name} API Key"
+  name = each.value.handle
 }
 
 # Datadog Service Account Application Key Resource
@@ -121,7 +121,7 @@ resource "datadog_api_key" "this" {
 resource "datadog_service_account_application_key" "this" {
   for_each = local.datadog_teams
 
-  name               = "${each.value.name} Application Key"
+  name               = each.value.handle
   service_account_id = datadog_service_account.this[each.key].id
 }
 
