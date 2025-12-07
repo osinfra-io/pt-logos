@@ -195,7 +195,7 @@ locals {
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
         description            = repo.description
-        enable_datadog_secrets = lookup(repo, "enable_datadog_secrets", false)
+        enable_datadog_secrets = repo.enable_datadog_secrets
         enable_datadog_webhook = repo.enable_datadog_webhook
         enable_discord_webhook = repo.enable_discord_webhook
         key                    = repo_key
@@ -236,7 +236,7 @@ locals {
         key      = repo_key
         team_key = team_key
       }
-      if lookup(repo, "enable_datadog_secrets", false)
+      if repo.enable_datadog_secrets
     ]
   ]) : repo.key => repo }
 

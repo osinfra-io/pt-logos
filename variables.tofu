@@ -145,6 +145,7 @@ variable "team" {
 
     github_repositories = optional(map(object({
       description            = string
+      enable_datadog_secrets = optional(bool, false)
       enable_datadog_webhook = optional(bool, true)
       enable_discord_webhook = optional(bool, true)
 
