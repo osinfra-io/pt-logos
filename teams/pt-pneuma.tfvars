@@ -67,6 +67,7 @@ team = {
         description = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation." # This can be inferred from the team description (NOTE: need a description in the variable).
 
         enable_datadog_webhook = true
+        enable_datadog_secrets = true
         enable_discord_webhook = true
 
         environments = {
