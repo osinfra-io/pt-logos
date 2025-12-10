@@ -37,6 +37,7 @@ output "teams" {
           description  = group.description
           display_name = group.display_name
           email        = google_cloud_identity_group.this[group_key].group_key[0].id
+          name         = google_cloud_identity_group.this[group_key].name
           role         = trimsuffix(trimprefix(group_key, "${team_key}-"), "")
         }
         if startswith(group_key, "${team_key}-")
