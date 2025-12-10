@@ -465,6 +465,22 @@ locals {
       ]
     ]) : identity_group.key => identity_group },
 
+    # Project browser groups for pt-corpus (centralized project discovery)
+    # Only created when processing pt-corpus team workspace
+    # Grants browser role on environment folders so service accounts can list/discover projects
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+      for environment in ["sandbox", "non-production", "production"] : {
+        description  = "Corpus service accounts authorized to browse projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
+        display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Browsers"
+        email_key    = "pt-corpus-${environment}-project-browsers"
+        key          = "pt-corpus-${environment}-project-browser"
+        managers     = lookup(var.team["pt-corpus"].google_project_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.team["pt-corpus"].google_project_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.team["pt-corpus"].google_project_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
+        team         = "pt-corpus"
+      }
+    ]) : identity_group.key => identity_group } : {},
+
     # Project creator groups for pt-corpus (centralized project factory)
     # Only created when processing pt-corpus team workspace
     contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([

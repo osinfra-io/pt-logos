@@ -844,6 +844,32 @@ resource "google_folder_iam_member" "team_access" {
   role   = each.value.role
 }
 
+# Grant corpus project browser groups access to environment folders for project discovery
+# Each corpus group (sandbox/non-production/production) has browser role on corresponding environment folders across all teams
+# This allows service accounts to list/discover projects without needing direct project access
+# Created in every team workspace to grant access to that team's environment folders
+resource "google_folder_iam_member" "corpus_project_browsers" {
+  for_each = {
+    for pair in flatten([
+      for env_key, env in local.environments : {
+        key         = env_key
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-project-browsers@${var.google_primary_domain}"
+        team        = env.team
+        environment = env.environment
+      }
+    ]) : pair.key => pair
+  }
+
+  depends_on = [
+    google_folder.environment
+  ]
+
+  folder = each.value.folder
+  member = "group:${each.value.group_key}"
+  role   = "roles/browser"
+}
+
 # Grant corpus project creator groups access to environment folders for centralized project factory
 # Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
 # This allows pt-corpus to create projects in the appropriate environment folders for any team

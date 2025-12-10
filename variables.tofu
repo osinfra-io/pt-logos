@@ -133,6 +133,12 @@ variable "team" {
       })
     })
 
+    google_project_browser_groups_memberships = optional(map(object({
+      managers = list(string)
+      members  = list(string)
+      owners   = list(string)
+    })), {})
+
     google_project_creator_groups_memberships = optional(map(object({
       managers = list(string)
       members  = list(string)

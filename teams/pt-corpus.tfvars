@@ -49,6 +49,24 @@ team = {
       }
     }
 
+    google_project_browser_groups_memberships = {
+      non-production = {
+        managers = ["pt-pneuma-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+      production = {
+        managers = ["pt-pneuma-github@pt-corpus-tf16-prod.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+      sandbox = {
+        managers = ["pt-pneuma-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+    }
+
     google_project_creator_groups_memberships = {
       non-production = {
         managers = ["pt-corpus-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com"]
