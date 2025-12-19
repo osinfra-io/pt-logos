@@ -466,7 +466,7 @@ locals {
     # Browser groups for pt-corpus (centralized discovery)
     # Only created when processing pt-corpus team workspace
     # Grants browser role on environment folders so service accounts can list/discover resources
-    local.within_logos && contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to browse ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Browsers"
@@ -481,7 +481,7 @@ locals {
 
     # Project creator groups for pt-corpus (centralized project factory)
     # Only created when processing pt-corpus team workspace
-    local.within_logos && contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to create projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
