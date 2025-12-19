@@ -85,6 +85,24 @@ team = {
       }
     }
 
+    google_xpn_admin_groups_memberships = {
+      non-production = {
+        managers = ["pt-corpus-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+      production = {
+        managers = ["pt-corpus-github@pt-corpus-tf16-prod.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+      sandbox = {
+        managers = ["pt-corpus-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com"]
+        members  = []
+        owners   = []
+      }
+    }
+
     github_repositories = {
       "pt-corpus" = {
         description = "The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate." # This can be inferred from the team description (NOTE: need a description in the variable).

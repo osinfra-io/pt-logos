@@ -145,6 +145,12 @@ variable "team" {
       owners   = list(string)
     })), {})
 
+    google_xpn_admin_groups_memberships = optional(map(object({
+      managers = list(string)
+      members  = list(string)
+      owners   = list(string)
+    })), {})
+
     projects = optional(map(object({
       services = list(string)
     })), {})

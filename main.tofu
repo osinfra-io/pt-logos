@@ -895,3 +895,29 @@ resource "google_folder_iam_member" "corpus_project_creators" {
   member = "group:${each.value.group_key}"
   role   = "roles/resourcemanager.projectCreator"
 }
+
+# Grant corpus XPN admin groups access to environment folders for shared VPC administration
+# Each corpus group (sandbox/non-production/production) has compute.xpnAdmin role on corresponding environment folders across all teams
+# This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
+# Created in every team workspace to grant access to that team's environment folders
+resource "google_folder_iam_member" "corpus_xpn_admins" {
+  for_each = {
+    for pair in flatten([
+      for env_key, env in local.environments : {
+        key         = env_key
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
+        team        = env.team
+        environment = env.environment
+      }
+    ]) : pair.key => pair
+  }
+
+  depends_on = [
+    google_folder.environment
+  ]
+
+  folder = each.value.folder
+  member = "group:${each.value.group_key}"
+  role   = "roles/compute.xpnAdmin"
+}

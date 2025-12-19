@@ -151,8 +151,6 @@ locals {
     ]
   ]) : github_team.key => github_team }
 
-
-
   # Hardcoded GitHub organization owners - users who should have admin/owner role
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
   # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via GitHub UI
@@ -492,6 +490,22 @@ locals {
         managers     = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
         members      = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
         owners       = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
+        team         = "pt-corpus"
+      }
+    ]) : identity_group.key => identity_group } : {},
+
+    # XPN admin groups for pt-corpus (shared VPC administration)
+    # Only created when processing pt-corpus team workspace
+    # Grants compute.xpnAdmin role on environment folders so service accounts can attach service projects to shared VPC
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+      for environment in ["sandbox", "non-production", "production"] : {
+        description  = "Corpus service accounts authorized to administer shared VPC in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
+        display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} XPN Administrators"
+        email_key    = "pt-corpus-${environment}-xpn-administrators"
+        key          = "pt-corpus-${environment}-xpn-admin"
+        managers     = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
     ]) : identity_group.key => identity_group } : {}
