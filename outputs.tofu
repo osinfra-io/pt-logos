@@ -24,8 +24,8 @@ output "teams" {
 
       # Billing users group (organization-wide, same for all teams)
       billing_users_group = local.within_logos ? {
-        description  = local.billing_users_group.description
-        display_name = local.billing_users_group.display_name
+        description  = local.google_billing_users_group.description
+        display_name = local.google_billing_users_group.display_name
         email        = google_cloud_identity_group.billing_users[0].group_key[0].id
         name         = google_cloud_identity_group.billing_users[0].name
       } : null

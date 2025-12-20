@@ -25,6 +25,85 @@ locals {
     replace(replace(email, "@", "-at-"), ".", "-") => email
   }
 
+  datadog_log_indexes = {
+    high-retention = {
+      daily_limit                              = 10000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+      exclusion_filters                        = []
+      filter_query                             = "status:(error OR critical OR emergency OR alert)"
+      retention_days                           = 30
+    }
+
+    low-retention = {
+      daily_limit                              = 150000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "service:k8s.io"
+          is_enabled   = true
+          name         = "Exclude internal Kubernetes noise"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "status:debug OR service:(datadog-agent OR datadog-operator) OR service:k8s.io"
+      retention_days = 3
+    }
+
+    main = {
+      daily_limit                              = 200000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
+          is_enabled   = true
+          name         = "Exclude GKE ingress permission check probe"
+          sample_rate  = 1
+        },
+        {
+          filter_query = "service:monitoring.googleapis.com method:google.monitoring.v3.metricservice.*"
+          is_enabled   = true
+          name         = "Exclude GCP monitoring metrics polling"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = ""
+      retention_days = 15
+    }
+
+    medium-retention = {
+      daily_limit                              = 150000
+      daily_limit_reset_time                   = "07:00"
+      daily_limit_reset_utc_offset             = "-04:00"
+      daily_limit_warning_threshold_percentage = 85
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.subnetwork"
+          is_enabled   = true
+          name         = "Exclude subnet control plane logs"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "source:(envoy OR istio) OR source:gcp.gce.subnetwork"
+      retention_days = 7
+    }
+  }
+
+  # Ordered list of log index names - preserves declaration order from datadog_log_indexes map above
+  # Used by datadog_logs_index_order resource to ensure correct processing sequence
+  datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
+
   # Hardcoded Datadog organization admins - users who should have admin role
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
   # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via Datadog UI
@@ -101,14 +180,6 @@ locals {
       }
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
-
-  # Billing users group - single organization-wide group for all service accounts that need billing access
-  # All team service accounts are added to this group to enable project creation
-  billing_users_group = {
-    description  = "Service accounts authorized to use the billing account for projects"
-    display_name = "Platform Team: Logos Billing Users"
-    group_key    = "pt-logos-billing-users"
-  }
 
   # Create branch protection configurations for repositories
   github_branch_protections = { for repo in flatten([
@@ -327,120 +398,6 @@ locals {
     )
   ]))
 
-  log_indexes = {
-    high-retention = {
-      daily_limit                              = 10000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "status:(error OR critical OR emergency OR alert)"
-      retention_days                           = 30
-    }
-
-    low-retention = {
-      daily_limit                              = 150000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-
-      exclusion_filters = [
-        {
-          filter_query = "service:k8s.io"
-          is_enabled   = true
-          name         = "Exclude internal Kubernetes noise"
-          sample_rate  = 1
-        }
-      ]
-
-      filter_query   = "status:debug OR service:(datadog-agent OR datadog-operator) OR service:k8s.io"
-      retention_days = 3
-    }
-
-    main = {
-      daily_limit                              = 200000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-
-      exclusion_filters = [
-        {
-          filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
-          is_enabled   = true
-          name         = "Exclude GKE ingress permission check probe"
-          sample_rate  = 1
-        },
-        {
-          filter_query = "service:monitoring.googleapis.com method:google.monitoring.v3.metricservice.*"
-          is_enabled   = true
-          name         = "Exclude GCP monitoring metrics polling"
-          sample_rate  = 1
-        }
-      ]
-
-      filter_query   = ""
-      retention_days = 15
-    }
-
-    medium-retention = {
-      daily_limit                              = 150000
-      daily_limit_reset_time                   = "07:00"
-      daily_limit_reset_utc_offset             = "-04:00"
-      daily_limit_warning_threshold_percentage = 85
-
-      exclusion_filters = [
-        {
-          filter_query = "source:gcp.gce.subnetwork"
-          is_enabled   = true
-          name         = "Exclude subnet control plane logs"
-          sample_rate  = 1
-        }
-      ]
-
-      filter_query   = "source:(envoy OR istio) OR source:gcp.gce.subnetwork"
-      retention_days = 7
-    }
-  }
-
-  # Ordered list of log index names - preserves declaration order from log_indexes map above
-  # Used by datadog_logs_index_order resource to ensure correct processing sequence
-  log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
-
-  # Google Cloud role descriptions mapping
-  google_role_descriptions = {
-    "reader" = "Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data."
-    "writer" = "All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources."
-    "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
-  }
-
-  # Google Cloud role display names mapping (plural forms for group names)
-  google_role_display_names = {
-    "admin"  = "Administrators"
-    "reader" = "Readers"
-    "writer" = "Writers"
-  }
-
-  # Google Cloud role email suffixes mapping (plural forms for email addresses)
-  google_role_email_suffixes = {
-    "admin"  = "administrators"
-    "reader" = "readers"
-    "writer" = "writers"
-  }
-
-  # Flatten IAM role bindings for team folder assignments (top-level team folders only)
-  # Groups get access to entire team folder and all child environments
-  # Excludes project creator groups which have no team folder roles
-  google_iam_bindings = { for binding in flatten([
-    for identity_group_key, group in local.google_cloud_identity_groups : [
-      for role in try(group.roles, []) : {
-        binding_key = "${identity_group_key}-${replace(role, "/", "-")}"
-        group_key   = identity_group_key
-        team_key    = group.team
-        role        = role
-      }
-    ]
-  ]) : binding.binding_key => binding }
-
   # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
   # Creates exactly 3 groups per team: admin, writer, reader
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
@@ -497,7 +454,7 @@ locals {
     # XPN admin groups for pt-corpus (shared VPC administration)
     # Only created when processing pt-corpus team workspace
     # Grants compute.xpnAdmin role on environment folders so service accounts can attach service projects to shared VPC
-    local.within_logos && contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to administer shared VPC in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} XPN Administrators"
@@ -531,6 +488,49 @@ locals {
       for user in group.owners : { group = group_key, user = user }
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
+
+  # Billing users group - single organization-wide group for all service accounts that need billing access
+  # All team service accounts are added to this group to enable project creation
+  google_billing_users_group = {
+    description  = "Service accounts authorized to use the billing account for projects"
+    display_name = "Platform Team: Logos Billing Users"
+    group_key    = "pt-logos-billing-users"
+  }
+
+  # Flatten IAM role bindings for team folder assignments (top-level team folders only)
+  # Groups get access to entire team folder and all child environments
+  # Excludes project creator groups which have no team folder roles
+  google_iam_bindings = { for binding in flatten([
+    for identity_group_key, group in local.google_cloud_identity_groups : [
+      for role in try(group.roles, []) : {
+        binding_key = "${identity_group_key}-${replace(role, "/", "-")}"
+        group_key   = identity_group_key
+        team_key    = group.team
+        role        = role
+      }
+    ]
+  ]) : binding.binding_key => binding }
+
+  # Google Cloud role descriptions mapping
+  google_role_descriptions = {
+    "reader" = "Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data."
+    "writer" = "All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources."
+    "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
+  }
+
+  # Google Cloud role display names mapping (plural forms for group names)
+  google_role_display_names = {
+    "admin"  = "Administrators"
+    "reader" = "Readers"
+    "writer" = "Writers"
+  }
+
+  # Google Cloud role email suffixes mapping (plural forms for email addresses)
+  google_role_email_suffixes = {
+    "admin"  = "administrators"
+    "reader" = "readers"
+    "writer" = "writers"
+  }
 
   # Helper function to normalize email addresses for resource keys
   normalize_email = {

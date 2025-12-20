@@ -6,7 +6,7 @@
 # Organization-level resource managed only in logos-production-main workspace
 
 resource "datadog_logs_index" "this" {
-  for_each = local.within_logos ? local.log_indexes : {}
+  for_each = local.within_logos ? local.datadog_log_indexes : {}
 
   daily_limit = each.value.daily_limit
 
@@ -43,17 +43,17 @@ resource "datadog_logs_index" "this" {
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index_order
 # Organization-level resource managed only in logos-production-main workspace
 # Index order is critical - logs enter the first index whose filter matches
-# Order is defined by local.log_indexes_order list to preserve declaration sequence
+# Order is defined by local.datadog_log_indexes_order list to preserve declaration sequence
 
 resource "datadog_logs_index_order" "this" {
-  count = local.within_logos && length(local.log_indexes) > 0 ? 1 : 0
+  count = local.within_logos && length(local.datadog_log_indexes) > 0 ? 1 : 0
 
   depends_on = [
     datadog_logs_index.this
   ]
 
   indexes = [
-    for index_name in local.log_indexes_order :
+    for index_name in local.datadog_log_indexes_order :
     datadog_logs_index.this[index_name].id
   ]
 
@@ -714,11 +714,11 @@ resource "google_billing_account_iam_member" "billing_users" {
 resource "google_cloud_identity_group" "billing_users" {
   count = local.within_logos ? 1 : 0
 
-  description  = local.billing_users_group.description
-  display_name = local.billing_users_group.display_name
+  description  = local.google_billing_users_group.description
+  display_name = local.google_billing_users_group.display_name
 
   group_key {
-    id = "${local.billing_users_group.group_key}@${var.google_primary_domain}"
+    id = "${local.google_billing_users_group.group_key}@${var.google_primary_domain}"
   }
 
   initial_group_config = "EMPTY"

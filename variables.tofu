@@ -9,67 +9,68 @@
 
 variable "datadog_api_key" {
   description = "Datadog API key"
-  type        = string
   sensitive   = true
+  type        = string
 }
 
 variable "datadog_app_key" {
   description = "Datadog APP key"
-  type        = string
   sensitive   = true
+  type        = string
 }
 
 variable "github_datadog_webhook_api_key" {
   description = "The Datadog API key used for creating GitHub webhooks"
-  type        = string
   sensitive   = true
+  type        = string
 }
 
 variable "github_discord_webhook_api_key" {
   description = "The Discord API key used for creating GitHub webhooks"
-  type        = string
   sensitive   = true
+  type        = string
 }
 
 variable "github_token" {
   description = "The GitHub token to authenticate with the GitHub provider"
-  type        = string
   sensitive   = true
+  type        = string
 }
 
 variable "google_billing_account" {
+  default     = "01C550-A2C86B-B8F16B"
   description = "The billing account ID to associate with budgets"
   type        = string
-  default     = "01C550-A2C86B-B8F16B"
 }
 
 variable "google_customer_id" {
+  default     = "C01hd34v8"
   description = "The unique customer ID assigned to you when you signed up for Google Workspace or Cloud Identity. You can look up this ID in your Admin console"
   type        = string
-  default     = "C01hd34v8"
 }
 
 variable "google_monthly_budget_amount" {
+  default     = 100
   description = "Monthly budget amount in USD for environment folders"
   type        = number
-  default     = 100
 }
 
 variable "google_primary_domain" {
+  default     = "osinfra.io"
   description = "The main domain associated with your Google Workspace account. By default, your users get a username at this domain"
   type        = string
-  default     = "osinfra.io"
 }
 
 variable "google_team_type_folder_ids" {
-  description = "Map of team type to their pre-created folder IDs"
-  type        = map(string)
   default = {
     "platform-team"              = "831575438843" # Platform Teams folder ID
     "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
     "complicated-subsystem-team" = "195659428881" # Complicated-subsystem Teams folder ID
     "enabling-team"              = "141076777961" # Enabling Teams folder ID
   }
+
+  description = "Map of team type to their pre-created folder IDs"
+  type        = map(string)
 }
 
 variable "team" {

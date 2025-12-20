@@ -98,10 +98,10 @@ Team Type Folders (pre-created) → Team Folders → Environment Folders
 - **Universal alphabetical ordering**: ALL arguments, keys, and properties at EVERY level of configuration must be alphabetically ordered (applies to variables, outputs, locals, resources, data sources, and nested blocks)
 
 ### Alphabetical Ordering with Logical Grouping Exception
-Limited exception to strict alphabetical ordering allowed ONLY under these conditions:
+Limited exception to strict alphabetical ordering allowed ONLY for team membership variables:
 
-1. **Team membership variables**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
-2. **Same resource type**: Variables that share the same resource type and are annotated with a grouping comment
+1. **Team membership variables only**: Variables ending in `_memberships` that configure team/group membership (e.g., `github_parent_team_memberships`, `github_child_teams_memberships`, `google_identity_groups_memberships`)
+2. **Grouping rationale**: Team membership structures are logically grouped to maintain clarity of role hierarchies and team relationships
 3. **Alphabetical within groups**: Alphabetical ordering still applies within each grouped block
 
 **Example of valid logical grouping**:
