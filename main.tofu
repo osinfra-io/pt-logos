@@ -730,6 +730,30 @@ resource "google_cloud_identity_group" "billing_users" {
   parent = "customers/${var.google_customer_id}"
 }
 
+# GKE security groups - organization-wide group for Kubernetes RBAC
+# This Google Group is required to enable Kubernetes role-based access control (RBAC) in your GKE clusters
+# Add your groups as nested groups to this group (don't add individual users)
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_cloud_identity_group" "gke_security_groups" {
+  count = local.within_logos ? 1 : 0
+
+  description  = local.google_gke_security_groups.description
+  display_name = local.google_gke_security_groups.display_name
+
+  group_key {
+    id = "${local.google_gke_security_groups.group_key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+    "cloudidentity.googleapis.com/groups.security"         = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
+
 resource "google_cloud_identity_group" "this" {
   for_each = local.google_cloud_identity_groups
 
@@ -756,6 +780,46 @@ resource "google_cloud_identity_group" "this" {
 
 # Cloud Identity Group Membership Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_managers" {
+  for_each = local.within_logos ? local.google_gke_security_groups_managers : {}
+
+  group = google_cloud_identity_group.gke_security_groups[0].id
+
+  preferred_member_key {
+    id = each.value.manager
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "MEMBER" }
+  roles { name = "MANAGER" }
+}
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_members" {
+  for_each = local.within_logos ? local.google_gke_security_groups_members : {}
+
+  group = google_cloud_identity_group.gke_security_groups[0].id
+
+  preferred_member_key {
+    id = each.value.member
+  }
+
+  roles { name = "MEMBER" }
+}
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
+  for_each = local.within_logos ? local.google_gke_security_groups_owners : {}
+
+  group = google_cloud_identity_group.gke_security_groups[0].id
+
+  preferred_member_key {
+    id = each.value.owner
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "OWNER" }
+  roles { name = "MEMBER" }
+}
 
 resource "google_cloud_identity_group_membership" "managers" {
   # Iterate over local.google_cloud_identity_group_managers to create a resource for each user in the manager list.

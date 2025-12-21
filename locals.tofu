@@ -517,12 +517,45 @@ locals {
     ]
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
+  # Flatten GKE security groups manager memberships
+  google_gke_security_groups_managers = { for item in flatten([
+    for user in local.google_gke_security_groups.managers : [
+      { user = user }
+    ]
+  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { manager = item.user } }
+
+  # Flatten GKE security groups member memberships
+  google_gke_security_groups_members = { for item in flatten([
+    for user in local.google_gke_security_groups.members : [
+      { user = user }
+    ]
+  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { member = item.user } }
+
+  # Flatten GKE security groups owner memberships
+  google_gke_security_groups_owners = { for item in flatten([
+    for user in local.google_gke_security_groups.owners : [
+      { user = user }
+    ]
+  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { owner = item.user } }
+
   # Billing users group - single organization-wide group for all service accounts that need billing access
   # All team service accounts are added to this group to enable project creation
   google_billing_users_group = {
     description  = "Service accounts authorized to use the billing account for projects"
     display_name = "Platform Team: Logos Billing Users"
     group_key    = "pt-logos-billing-users"
+  }
+
+  # This Google Group is required to enable Kubernetes role-based access control (RBAC)
+  # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
+  # Don't add individual users as members of gke-security-groups.
+  google_gke_security_groups = {
+    description  = "Security group for Kubernetes role-based access control (RBAC)"
+    display_name = "Kubernetes Security Groups"
+    group_key    = "gke-security-groups"
+    managers     = []
+    members      = []
+    owners       = []
   }
 
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
