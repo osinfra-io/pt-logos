@@ -90,38 +90,38 @@ team = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-cert-manager-us-east1-a = {
-            name = "Non-Production cert-manager: us-east1-a"
+          non-production-cert-manager-us-east1-d = {
+            name = "Non-Production cert-manager: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-datadog-us-east1-a = {
-            name = "Non-Production Datadog: us-east1-a"
+          non-production-datadog-us-east1-d = {
+            name = "Non-Production Datadog: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-istio-us-east1-a = {
-            name = "Non-Production Istio: us-east1-a"
+          non-production-istio-us-east1-d = {
+            name = "Non-Production Istio: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-onboarding-us-east1-a = {
-            name = "Non-Production Onboarding: us-east1-a"
+          non-production-onboarding-us-east1-d = {
+            name = "Non-Production Onboarding: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-opa-gatekeeper-us-east1-a = {
-            name = "Non-Production OPA Gatekeeper: us-east1-a"
+          non-production-opa-gatekeeper-us-east1-d = {
+            name = "Non-Production OPA Gatekeeper: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-regional-us-east1-a = {
-            name = "Non-Production: us-east1-a"
+          non-production-regional-us-east1-d = {
+            name = "Non-Production: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -312,38 +312,38 @@ team = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-cert-manager-us-east1-a = {
-            name = "Production cert-manager: us-east1-a"
+          production-cert-manager-us-east1-d = {
+            name = "Production cert-manager: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-datadog-us-east1-a = {
-            name = "Production Datadog: us-east1-a"
+          production-datadog-us-east1-d = {
+            name = "Production Datadog: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-istio-us-east1-a = {
-            name = "Production Istio: us-east1-a"
+          production-istio-us-east1-d = {
+            name = "Production Istio: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-onboarding-us-east1-a = {
-            name = "Production Onboarding: us-east1-a"
+          production-onboarding-us-east1-d = {
+            name = "Production Onboarding: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-opa-gatekeeper-us-east1-a = {
-            name = "Production OPA Gatekeeper: us-east1-a"
+          production-opa-gatekeeper-us-east1-d = {
+            name = "Production OPA Gatekeeper: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
-          production-regional-us-east1-a = {
-            name = "Production: us-east1-a"
+          production-regional-us-east1-d = {
+            name = "Production: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
@@ -534,38 +534,38 @@ team = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-cert-manager-us-east1-a = {
-            name = "Sandbox cert-manager: us-east1-a"
+          sandbox-cert-manager-us-east1-d = {
+            name = "Sandbox cert-manager: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-datadog-us-east1-a = {
-            name = "Sandbox Datadog: us-east1-a"
+          sandbox-datadog-us-east1-d = {
+            name = "Sandbox Datadog: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-istio-us-east1-a = {
-            name = "Sandbox Istio: us-east1-a"
+          sandbox-istio-us-east1-d = {
+            name = "Sandbox Istio: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-onboarding-us-east1-a = {
-            name = "Sandbox Onboarding: us-east1-a"
+          sandbox-onboarding-us-east1-d = {
+            name = "Sandbox Onboarding: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-opa-gatekeeper-us-east1-a = {
-            name = "Sandbox OPA Gatekeeper: us-east1-a"
+          sandbox-opa-gatekeeper-us-east1-d = {
+            name = "Sandbox OPA Gatekeeper: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-regional-us-east1-a = {
-            name = "Sandbox: us-east1-a"
+          sandbox-regional-us-east1-d = {
+            name = "Sandbox: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -766,7 +766,7 @@ team = {
 
     google_subnets = {
       "us-east1" = {
-        "pt-pneuma-us-east1-a" = {
+        "pt-pneuma-us-east1-d" = {
           ip_cidr_range          = "10.62.0.0/21"
           pod_ip_cidr_range      = "10.0.0.0/15"
           services_ip_cidr_range = "10.63.0.0/21"
