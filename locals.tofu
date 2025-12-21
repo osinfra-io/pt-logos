@@ -405,6 +405,7 @@ locals {
   google_cloud_identity_groups = merge(
     # Artifact registry groups for teams that enable them
     # Only created when google_artifact_registry_groups_memberships is defined for a team
+    # Automatically adds pt-pneuma GitHub service accounts as managers to readers group (pneuma manages all registries)
     { for identity_group in flatten([
       for team_key, team in var.team : [
         for group_key in ["readers", "writers"] : {
@@ -412,10 +413,19 @@ locals {
           display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} Registry ${title(group_key)}"
           email_key    = "${team_key}-registry-${group_key}"
           key          = "${team_key}-registry-${group_key}"
-          managers     = team.google_artifact_registry_groups_memberships[group_key].managers
-          members      = team.google_artifact_registry_groups_memberships[group_key].members
-          owners       = team.google_artifact_registry_groups_memberships[group_key].owners
-          team         = team_key
+
+          managers = group_key == "readers" ? concat(
+            team.google_artifact_registry_groups_memberships[group_key].managers,
+            [
+              "pt-pneuma-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com",
+              "pt-pneuma-github@pt-corpus-tf16-prod.iam.gserviceaccount.com",
+              "pt-pneuma-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com"
+            ]
+          ) : team.google_artifact_registry_groups_memberships[group_key].managers
+
+          members = team.google_artifact_registry_groups_memberships[group_key].members
+          owners  = team.google_artifact_registry_groups_memberships[group_key].owners
+          team    = team_key
         }
       ]
       if team.google_artifact_registry_groups_memberships != null
