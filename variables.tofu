@@ -116,6 +116,19 @@ variable "team" {
       })
     })
 
+    google_artifact_registry_groups_memberships = optional(object({
+      readers = object({
+        managers = list(string)
+        members  = list(string)
+        owners   = list(string)
+      })
+      writers = object({
+        managers = list(string)
+        members  = list(string)
+        owners   = list(string)
+      })
+    }))
+
     google_basic_groups_memberships = object({
       admin = object({
         managers = list(string)

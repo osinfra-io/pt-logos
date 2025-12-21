@@ -403,6 +403,24 @@ locals {
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
   google_cloud_identity_groups = merge(
+    # Artifact registry groups for teams that enable them
+    # Only created when google_artifact_registry_groups_memberships is defined for a team
+    { for identity_group in flatten([
+      for team_key, team in var.team : [
+        for group_key in ["readers", "writers"] : {
+          description  = "${team.display_name} service accounts and users authorized to ${group_key == "readers" ? "pull" : "push"} container images ${group_key == "readers" ? "from" : "to"} Artifact Registry"
+          display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} Registry ${title(group_key)}"
+          email_key    = "${team_key}-registry-${group_key}"
+          key          = "${team_key}-registry-${group_key}"
+          managers     = team.google_artifact_registry_groups_memberships[group_key].managers
+          members      = team.google_artifact_registry_groups_memberships[group_key].members
+          owners       = team.google_artifact_registry_groups_memberships[group_key].owners
+          team         = team_key
+        }
+      ]
+      if team.google_artifact_registry_groups_memberships != null
+    ]) : identity_group.key => identity_group },
+
     # Standard groups for all teams (admin, writer, reader)
     { for identity_group in flatten([
       for team_key, team in var.team : [

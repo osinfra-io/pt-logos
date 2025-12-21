@@ -31,6 +31,19 @@ team = {
       }
     }
 
+    google_artifact_registry_groups_memberships = {
+      readers = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      writers = {
+        managers = []
+        members  = []
+        owners   = []
+      }
+    }
+
     google_basic_groups_memberships = {
       admin = {
         managers = []
