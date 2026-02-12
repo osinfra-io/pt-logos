@@ -3,10 +3,9 @@
 ## Repository Summary
 **Type**: Infrastructure as Code (OpenTofu/Terraform)
 **Purpose**: Foundational platform layer establishing organizational hierarchy, access controls, and team structures across Google Cloud, GitHub, and Datadog using Team Topologies methodology
-**Size**: ~20 files, ~500 lines of OpenTofu configuration
 **Language**: HCL (HashiCorp Configuration Language)
 **Runtime**: OpenTofu v1.10.7+
-**Providers**: Google Cloud (v7.9.0), GitHub (v6.7.5), Datadog (v3.78.0)
+**Providers**: Google Cloud, GitHub, Datadog
 
 ## Critical Build & Validation Commands
 
@@ -17,7 +16,7 @@
 pre-commit install
 
 # 2. Run all validation checks (REQUIRED before every commit)
-cd /home/brett/Repositories/osinfra-io/pt-logos
+cd /home/brett/repositories/osinfra-io/pt-logos
 pre-commit run -a
 ```
 
@@ -48,7 +47,7 @@ export TF_PLUGIN_CACHE_DIR=$HOME/.opentofu.d/plugin-cache
 - `variables.tofu` - Input variables with validation rules (alphabetically ordered)
 - `outputs.tofu` - Output values (alphabetically ordered)
 - `providers.tofu` - Provider configurations (Google, GitHub, Datadog)
-- `backend.tofu` - GCS backend with KMS encryption
+- `backend.tofu` - GCS backend with KMS encryption (repositories with multiple directories can use `shared/backend.tofu` with symlinks to eliminate duplicates)
 
 **Configuration & Teams**:
 - `teams/*.tfvars` - Per-team configuration files (pattern: `{team_prefix}-{team_name}.tfvars`)
@@ -157,7 +156,7 @@ resource "example_resource" "this" {
 
 ### Formatting Rules
 - **List/Map formatting**: Always have an empty newline before any list, map, or logic block unless it's the first argument. Always have an empty newline after any list, map, or logic block unless it's the last argument.
-- **Function formatting**: Use single-line formatting for simple function calls. For complex functions with long lines or multiple arguments, break into multiple lines for readability. Prioritize readability over strict single-line requirements.
+- **Function formatting**: Use single-line formatting for simple function calls. For complex functions with long lines or multiple arguments, break into multiple lines for readability.
 
 **Function formatting examples**:
 ```hcl
