@@ -1,6 +1,15 @@
 # Resources
 # https://opentofu.org/docs/language/resources
 
+# Datadog API Key Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/api_key
+
+resource "datadog_api_key" "this" {
+  for_each = local.datadog_teams
+
+  name = each.value.handle
+}
+
 # Datadog Logs Index Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index
 # Organization-level resource managed only in logos-production-main workspace
@@ -46,11 +55,13 @@ resource "datadog_logs_index" "this" {
 # Order is defined by local.datadog_log_indexes_order list to preserve declaration sequence
 
 resource "datadog_logs_index_order" "this" {
-  count = local.within_logos && length(local.datadog_log_indexes) > 0 ? 1 : 0
-
   depends_on = [
     datadog_logs_index.this
   ]
+
+  lifecycle {
+    enabled = local.within_logos && length(local.datadog_log_indexes) > 0
+  }
 
   indexes = [
     for index_name in local.datadog_log_indexes_order :
@@ -65,7 +76,9 @@ resource "datadog_logs_index_order" "this" {
 # Organization-level resource managed only in logos-production-main workspace
 
 resource "datadog_organization_settings" "this" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   name = "osinfra.io"
 
@@ -104,15 +117,6 @@ resource "datadog_service_account" "this" {
   roles = [
     each.key == "pt-logos" ? data.datadog_role.this["Datadog Admin Role"].id : data.datadog_role.this["Datadog Standard Role"].id
   ]
-}
-
-# Datadog API Key Resource
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/api_key
-
-resource "datadog_api_key" "this" {
-  for_each = local.datadog_teams
-
-  name = each.value.handle
 }
 
 # Datadog Service Account Application Key Resource
@@ -208,7 +212,9 @@ resource "datadog_user" "this" {
 # Organization-level resource managed only in logos-production-main workspace
 
 resource "github_actions_organization_permissions" "this" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   allowed_actions = "selected"
 
@@ -230,6 +236,33 @@ resource "github_actions_organization_permissions" "this" {
   }
 
   enabled_repositories = "all"
+}
+
+# GitHub Actions Secret Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
+
+resource "github_actions_secret" "datadog_api_key" {
+  for_each = local.github_repository_datadog_secrets
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  plaintext_value = datadog_api_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_API_KEY"
+}
+
+resource "github_actions_secret" "datadog_app_key" {
+  for_each = local.github_repository_datadog_secrets
+
+  depends_on = [
+    github_repository.this
+  ]
+
+  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_APP_KEY"
 }
 
 # Github Branch Protection Resource
@@ -277,6 +310,32 @@ resource "github_issue_label" "this" {
   repository  = github_repository.this[each.value.repository].name
 }
 
+# GitHub Organization Membership Management - Split resources for lifecycle protection
+# Organization owners are protected from deletion to maintain platform access
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
+
+# Regular GitHub Members - Can be destroyed normally
+resource "github_membership" "members" {
+  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
+
+  role     = "member"
+  username = each.value
+}
+
+# GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
+resource "github_membership" "owners" {
+  for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
+
+  # Protect organization owners from accidental deletion
+  lifecycle {
+    ignore_changes  = [role] # Prevent accidental demotion
+    prevent_destroy = true
+  }
+
+  role     = "admin"
+  username = each.value
+}
+
 # Github Organization Security Manager Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/organization_security_manager
 
@@ -289,7 +348,9 @@ resource "github_issue_label" "this" {
 # Organization-level resource managed only in logos-production-main workspace
 
 resource "github_organization_settings" "this" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   # If you need to import the organization settings, you can do so with the following command:
   # tofu import github_organization_settings.this <org_id>
@@ -321,32 +382,6 @@ resource "github_organization_settings" "this" {
   secret_scanning_enabled_for_new_repositories                 = true
   secret_scanning_push_protection_enabled_for_new_repositories = true
   web_commit_signoff_required                                  = false
-}
-
-# GitHub Organization Membership Management - Split resources for lifecycle protection
-# Organization owners are protected from deletion to maintain platform access
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
-
-# Regular GitHub Members - Can be destroyed normally
-resource "github_membership" "members" {
-  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
-
-  role     = "member"
-  username = each.value
-}
-
-# GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
-resource "github_membership" "owners" {
-  for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
-
-  # Protect organization owners from accidental deletion
-  lifecycle {
-    ignore_changes  = [role] # Prevent accidental demotion
-    prevent_destroy = true
-  }
-
-  role     = "admin"
-  username = each.value
 }
 
 # Github Repository Resource
@@ -452,33 +487,6 @@ resource "github_repository_file" "security_policy" {
   repository          = each.key
 }
 
-# GitHub Actions Secret Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
-
-resource "github_actions_secret" "datadog_api_key" {
-  for_each = local.github_repository_datadog_secrets
-
-  depends_on = [
-    github_repository.this
-  ]
-
-  plaintext_value = datadog_api_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_API_KEY"
-}
-
-resource "github_actions_secret" "datadog_app_key" {
-  for_each = local.github_repository_datadog_secrets
-
-  depends_on = [
-    github_repository.this
-  ]
-
-  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_APP_KEY"
-}
-
 # Github Repository Webhook Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
 
@@ -537,6 +545,18 @@ resource "github_repository_webhook" "discord" {
   repository = each.key
 }
 
+# GitHub Team Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+
+resource "github_team" "children" {
+  for_each = local.github_child_teams
+
+  description    = each.value.description
+  name           = each.value.name
+  parent_team_id = github_team.parents[each.value.parent_team].id
+  privacy        = each.value.privacy
+}
+
 # GitHub Team Resource - Parent Teams
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
 
@@ -552,18 +572,6 @@ resource "github_team" "parents" {
   description = each.value.description
   name        = each.value.name
   privacy     = each.value.privacy
-}
-
-# GitHub Team Resource - Child Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
-
-resource "github_team" "children" {
-  for_each = local.github_child_teams
-
-  description    = each.value.description
-  name           = each.value.name
-  parent_team_id = github_team.parents[each.value.parent_team].id
-  privacy        = each.value.privacy
 }
 
 # GitHub Team Membership Resource - Child Teams
@@ -654,6 +662,22 @@ resource "github_team_settings" "this" {
 # TODO: Implement when Terraform provider supports Projects V2
 # Tracking: https://github.com/integrations/terraform-provider-github/issues/1661
 
+# Google Billing Account IAM Member
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
+
+# Grant billing user role to organization billing users group
+# Single group where all team service accounts are added for billing access
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_billing_account_iam_member" "billing_users" {
+  lifecycle {
+    enabled = local.within_logos && var.google_billing_account != null
+  }
+
+  billing_account_id = var.google_billing_account
+  member             = "group:${google_cloud_identity_group.billing_users.group_key[0].id}"
+  role               = "roles/billing.user"
+}
+
 # Google Billing Budget Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_budget
 
@@ -691,20 +715,6 @@ resource "google_billing_budget" "teams" {
   }
 }
 
-# Google Billing Account IAM Member
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
-
-# Grant billing user role to organization billing users group
-# Single group where all team service accounts are added for billing access
-# Organization-level resource managed only in logos-production-main workspace
-resource "google_billing_account_iam_member" "billing_users" {
-  count = local.within_logos && var.google_billing_account != null ? 1 : 0
-
-  billing_account_id = var.google_billing_account
-  member             = "group:${google_cloud_identity_group.billing_users[0].group_key[0].id}"
-  role               = "roles/billing.user"
-}
-
 # Cloud Identity Group Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
 
@@ -712,7 +722,9 @@ resource "google_billing_account_iam_member" "billing_users" {
 # Team repos manage membership via google_cloud_identity_group_membership resources
 # Organization-level resource managed only in logos-production-main workspace
 resource "google_cloud_identity_group" "billing_users" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   description  = local.google_billing_users_group.description
   display_name = local.google_billing_users_group.display_name
@@ -735,7 +747,9 @@ resource "google_cloud_identity_group" "billing_users" {
 # Add your groups as nested groups to this group (don't add individual users)
 # Organization-level resource managed only in logos-production-main workspace
 resource "google_cloud_identity_group" "gke_security_groups" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   description  = local.google_gke_security_groups.description
   display_name = local.google_gke_security_groups.display_name
@@ -784,7 +798,7 @@ resource "google_cloud_identity_group" "this" {
 resource "google_cloud_identity_group_membership" "gke_security_groups_managers" {
   for_each = local.within_logos ? local.google_gke_security_groups_managers : {}
 
-  group = google_cloud_identity_group.gke_security_groups[0].id
+  group = google_cloud_identity_group.gke_security_groups.id
 
   preferred_member_key {
     id = each.value.manager
@@ -798,7 +812,7 @@ resource "google_cloud_identity_group_membership" "gke_security_groups_managers"
 resource "google_cloud_identity_group_membership" "gke_security_groups_members" {
   for_each = local.within_logos ? local.google_gke_security_groups_members : {}
 
-  group = google_cloud_identity_group.gke_security_groups[0].id
+  group = google_cloud_identity_group.gke_security_groups.id
 
   preferred_member_key {
     id = each.value.member
@@ -810,7 +824,7 @@ resource "google_cloud_identity_group_membership" "gke_security_groups_members" 
 resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
   for_each = local.within_logos ? local.google_gke_security_groups_owners : {}
 
-  group = google_cloud_identity_group.gke_security_groups[0].id
+  group = google_cloud_identity_group.gke_security_groups.id
 
   preferred_member_key {
     id = each.value.owner
@@ -893,21 +907,6 @@ resource "google_folder" "team" {
 # Google Folder IAM Member Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
 
-# Assign identity groups to team folders with their specified roles
-# Groups inherit access to all child environment folders
-resource "google_folder_iam_member" "team_access" {
-  for_each = local.google_iam_bindings
-
-  depends_on = [
-    google_cloud_identity_group.this,
-    google_folder.team
-  ]
-
-  folder = google_folder.team[each.value.team_key].name
-  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
-  role   = each.value.role
-}
-
 # Grant corpus browser groups access to environment folders for resource discovery
 # Each corpus group (sandbox/non-production/production) has browser role on corresponding environment folders across all teams
 # This allows service accounts to list/discover resources without needing direct access
@@ -984,4 +983,19 @@ resource "google_folder_iam_member" "corpus_xpn_admins" {
   folder = each.value.folder
   member = "group:${each.value.group_key}"
   role   = "roles/compute.xpnAdmin"
+}
+
+# Assign identity groups to team folders with their specified roles
+# Groups inherit access to all child environment folders
+resource "google_folder_iam_member" "team_access" {
+  for_each = local.google_iam_bindings
+
+  depends_on = [
+    google_cloud_identity_group.this,
+    google_folder.team
+  ]
+
+  folder = google_folder.team[each.value.team_key].name
+  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
+  role   = each.value.role
 }
