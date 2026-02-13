@@ -387,5 +387,3 @@ These outputs provide downstream repositories with foundational infrastructure i
 - **Google Identity groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-administrators@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
 - **Datadog teams**: `{team_prefix}-{team_key}` handle format
-
-## GitHub Actions Mermaid Diagram

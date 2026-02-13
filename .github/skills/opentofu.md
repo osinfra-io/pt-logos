@@ -35,14 +35,8 @@ Specialized guidance for OpenTofu (Terraform) infrastructure-as-code workflows.
 
 ```hcl
 resource "google_service_account" "example" {
-  for_each = local.accounts
   depends_on = [google_project_service.apis]
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  # Regular arguments alphabetically
+  for_each = local.accounts
   account_id = each.key
   display_name = each.value.name
   project = var.project_id
