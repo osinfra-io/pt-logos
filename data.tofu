@@ -43,7 +43,9 @@ data "datadog_user" "existing_admins" {
 # Only fetch in logos-production-main workspace to avoid conflicts
 
 data "github_app" "pr_approve_and_merge_osinfra_io" {
-  count = local.within_logos ? 1 : 0
+  lifecycle {
+    enabled = local.within_logos
+  }
 
   slug = "pr-approve-and-merge-osinfra-io"
 }
