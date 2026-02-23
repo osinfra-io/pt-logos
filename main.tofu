@@ -144,11 +144,11 @@ resource "datadog_team" "this" {
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_membership
 
 resource "datadog_team_membership" "this" {
-  for_each = local.datadog_team_memberships
-
   depends_on = [
     datadog_user.this
   ]
+
+  for_each = local.datadog_team_memberships
 
   role    = each.value.role
   team_id = datadog_team.this[each.value.team_id].id
@@ -304,9 +304,9 @@ resource "github_branch_protection" "this" {
 resource "github_issue_label" "this" {
   for_each = local.github_repository_labels
 
-  name        = each.value.name
   color       = each.value.color
   description = each.value.description
+  name        = each.value.name
   repository  = github_repository.this[each.value.repository].name
 }
 
@@ -912,6 +912,10 @@ resource "google_folder" "team" {
 # This allows service accounts to list/discover resources without needing direct access
 # Created in every team workspace to grant access to that team's environment folders
 resource "google_folder_iam_member" "corpus_browsers" {
+  depends_on = [
+    google_folder.environment
+  ]
+
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
@@ -924,10 +928,6 @@ resource "google_folder_iam_member" "corpus_browsers" {
     ]) : pair.key => pair
   }
 
-  depends_on = [
-    google_folder.environment
-  ]
-
   folder = each.value.folder
   member = "group:${each.value.group_key}"
   role   = "roles/browser"
@@ -938,6 +938,10 @@ resource "google_folder_iam_member" "corpus_browsers" {
 # This allows pt-corpus to create projects in the appropriate environment folders for any team
 # Created in every team workspace to grant access to that team's environment folders
 resource "google_folder_iam_member" "corpus_project_creators" {
+  depends_on = [
+    google_folder.environment
+  ]
+
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
@@ -950,10 +954,6 @@ resource "google_folder_iam_member" "corpus_project_creators" {
     ]) : pair.key => pair
   }
 
-  depends_on = [
-    google_folder.environment
-  ]
-
   folder = each.value.folder
   member = "group:${each.value.group_key}"
   role   = "roles/resourcemanager.projectCreator"
@@ -964,6 +964,10 @@ resource "google_folder_iam_member" "corpus_project_creators" {
 # This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
 # Created in every team workspace to grant access to that team's environment folders
 resource "google_folder_iam_member" "corpus_xpn_admins" {
+  depends_on = [
+    google_folder.environment
+  ]
+
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
@@ -976,10 +980,6 @@ resource "google_folder_iam_member" "corpus_xpn_admins" {
     ]) : pair.key => pair
   }
 
-  depends_on = [
-    google_folder.environment
-  ]
-
   folder = each.value.folder
   member = "group:${each.value.group_key}"
   role   = "roles/compute.xpnAdmin"
@@ -988,12 +988,12 @@ resource "google_folder_iam_member" "corpus_xpn_admins" {
 # Assign identity groups to team folders with their specified roles
 # Groups inherit access to all child environment folders
 resource "google_folder_iam_member" "team_access" {
-  for_each = local.google_iam_bindings
-
   depends_on = [
     google_cloud_identity_group.this,
     google_folder.team
   ]
+
+  for_each = local.google_iam_bindings
 
   folder = google_folder.team[each.value.team_key].name
   member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"

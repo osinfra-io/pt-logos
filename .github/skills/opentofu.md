@@ -34,12 +34,11 @@ Specialized guidance for OpenTofu (Terraform) infrastructure-as-code workflows.
 ### Meta-Arguments Priority
 
 ```hcl
-resource "google_service_account" "example" {
-  depends_on = [google_project_service.apis]
-  for_each = local.accounts
-  account_id = each.key
-  display_name = each.value.name
-  project = var.project_id
+resource "example" "this" {
+  depends_on = [example.dependency]
+  for_each = local.items
+  name = each.key
+  description = each.value.description
 }
 ```
 
@@ -50,7 +49,7 @@ resource "google_service_account" "example" {
 
 ```hcl
 lifecycle {
-  ignore_changes = [role]
+  ignore_changes = [attribute]
   prevent_destroy = true
 }
 ```
@@ -92,17 +91,16 @@ resource "example" "conditional" {
 
 ```hcl
 locals {
-  within_logos = terraform.workspace == "pt-logos-main-production"
+  is_primary_workspace = terraform.workspace == "primary-workspace-name"
 }
 
-resource "google_billing_account_iam_member" "terraform" {
+resource "example" "this" {
   lifecycle {
-    enabled = local.within_logos && var.google_billing_account != null
+    enabled = local.is_primary_workspace && var.resource_id != null
   }
 
-  billing_account_id = var.google_billing_account
-  member = "serviceAccount:${data.google_service_account.terraform.email}"
-  role = "roles/billing.user"
+  resource_id = var.resource_id
+  attribute = local.computed_value
 }
 ```
 
@@ -115,27 +113,24 @@ resource "google_billing_account_iam_member" "terraform" {
 - Access outputs: `module.<name>.<output>`
 - Never hardcode values available from modules
 
-### Helpers Module Pattern
+### Module Pattern
 
 ```hcl
-module "helpers" {
-  source = "github.com/osinfra-io/opentofu-core-helpers//root?ref=<version>"
+module "example" {
+  source = "github.com/org/module-repo//path?ref=<version>"
 
-  cost_center = "x001"
-  data_classification = "public"
-  logos_workspaces = ["<team>-main-production", "pt-logos-main-production"]
-  repository = "<repo-name>"
-  team = "<team-name>"
+  attribute_one = var.input_value
+  attribute_two = local.computed_value
+  list_attribute = var.list_input
 }
 ```
 
-Provides:
+Common outputs:
 
-- `module.helpers.labels` - Consistent resource labels
-- `module.helpers.env` - Environment detection (sb/np/prod)
-- `module.helpers.project_naming` - Standardized naming
-- `module.helpers.environment_folder_id` - Folder hierarchy
-- `module.helpers.teams` - Team data and configurations
+- `module.example.labels` - Standardized resource labels
+- `module.example.environment` - Environment detection
+- `module.example.naming` - Naming conventions
+- `module.example.computed_values` - Derived configurations
 
 ## Data Transformations
 
@@ -143,26 +138,26 @@ Provides:
 
 ```hcl
 locals {
-  flat_resources = flatten([
-    for team_key, team in var.teams : [
-      for role_key, members in team.roles : {
-        key = "${team_key}-${role_key}"
-        team = team_key
-        role = role_key
-        members = members
+  flat_items = flatten([
+    for parent_key, parent in var.nested_structure : [
+      for child_key, child_value in parent.children : {
+        key = "${parent_key}-${child_key}"
+        parent_id = parent_key
+        child_id = child_key
+        attributes = child_value
       }
     ]
   ])
 }
 ```
 
-### Email Normalization
+### String Transformation
 
 ```hcl
 locals {
-  normalize_email = {
-    for email in local.all_emails :
-    email => replace(replace(email, "@", "-at-"), ".", "-")
+  normalized_values = {
+    for value in local.input_values :
+    value => replace(replace(value, "special_char", "replacement"), "pattern", "substitute")
   }
 }
 ```
@@ -171,13 +166,13 @@ locals {
 
 ```hcl
 locals {
-  unique_members = distinct(flatten([
-    for team in var.teams : team.members
+  unique_items = distinct(flatten([
+    for group in var.groups : group.items
   ]))
 
   non_overlapping = setsubtract(
-    local.all_members,
-    local.admin_members
+    local.all_items,
+    local.excluded_items
   )
 }
 ```
@@ -203,11 +198,11 @@ locals {
 
 ```hcl
 locals {
-  within_logos = terraform.workspace == "pt-logos-main-production"
+  should_create = terraform.workspace == "target-workspace"
 }
 
-resource "example" "org_level" {
-  for_each = local.within_logos ? local.org_resources : {}
+resource "example" "conditional" {
+  for_each = local.should_create ? local.resource_map : {}
   # ...
 }
 ```
@@ -215,9 +210,9 @@ resource "example" "org_level" {
 **For single resources (OpenTofu v1.11+):**
 
 ```hcl
-resource "example" "org_level" {
+resource "example" "conditional" {
   lifecycle {
-    enabled = local.within_logos
+    enabled = local.should_create
   }
   # ...
 }
@@ -253,30 +248,6 @@ export TF_PLUGIN_CACHE_DIR=$HOME/.opentofu.d/plugin-cache
 - **Organization-level resources:** Conditionally created using `local.within_logos` check
 - **No helpers module:** This repository IS the source of truth that other teams consume
 - **Foundational outputs:** Provides team data, identity groups, and organizational structure consumed downstream
-
-**Key Patterns:**
-
-```hcl
-# Organization-level conditional resource creation
-locals {
-  within_logos = terraform.workspace == "pt-logos-main-production"
-}
-
-resource "github_organization_settings" "this" {
-  lifecycle {
-    enabled = local.within_logos
-  }
-  # ...
-}
-
-# Team structure transformation
-locals {
-  all_github_users = toset(concat(
-    tolist(local.github_users),
-    local.github_organization_owners
-  ))
-}
-```
 
 **Workflow:** Direct deployment to production on push to main (no multi-environment progression).
 
