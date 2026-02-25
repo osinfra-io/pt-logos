@@ -94,37 +94,16 @@ Additionally, it creates:
 This repository uses a single production workflow that deploys directly on push to main:
 
 ```mermaid
-graph TB
-    A[Push to main<br/>or workflow_dispatch] --> B{Production Workflow}
-    B --> C1[Matrix Job: pt-logos]
-    B --> C2[Matrix Job: pt-corpus]
-    B --> C3[Matrix Job: pt-pneuma]
-    B --> C4[Matrix Job: st-ethos]
+graph LR
+    C1[Team: pt-logos]
+    C2[Team: pt-corpus]
+    C3[Team: pt-pneuma]
+    C4[Team: st-ethos]
 
-    C1 --> D1[Called Workflow:<br/>plan-and-apply.yml]
-    C2 --> D2[Called Workflow:<br/>plan-and-apply.yml]
-    C3 --> D3[Called Workflow:<br/>plan-and-apply.yml]
-    C4 --> D4[Called Workflow:<br/>plan-and-apply.yml]
-
-    D1 --> E1[Team: pt-logos<br/>Production Environment]
-    D2 --> E2[Team: pt-corpus<br/>Production Environment]
-    D3 --> E3[Team: pt-pneuma<br/>Production Environment]
-    D4 --> E4[Team: st-ethos<br/>Production Environment]
-
-    style A fill:#e1f5ff
-    style B fill:#fff4e6
-    style C1 fill:#fff4e6
-    style C2 fill:#fff4e6
-    style C3 fill:#fff4e6
-    style C4 fill:#fff4e6
-    style D1 fill:#f0f0f0
-    style D2 fill:#f0f0f0
-    style D3 fill:#f0f0f0
-    style D4 fill:#f0f0f0
-    style E1 fill:#d4edda
-    style E2 fill:#d4edda
-    style E3 fill:#d4edda
-    style E4 fill:#d4edda
+    style C1 fill:#d4edda,color:#000
+    style C2 fill:#d4edda,color:#000
+    style C3 fill:#d4edda,color:#000
+    style C4 fill:#d4edda,color:#000
 ```
 
 ## Interface
