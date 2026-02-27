@@ -114,6 +114,7 @@ resource "datadog_service_account" "this" {
 
   email = "${each.value.handle}@osinfra.io"
   name  = each.value.handle
+
   roles = [
     each.key == "pt-logos" ? data.datadog_role.this["Datadog Admin Role"].id : data.datadog_role.this["Datadog Standard Role"].id
   ]
@@ -168,11 +169,11 @@ resource "datadog_team_membership" "this" {
 # Note: Resource keys use normalized email addresses (@ -> -at-, . -> -) but actual email values are preserved
 # Datadog Organization Admins - Protected from deletion
 resource "datadog_user" "admins" {
-  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
-
   depends_on = [
     data.datadog_role.this
   ]
+
+  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
 
   # Protect organization admins from accidental deletion
   lifecycle {
@@ -193,11 +194,11 @@ resource "datadog_user" "admins" {
 
 # Regular Datadog Users - Can be destroyed normally
 resource "datadog_user" "this" {
-  for_each = local.datadog_regular_users
-
   depends_on = [
     data.datadog_role.this
   ]
+
+  for_each = local.datadog_regular_users
 
   email = each.value
   name  = each.value
@@ -242,11 +243,11 @@ resource "github_actions_organization_permissions" "this" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
 
 resource "github_actions_secret" "datadog_api_key" {
-  for_each = local.github_repository_datadog_secrets
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repository_datadog_secrets
 
   plaintext_value = datadog_api_key.this[each.value.team_key].key
   repository      = each.key
@@ -254,11 +255,11 @@ resource "github_actions_secret" "datadog_api_key" {
 }
 
 resource "github_actions_secret" "datadog_app_key" {
-  for_each = local.github_repository_datadog_secrets
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repository_datadog_secrets
 
   plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
   repository      = each.key
@@ -269,11 +270,11 @@ resource "github_actions_secret" "datadog_app_key" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/branch_protection
 
 resource "github_branch_protection" "this" {
-  for_each = local.github_branch_protections
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_branch_protections
 
   enforce_admins                  = false
   pattern                         = "main"
@@ -398,8 +399,8 @@ resource "github_repository" "this" {
   archive_on_destroy          = true
   delete_branch_on_merge      = true
   description                 = each.value.description
-  has_downloads               = false
   has_discussions             = false
+  has_downloads               = false
   has_issues                  = true
   has_projects                = true
   has_wiki                    = false
@@ -409,20 +410,22 @@ resource "github_repository" "this" {
   name                        = each.key
   squash_merge_commit_message = "BLANK"
   squash_merge_commit_title   = "PR_TITLE"
-  topics                      = each.value.topics
-  visibility                  = "public"
-  vulnerability_alerts        = true
+
+  topics = each.value.topics
+
+  visibility           = "public"
+  vulnerability_alerts = true
 }
 
 # GitHub Repository Environment Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_environment
 
 resource "github_repository_environment" "this" {
-  for_each = local.github_repository_environments
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repository_environments
 
   dynamic "deployment_branch_policy" {
     for_each = each.value.deployment_branch_policy != null ? [each.value.deployment_branch_policy] : []
@@ -448,11 +451,11 @@ resource "github_repository_environment" "this" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
 
 resource "github_repository_file" "release" {
-  for_each = local.github_repositories
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repositories
 
   branch         = "main"
   commit_author  = "Open Source Infrastructure as Code Service Account"
@@ -467,11 +470,11 @@ resource "github_repository_file" "release" {
 }
 
 resource "github_repository_file" "security_policy" {
-  for_each = local.github_repositories
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repositories
 
   branch         = "main"
   commit_author  = "Open Source Infrastructure as Code Service Account"
@@ -491,11 +494,11 @@ resource "github_repository_file" "security_policy" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
 
 resource "github_repository_webhook" "datadog" {
-  for_each = local.github_repository_datadog_webhooks
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repository_datadog_webhooks
 
   active = true
 
@@ -526,11 +529,11 @@ resource "github_repository_webhook" "datadog" {
 }
 
 resource "github_repository_webhook" "discord" {
-  for_each = local.github_repository_discord_webhooks
-
   depends_on = [
     github_repository.this
   ]
+
+  for_each = local.github_repository_discord_webhooks
 
   active = true
 
@@ -608,12 +611,12 @@ resource "github_team_membership" "parents" {
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
 
 resource "github_team_repository" "children" {
-  for_each = local.github_team_repository_child_permissions
-
   depends_on = [
     github_repository.this,
     github_team.children
   ]
+
+  for_each = local.github_team_repository_child_permissions
 
   permission = each.value.permission
   repository = github_repository.this[each.value.repository].name
@@ -621,12 +624,12 @@ resource "github_team_repository" "children" {
 }
 
 resource "github_team_repository" "parents" {
-  for_each = local.github_team_repository_parent_permissions
-
   depends_on = [
     github_repository.this,
     github_team.parents
   ]
+
+  for_each = local.github_team_repository_parent_permissions
 
   permission = each.value.permission
   repository = github_repository.this[each.value.repository].name
@@ -700,18 +703,18 @@ resource "google_billing_budget" "teams" {
   display_name = "${each.value.display_name} Monthly"
 
   threshold_rules {
+    spend_basis       = "CURRENT_SPEND"
     threshold_percent = 0.50
-    spend_basis       = "CURRENT_SPEND"
   }
 
   threshold_rules {
+    spend_basis       = "CURRENT_SPEND"
     threshold_percent = 0.75
-    spend_basis       = "CURRENT_SPEND"
   }
 
   threshold_rules {
-    threshold_percent = 1.0
     spend_basis       = "CURRENT_SPEND"
+    threshold_percent = 1.0
   }
 }
 
@@ -919,11 +922,11 @@ resource "google_folder_iam_member" "corpus_browsers" {
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
-        key         = env_key
+        environment = env.environment
         folder      = google_folder.environment[env_key].name
         group_key   = "pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
+        key         = env_key
         team        = env.team
-        environment = env.environment
       }
     ]) : pair.key => pair
   }
@@ -945,11 +948,11 @@ resource "google_folder_iam_member" "corpus_project_creators" {
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
-        key         = env_key
+        environment = env.environment
         folder      = google_folder.environment[env_key].name
         group_key   = "pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
+        key         = env_key
         team        = env.team
-        environment = env.environment
       }
     ]) : pair.key => pair
   }
@@ -971,11 +974,11 @@ resource "google_folder_iam_member" "corpus_xpn_admins" {
   for_each = {
     for pair in flatten([
       for env_key, env in local.environments : {
-        key         = env_key
+        environment = env.environment
         folder      = google_folder.environment[env_key].name
         group_key   = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
+        key         = env_key
         team        = env.team
-        environment = env.environment
       }
     ]) : pair.key => pair
   }

@@ -1,6 +1,6 @@
 # Logos
 
-[![Dependabot](https://img.shields.io/github/actions/workflow/status/osinfra-io/pt-logos/dependabot.yml?branch=main&style=for-the-badge&logo=github&label=Dependabot)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml)
+[![Dependabot](https://img.shields.io/github/actions/workflow/status/osinfra-io/pt-logos/dependabot.yml?style=for-the-badge&logo=github&color=2088FF&label=Dependabot)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml)
 
 ## 📄 Repository Description
 
@@ -20,6 +20,13 @@ The foundational infrastructure automates the creation of:
 - **Datadog Logs Management** with organization-wide log indexes, retention policies, and exclusion filters
 - **Datadog Organization Settings** for SAML configuration, widget sharing, and security policies
 - **User Management** with lifecycle protection for organization owners and admins
+- **Datadog API Keys and Service Accounts** with application keys per team for programmatic access
+- **GitHub Actions Secrets** (`DATADOG_API_KEY`, `DATADOG_APP_KEY`) per configured repository
+- **GitHub Actions Organization Permissions** for consistent Actions configuration
+- **GitHub Repository Files** (`.github/release.yml`, `SECURITY.md`) seeded into each repository
+- **GitHub Issue Labels** with a default set of labels per repository
+- **Google Billing Budgets** per team for cost management
+- **Google Cloud Identity Groups** for billing users and GKE security groups at the organizational level
 - **Foundational outputs** for downstream consumption
 
 This establishes the foundational order creating the organizational hierarchy, team structures, GitHub repositories, and identity management. Teams can operate autonomously with consistent security practices across sandbox, non-production, and production environments while maintaining robust administrative protections.
@@ -62,6 +69,10 @@ The module creates a three-level Google Cloud Platform folder hierarchy followin
 
 ```text
 Platform Teams/ (pre-created)
+├── Corpus/
+│   ├── Sandbox/
+│   ├── Non-Production/
+│   └── Production/
 ├── Logos/
 │   ├── Sandbox/
 │   ├── Non-Production/
@@ -91,7 +102,7 @@ Additionally, it creates:
 
 ## GitHub Actions Workflow
 
-This repository uses a single production workflow that deploys directly on push to main:
+This repository uses a single production workflow that deploys directly on push to main (excluding `.md` files) and supports manual dispatch:
 
 ```mermaid
 graph LR
@@ -179,6 +190,7 @@ Each team can optionally define repositories that will be created and managed:
   - **`push_allowances`**: List of teams allowed to push to the repository (typically includes the owning team)
   - **`enable_discord_webhook`**: Optional boolean to enable Discord webhook notifications (default: true)
   - **`enable_datadog_webhook`**: Optional boolean to enable Datadog webhook notifications (default: true)
+  - **`enable_datadog_secrets`**: Optional boolean to create Datadog API/APP key Actions secrets for the repository (default: false)
 
 **Repository Features:**
 
@@ -245,7 +257,7 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 **Organization-Level Configuration (managed only in `pt-logos-main-production` workspace):**
 
 - **Log Indexes**: Organization-wide log routing and retention policies
-  - Hardcoded in `locals.tofu` with index configurations for different log sources (datadog, debug, envoy, k8s, istio, subnet, main)
+  - Hardcoded in `locals.tofu` with index configurations grouped by retention tier (high-retention, low-retention, medium-retention, main)
   - Each index defines daily limits, retention periods, filter queries, and optional exclusion filters
   - Indexes are ordered automatically for proper log routing precedence
 
@@ -343,6 +355,8 @@ Complete team infrastructure information including:
 - Folder hierarchy (team type folder, team folder ID, environment folder IDs)
 - Identity groups with email addresses, display names, descriptions, and roles
 
+Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), `google_kubernetes_engine_clusters` (cluster configurations), and `google_subnets` (subnet configurations).
+
 These outputs provide downstream repositories with foundational infrastructure information including folder placement and access controls for any additional resource deployments.
 
 ## Validation Rules
@@ -362,7 +376,7 @@ These outputs provide downstream repositories with foundational infrastructure i
 - **Team Type folders**: Team Topologies categories with "Teams" suffix (e.g., "Platform Teams", "Stream-aligned Teams")
 - **Team folders**: Use team display names from configuration (e.g., "Logos", "Ethos")
 - **Environment folders**: Hardcoded environment names (e.g., "Sandbox", "Non-Production", "Production")
-- **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `cst-` (complicated-subsystem), `et-` (enabling)
-- **Google Identity groups**: `{team_prefix}-{team_key}-{plural_role}@{domain}` (e.g., `pt-logos-administrators@osinfra.io`, `pt-logos-readers@osinfra.io`)
+- **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `ct-` (complicated-subsystem), `et-` (enabling)
+- **Google Identity groups**: `{team_key}-{plural_role}@{domain}` (where `team_key` already includes the prefix, e.g. `pt-logos-administrators@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
 - **Datadog teams**: `{team_prefix}-{team_key}` handle format

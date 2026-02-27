@@ -12,16 +12,6 @@ output "teams" {
   description = "Comprehensive team infrastructure with folders, identity groups, and metadata"
   value = {
     for team_key, team in var.team : team_key => {
-      # Team metadata
-      display_name = team.display_name
-
-      # Environment folders
-      environments = {
-        for env_key, env in local.environments :
-        env.environment => google_folder.environment[env_key].id
-        if startswith(env_key, "${team_key}-")
-      }
-
       # Billing users group (organization-wide, same for all teams)
       billing_users_group = local.within_logos ? {
         description  = local.google_billing_users_group.description
@@ -30,17 +20,14 @@ output "teams" {
         name         = google_cloud_identity_group.billing_users.name
       } : null
 
-      # Identity groups for this team
-      identity_groups = {
-        for group_key, group in local.google_cloud_identity_groups :
-        trimsuffix(trimprefix(group_key, "${team_key}-"), "") => {
-          description  = group.description
-          display_name = group.display_name
-          email        = google_cloud_identity_group.this[group_key].group_key[0].id
-          name         = google_cloud_identity_group.this[group_key].name
-          role         = trimsuffix(trimprefix(group_key, "${team_key}-"), "")
-        }
-        if startswith(group_key, "${team_key}-")
+      # Team metadata
+      display_name = team.display_name
+
+      # Environment folders
+      environments = {
+        for env_key, env in local.environments :
+        env.environment => google_folder.environment[env_key].id
+        if startswith(env_key, "${team_key}-")
       }
 
       # GitHub Repositories for this team
@@ -59,6 +46,19 @@ output "teams" {
 
       # Google subnets for this team (regional organization)
       google_subnets = lookup(team, "google_subnets", {})
+
+      # Identity groups for this team
+      identity_groups = {
+        for group_key, group in local.google_cloud_identity_groups :
+        trimsuffix(trimprefix(group_key, "${team_key}-"), "") => {
+          description  = group.description
+          display_name = group.display_name
+          email        = google_cloud_identity_group.this[group_key].group_key[0].id
+          name         = google_cloud_identity_group.this[group_key].name
+          role         = trimsuffix(trimprefix(group_key, "${team_key}-"), "")
+        }
+        if startswith(group_key, "${team_key}-")
+      }
 
       # Folder hierarchy
       team_folder_id      = google_folder.team[team_key].id

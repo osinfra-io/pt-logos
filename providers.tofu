@@ -9,8 +9,8 @@ terraform {
     method "unencrypted" "migrate" {}
 
     key_provider "gcp_kms" "default" {
-      kms_encryption_key = var.state_kms_encryption_key
       key_length         = 32
+      kms_encryption_key = var.state_kms_encryption_key
     }
 
     method "aes_gcm" "default" {
@@ -41,19 +41,19 @@ terraform {
 
   required_providers {
 
-    # Google Cloud Platform Provider
-    # https://search.opentofu.org/provider/hashicorp/google/latest/docs
-
-    google = {
-      source = "hashicorp/google"
+    datadog = {
+      source = "datadog/datadog"
     }
 
     github = {
       source = "integrations/github"
     }
 
-    datadog = {
-      source = "datadog/datadog"
+    # Google Cloud Platform Provider
+    # https://search.opentofu.org/provider/hashicorp/google/latest/docs
+
+    google = {
+      source = "hashicorp/google"
     }
   }
 }
@@ -83,8 +83,8 @@ provider "datadog" {
 # }
 
 provider "github" {
-  token = var.github_token
   owner = "osinfra-io"
+  token = var.github_token
 }
 
 # Google Cloud Provider
