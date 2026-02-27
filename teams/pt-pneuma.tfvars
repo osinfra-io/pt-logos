@@ -7,11 +7,6 @@ team = {
 
     display_name = "Pneuma" # The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation.
 
-    github_parent_team_memberships = {
-      maintainers = ["brettcurtis"]
-      members     = []
-    }
-
     github_child_teams_memberships = {
       non-production-approvers = {
         maintainers = ["brettcurtis"]
@@ -31,56 +26,17 @@ team = {
       }
     }
 
-    google_artifact_registry_groups_memberships = {
-      readers = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      writers = {
-        managers = []
-        members  = []
-        owners   = []
-      }
-    }
-
-    google_basic_groups_memberships = {
-      admin = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      reader = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      writer = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-    }
-
-    google_kubernetes_engine_clusters = {
-      "pt-pneuma" = {
-        enable_gke_hub_host = true
-        node_pools = {
-          default-pool = {
-            machine_type   = "e2-standard-2"
-            max_node_count = 1
-            min_node_count = 0
-          }
-        }
-      }
+    github_parent_team_memberships = {
+      maintainers = ["brettcurtis"]
+      members     = []
     }
 
     github_repositories = {
       "pt-pneuma" = {
         description = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation." # This can be inferred from the team description (NOTE: need a description in the variable).
 
-        enable_datadog_webhook = true
         enable_datadog_secrets = true
+        enable_datadog_webhook = true
         enable_discord_webhook = true
 
         environments = {
@@ -1190,6 +1146,49 @@ team = {
       }
     }
 
+    google_artifact_registry_groups_memberships = {
+      readers = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      writers = {
+        managers = []
+        members  = []
+        owners   = []
+      }
+    }
+
+    google_basic_groups_memberships = {
+      admin = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      reader = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      writer = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+    }
+
+    google_kubernetes_engine_clusters = {
+      "pt-pneuma" = {
+        enable_gke_hub_host = true
+        node_pools = {
+          default-pool = {
+            machine_type   = "e2-standard-2"
+            max_node_count = 1
+            min_node_count = 0
+          }
+        }
+      }
+    }
     google_subnets = {
       "us-east1" = {
         "pt-pneuma-us-east1-d" = {

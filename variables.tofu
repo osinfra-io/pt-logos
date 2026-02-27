@@ -63,14 +63,32 @@ variable "google_primary_domain" {
 
 variable "google_team_type_folder_ids" {
   default = {
-    "platform-team"              = "831575438843" # Platform Teams folder ID
-    "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
     "complicated-subsystem-team" = "195659428881" # Complicated-subsystem Teams folder ID
     "enabling-team"              = "141076777961" # Enabling Teams folder ID
+    "platform-team"              = "831575438843" # Platform Teams folder ID
+    "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
   }
 
   description = "Map of team type to their pre-created folder IDs"
   type        = map(string)
+}
+
+# These three state_* variables are required for early variable evaluation for backend and provider configuration.
+# They are defined in the GitHub Actions called workflows and should NOT be set in the OpenTofu configuration.
+
+variable "state_bucket" {
+  description = "The name of the GCS bucket to store state files"
+  type        = string
+}
+
+variable "state_kms_encryption_key" {
+  description = "The KMS encryption key for state and plan files"
+  type        = string
+}
+
+variable "state_prefix" {
+  description = "The prefix for state files in the GCS bucket"
+  type        = string
 }
 
 variable "team" {
@@ -91,11 +109,6 @@ variable "team" {
 
     display_name = string
 
-    github_parent_team_memberships = object({
-      maintainers = list(string)
-      members     = list(string)
-    })
-
     # GitHub child teams (hardcoded teams - only add members to predefined teams)
     github_child_teams_memberships = object({
       non-production-approvers = object({
@@ -115,6 +128,32 @@ variable "team" {
         members     = list(string)
       })
     })
+
+    github_parent_team_memberships = object({
+      maintainers = list(string)
+      members     = list(string)
+    })
+
+    github_repositories = optional(map(object({
+      description            = string
+      enable_datadog_secrets = optional(bool, false)
+      enable_datadog_webhook = optional(bool, true)
+      enable_discord_webhook = optional(bool, true)
+
+      environments = optional(map(object({
+        deployment_branch_policy = optional(object({
+          custom_branch_policies = optional(bool, false)
+          protected_branches     = optional(bool, true)
+        }))
+        name = string
+        reviewers = object({
+          teams = list(string)
+        })
+      })), {})
+
+      push_allowances = list(string)
+      topics          = list(string)
+    })), {})
 
     google_artifact_registry_groups_memberships = optional(object({
       readers = object({
@@ -153,11 +192,26 @@ variable "team" {
       owners   = list(string)
     })), {})
 
+    google_kubernetes_engine_clusters = optional(map(object({
+      enable_gke_hub_host = optional(bool, false)
+      node_pools = map(object({
+        machine_type   = string
+        max_node_count = number
+        min_node_count = number
+      }))
+    })), {})
+
     google_project_creator_groups_memberships = optional(map(object({
       managers = list(string)
       members  = list(string)
       owners   = list(string)
     })), {})
+
+    google_subnets = optional(map(map(object({
+      ip_cidr_range          = string
+      pod_ip_cidr_range      = string
+      services_ip_cidr_range = string
+    }))), {})
 
     google_xpn_admin_groups_memberships = optional(map(object({
       managers = list(string)
@@ -168,42 +222,6 @@ variable "team" {
     projects = optional(map(object({
       services = list(string)
     })), {})
-
-    github_repositories = optional(map(object({
-      description            = string
-      enable_datadog_secrets = optional(bool, false)
-      enable_datadog_webhook = optional(bool, true)
-      enable_discord_webhook = optional(bool, true)
-
-      environments = optional(map(object({
-        deployment_branch_policy = optional(object({
-          custom_branch_policies = optional(bool, false)
-          protected_branches     = optional(bool, true)
-        }))
-        name = string
-        reviewers = object({
-          teams = list(string)
-        })
-      })), {})
-
-      push_allowances = list(string)
-      topics          = list(string)
-    })), {})
-
-    google_kubernetes_engine_clusters = optional(map(object({
-      enable_gke_hub_host = optional(bool, false)
-      node_pools = map(object({
-        machine_type   = string
-        max_node_count = number
-        min_node_count = number
-      }))
-    })), {})
-
-    google_subnets = optional(map(map(object({
-      ip_cidr_range          = string
-      pod_ip_cidr_range      = string
-      services_ip_cidr_range = string
-    }))), {})
 
     team_type = string
   }))
@@ -234,22 +252,4 @@ variable "team" {
     error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), ct- (complicated-subsystem-team), et- (enabling-team)."
   }
 
-}
-
-# These three state_* variables are required for early variable evaluation for backend and provider configuration.
-# They are defined in the GitHub Actions called workflows and should NOT be set in the OpenTofu configuration.
-
-variable "state_bucket" {
-  description = "The name of the GCS bucket to store state files"
-  type        = string
-}
-
-variable "state_kms_encryption_key" {
-  description = "The KMS encryption key for state and plan files"
-  type        = string
-}
-
-variable "state_prefix" {
-  description = "The prefix for state files in the GCS bucket"
-  type        = string
 }

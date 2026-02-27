@@ -7,11 +7,6 @@ team = {
 
     display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
 
-    github_parent_team_memberships = {
-      maintainers = ["brettcurtis"]
-      members     = []
-    }
-
     github_child_teams_memberships = {
       non-production-approvers = {
         maintainers = ["brettcurtis"]
@@ -31,12 +26,17 @@ team = {
       }
     }
 
+    github_parent_team_memberships = {
+      maintainers = ["brettcurtis"]
+      members     = []
+    }
+
     github_repositories = {
       "pt-logos" = {
         description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously." # This can be inferred from the team description (NOTE: need a description in the variable).
 
-        enable_datadog_webhook = true
         enable_datadog_secrets = true
+        enable_datadog_webhook = true
         enable_discord_webhook = true
 
         environments = {

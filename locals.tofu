@@ -148,11 +148,11 @@ locals {
   # Create Datadog teams for each top-level team with hardcoded definitions and customizable membership
   datadog_teams = {
     for team_key, team in var.team : team_key => {
-      name        = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
+      admins      = team.datadog_team_memberships.admins
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
       handle      = team_key
-      admins      = team.datadog_team_memberships.admins
       members     = team.datadog_team_memberships.members
+      name        = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
     }
   }
 
@@ -175,8 +175,8 @@ locals {
   environments = { for environment in flatten([
     for team_key, team in var.team : [
       for environment in ["Sandbox", "Non-Production", "Production"] : {
-        team        = team_key
         environment = environment
+        team        = team_key
       }
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
@@ -185,9 +185,10 @@ locals {
   github_branch_protections = { for repo in flatten([
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
-        key                             = repo_key
+        key             = repo_key
+        push_allowances = repo.push_allowances
+
         required_status_checks_contexts = []
-        push_allowances                 = repo.push_allowances
       }
     ]
   ]) : repo.key => repo }
@@ -195,14 +196,14 @@ locals {
   # Flatten GitHub child team maintainer memberships
   github_child_team_maintainers = { for item in flatten([
     for team_key, team in local.github_child_teams : [
-      for username in team.maintainers : { team_key = team_key, username = username, role = "maintainer" }
+      for username in team.maintainers : { role = "maintainer", team_key = team_key, username = username }
     ]
   ]) : "${item.team_key}-${item.username}" => item }
 
   # Flatten GitHub child team member memberships
   github_child_team_members = { for item in flatten([
     for team_key, team in local.github_child_teams : [
-      for username in team.members : { team_key = team_key, username = username, role = "member" }
+      for username in team.members : { role = "member", team_key = team_key, username = username }
     ]
   ]) : "${item.team_key}-${item.username}" => item }
 
@@ -233,18 +234,18 @@ locals {
       # Configured parent team maintainers
       [
         for username in team.github_parent_team_memberships.maintainers :
-        { team_key = team_key, username = username, role = "maintainer" }
+        { role = "maintainer", team_key = team_key, username = username }
       ],
       # Configured parent team members
       [
         for username in team.github_parent_team_memberships.members :
-        { team_key = team_key, username = username, role = "member" }
+        { role = "member", team_key = team_key, username = username }
       ],
       # Auto-add child team maintainers as members (deduplicated)
       [
         for username in distinct(flatten([
           for github_team_key, github_team in team.github_child_teams_memberships : github_team.maintainers
-        ])) : { team_key = team_key, username = username, role = "member" }
+        ])) : { role = "member", team_key = team_key, username = username }
         if !contains(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members), username)
       ]
     )
@@ -253,8 +254,8 @@ locals {
   # Create parent GitHub teams for each team
   github_parent_teams = {
     for team_key, team in var.team : team_key => {
-      name        = team_key
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
+      name        = team_key
       privacy     = "closed"
     }
   }
@@ -275,17 +276,16 @@ locals {
     ]
   ]) : repo.key => repo }
 
-  # Review request delegations for GitHub teams with sufficient members
-  # Requires 3+ total members since PR author can't review their own code
-  github_review_request_delegations = {
-    for team_key, team in var.team : team_key => {
-      team_key      = team_key
-      total_members = length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members))
-      # Request (total_members - 1) reviewers, max 2, to account for PR author
-      member_count = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
-    }
-    if length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) >= 3
-  }
+  # Filter GitHub repositories that have Datadog secrets enabled
+  github_repository_datadog_secrets = { for repo in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.github_repositories : {
+        key      = repo_key
+        team_key = team_key
+      }
+      if repo.enable_datadog_secrets
+    ]
+  ]) : repo.key => repo }
 
   # Filter GitHub repositories that have Datadog webhooks enabled
   github_repository_datadog_webhooks = { for repo in flatten([
@@ -298,16 +298,19 @@ locals {
     ]
   ]) : repo.key => repo }
 
-  # Filter GitHub repositories that have Datadog secrets enabled
-  github_repository_datadog_secrets = { for repo in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.github_repositories : {
-        key      = repo_key
-        team_key = team_key
-      }
-      if repo.enable_datadog_secrets
-    ]
-  ]) : repo.key => repo }
+  # Default GitHub repository labels with consistent colors and descriptions
+  github_repository_default_labels = {
+    "bug"              = { color = "84A255", description = "Something is not working" }
+    "chore"            = { color = "FBCA04", description = "Grunt tasks etc; no production code change" }
+    "documentation"    = { color = "0075CA", description = "Improvements or additions to documentation" }
+    "enhancement"      = { color = "A2EEEF", description = "New feature or request" }
+    "good first issue" = { color = "7057FF", description = "Good for newcomers" }
+    "major"            = { color = "B60205", description = "Major version: Incompatible changes" }
+    "minor"            = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
+    "patch"            = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
+    "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
+    "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
+  }
 
   # Filter GitHub repositories that have Discord webhooks enabled
   github_repository_discord_webhooks = { for repo in flatten([
@@ -325,29 +328,15 @@ locals {
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : [
         for env_key, environment in repo.environments : {
+          deployment_branch_policy = environment.deployment_branch_policy
+          environment              = environment.name
           key                      = "${repo_key}-${env_key}"
           repo_key                 = repo_key
-          environment              = environment.name
           reviewing_teams          = environment.reviewers.teams
-          deployment_branch_policy = environment.deployment_branch_policy
         }
       ]
     ]
   ]) : env.key => env }
-
-  # Default GitHub repository labels with consistent colors and descriptions
-  github_repository_default_labels = {
-    "bug"              = { color = "84A255", description = "Something is not working" }
-    "chore"            = { color = "FBCA04", description = "Grunt tasks etc; no production code change" }
-    "documentation"    = { color = "0075CA", description = "Improvements or additions to documentation" }
-    "enhancement"      = { color = "A2EEEF", description = "New feature or request" }
-    "good first issue" = { color = "7057FF", description = "Good for newcomers" }
-    "major"            = { color = "B60205", description = "Major version: Incompatible changes" }
-    "minor"            = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
-    "patch"            = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
-    "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
-    "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
-  }
 
   # Flatten repository labels by applying default labels to all repositories
   github_repository_labels = {
@@ -364,15 +353,27 @@ locals {
       ]
   ]) : "${label.repository}-${label.name}" => label }
 
+  # Review request delegations for GitHub teams with sufficient members
+  # Requires 3+ total members since PR author can't review their own code
+  github_review_request_delegations = {
+    for team_key, team in var.team : team_key => {
+      # Request (total_members - 1) reviewers, max 2, to account for PR author
+      member_count  = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
+      team_key      = team_key
+      total_members = length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members))
+    }
+    if length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) >= 3
+  }
+
   # Flatten GitHub team repository permissions - repository administrators get admin access
   github_team_repository_child_permissions = { for permission in flatten([
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
+        child_team_key = "${team_key}-repository-administrators"
         key            = "${repo_key}-repository-administrators"
+        permission     = "admin"
         repository     = repo_key
         team_key       = team_key
-        child_team_key = "${team_key}-repository-administrators"
-        permission     = "admin"
       }
     ]
   ]) : permission.key => permission }
@@ -382,9 +383,9 @@ locals {
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
         key        = "${repo_key}-parent"
+        permission = "push"
         repository = repo_key
         team_key   = team_key
-        permission = "push"
       }
     ]
   ]) : permission.key => permission }
@@ -397,6 +398,35 @@ locals {
       flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
     )
   ]))
+
+  # Billing users group - single organization-wide group for all service accounts that need billing access
+  # All team service accounts are added to this group to enable project creation
+  google_billing_users_group = {
+    description  = "Service accounts authorized to use the billing account for projects"
+    display_name = "Platform Team: Logos Billing Users"
+    group_key    = "pt-logos-billing-users"
+  }
+
+  # Flatten Google Cloud identity group manager memberships
+  google_cloud_identity_group_managers = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
+      for user in group.managers : { group = group_key, user = user }
+    ]
+  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, manager = item.user } }
+
+  # Flatten Google Cloud identity group member memberships
+  google_cloud_identity_group_members = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
+      for user in group.members : { group = group_key, user = user }
+    ]
+  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, member = item.user } }
+
+  # Flatten Google Cloud identity group owner memberships
+  google_cloud_identity_group_owners = { for item in flatten([
+    for group_key, group in local.google_cloud_identity_groups : [
+      for user in group.owners : { group = group_key, user = user }
+    ]
+  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
   # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
   # Creates exactly 3 groups per team: admin, writer, reader
@@ -496,26 +526,17 @@ locals {
     ]) : identity_group.key => identity_group } : {}
   )
 
-  # Flatten Google Cloud identity group manager memberships
-  google_cloud_identity_group_managers = { for item in flatten([
-    for group_key, group in local.google_cloud_identity_groups : [
-      for user in group.managers : { group = group_key, user = user }
-    ]
-  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, manager = item.user } }
-
-  # Flatten Google Cloud identity group member memberships
-  google_cloud_identity_group_members = { for item in flatten([
-    for group_key, group in local.google_cloud_identity_groups : [
-      for user in group.members : { group = group_key, user = user }
-    ]
-  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, member = item.user } }
-
-  # Flatten Google Cloud identity group owner memberships
-  google_cloud_identity_group_owners = { for item in flatten([
-    for group_key, group in local.google_cloud_identity_groups : [
-      for user in group.owners : { group = group_key, user = user }
-    ]
-  ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
+  # This Google Group is required to enable Kubernetes role-based access control (RBAC)
+  # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
+  # Don't add individual users as members of gke-security-groups.
+  google_gke_security_groups = {
+    description  = "Security group for Kubernetes role-based access control (RBAC)"
+    display_name = "Kubernetes Security Groups"
+    group_key    = "gke-security-groups"
+    managers     = []
+    members      = []
+    owners       = []
+  }
 
   # Flatten GKE security groups manager memberships
   google_gke_security_groups_managers = { for item in flatten([
@@ -538,26 +559,6 @@ locals {
     ]
   ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { owner = item.user } }
 
-  # Billing users group - single organization-wide group for all service accounts that need billing access
-  # All team service accounts are added to this group to enable project creation
-  google_billing_users_group = {
-    description  = "Service accounts authorized to use the billing account for projects"
-    display_name = "Platform Team: Logos Billing Users"
-    group_key    = "pt-logos-billing-users"
-  }
-
-  # This Google Group is required to enable Kubernetes role-based access control (RBAC)
-  # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
-  # Don't add individual users as members of gke-security-groups.
-  google_gke_security_groups = {
-    description  = "Security group for Kubernetes role-based access control (RBAC)"
-    display_name = "Kubernetes Security Groups"
-    group_key    = "gke-security-groups"
-    managers     = []
-    members      = []
-    owners       = []
-  }
-
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
   # Groups get access to entire team folder and all child environments
   # Excludes project creator groups which have no team folder roles
@@ -566,17 +567,17 @@ locals {
       for role in try(group.roles, []) : {
         binding_key = "${identity_group_key}-${replace(role, "/", "-")}"
         group_key   = identity_group_key
-        team_key    = group.team
         role        = role
+        team_key    = group.team
       }
     ]
   ]) : binding.binding_key => binding }
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
+    "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
     "reader" = "Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data."
     "writer" = "All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources."
-    "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
   }
 
   # Google Cloud role display names mapping (plural forms for group names)
@@ -599,13 +600,21 @@ locals {
     email => replace(replace(email, "@", "-at-"), ".", "-")
   }
 
+  # Team Topologies descriptions mapping
+  team_topologies_descriptions = {
+    "complicated-subsystem-team" = "where significant mathematics/calculation/technical expertise is needed"
+    "enabling-team"              = "helps Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
+    "platform-team"              = "providing a compelling internal product to accelerate delivery by Stream-aligned teams"
+    "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
+  }
+
   # Map team type keys to plural display names for reference
   # Used for team type folder names (e.g., "Platform Teams", "Stream-aligned Teams") - folders are pre-created
   team_type_display_names = {
-    "stream-aligned-team"        = "Stream-aligned Teams"
-    "platform-team"              = "Platform Teams"
     "complicated-subsystem-team" = "Complicated-subsystem Teams"
     "enabling-team"              = "Enabling Teams"
+    "platform-team"              = "Platform Teams"
+    "stream-aligned-team"        = "Stream-aligned Teams"
   }
 
   # Helper: team type singular labels (removes "s" from display names)
@@ -613,14 +622,6 @@ locals {
   team_type_labels = {
     for key, display_name in local.team_type_display_names :
     key => trimsuffix(display_name, "s")
-  }
-
-  # Team Topologies descriptions mapping
-  team_topologies_descriptions = {
-    "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
-    "platform-team"              = "providing a compelling internal product to accelerate delivery by Stream-aligned teams"
-    "complicated-subsystem-team" = "where significant mathematics/calculation/technical expertise is needed"
-    "enabling-team"              = "helps Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
   }
 
   # If we are within Logos workspace, create admin/owner resources (prevents conflicts across team deployments)
