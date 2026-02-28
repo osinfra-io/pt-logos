@@ -47,6 +47,9 @@ output "teams" {
       # Google subnets for this team (regional organization)
       google_subnets = lookup(team, "google_subnets", {})
 
+      # Public DNS zone name for this team (production base domain, e.g., "pneuma.osinfra.io")
+      public_dns_zone_name = lookup(team, "public_dns_zone_name", null)
+
       # Identity groups for this team
       identity_groups = {
         for group_key, group in local.google_cloud_identity_groups :
