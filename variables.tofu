@@ -209,6 +209,7 @@ variable "team" {
 
     google_subnets = optional(map(map(object({
       ip_cidr_range          = string
+      master_ipv4_cidr_block = string
       pod_ip_cidr_range      = string
       services_ip_cidr_range = string
     }))), {})
