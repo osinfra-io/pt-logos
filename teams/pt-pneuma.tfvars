@@ -1189,6 +1189,9 @@ team = {
         }
       }
     }
+
+    public_dns_zone_name = "pneuma.osinfra.io"
+
     google_subnets = {
       "us-east1" = {
         "pt-pneuma-us-east1-d" = {
