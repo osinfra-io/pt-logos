@@ -1178,16 +1178,16 @@ team = {
     }
 
     google_kubernetes_engine_clusters = {
-      # "pt-pneuma" = {
-      #   enable_gke_hub_host = true
-      #   node_pools = {
-      #     default-pool = {
-      #       machine_type   = "e2-standard-2"
-      #       max_node_count = 1
-      #       min_node_count = 0
-      #     }
-      #   }
-      # }
+      "pt-pneuma" = {
+        enable_gke_hub_host = true
+        node_pools = {
+          default-pool = {
+            machine_type   = "e2-standard-2"
+            max_node_count = 1
+            min_node_count = 0
+          }
+        }
+      }
     }
 
     public_dns_zone_name = "pneuma.osinfra.io"
