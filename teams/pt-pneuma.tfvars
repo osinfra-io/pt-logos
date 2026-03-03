@@ -1144,6 +1144,20 @@ team = {
           "opentofu"
         ]
       }
+
+      "pt-pneuma-istio-test" = {
+        description = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
+
+        push_allowances = [
+          "osinfra-io/pt-pneuma" # This can be inferred from the team association.
+        ]
+
+        topics = [
+          "go",
+          "istio",
+          "kubernetes"
+        ]
+      }
     }
 
     google_artifact_registry_groups_memberships = {
