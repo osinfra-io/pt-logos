@@ -201,7 +201,7 @@ variable "team" {
       }))
     })), {})
 
-    public_dns_zone_name = optional(string, null)
+    dns_subdomain = optional(string, null)
 
     google_project_creator_groups_memberships = optional(map(object({
       managers = list(string)
