@@ -1153,9 +1153,10 @@ team = {
         ]
 
         topics = [
-          "go",
-          "istio",
-          "kubernetes"
+          "golang",
+          "google-cloud-platform",
+          "infrastructure-as-code",
+          "opentofu"
         ]
       }
     }
