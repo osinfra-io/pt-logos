@@ -388,6 +388,11 @@ resource "github_organization_settings" "this" {
 # Github Repository Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository
 
+import {
+  id = "pt-pneuma-istio-test"
+  to = github_repository.this["pt-pneuma-istio-test"]
+}
+
 resource "github_repository" "this" {
   for_each = local.github_repositories
 
