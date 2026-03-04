@@ -355,7 +355,7 @@ Complete team infrastructure information including:
 - Folder hierarchy (team type folder, team folder ID, environment folder IDs)
 - Identity groups with email addresses, display names, descriptions, and roles
 
-Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), `google_kubernetes_engine_clusters` (cluster configurations), and `google_subnets` (subnet configurations).
+Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), and `google_kubernetes_engine_clusters` (cluster configurations with embedded subnet definitions).
 
 These outputs provide downstream repositories with foundational infrastructure information including folder placement and access controls for any additional resource deployments.
 

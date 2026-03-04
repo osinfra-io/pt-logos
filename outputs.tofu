@@ -44,9 +44,6 @@ output "teams" {
       # Google Kubernetes Engine clusters for this team
       google_kubernetes_engine_clusters = lookup(team, "google_kubernetes_engine_clusters", {})
 
-      # Google subnets for this team (regional organization)
-      google_subnets = lookup(team, "google_subnets", {})
-
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
       dns_subdomain = lookup(team, "dns_subdomain", null)
 

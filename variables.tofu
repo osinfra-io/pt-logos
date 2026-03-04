@@ -192,14 +192,20 @@ variable "team" {
       owners   = list(string)
     })), {})
 
-    google_kubernetes_engine_clusters = optional(map(object({
+    google_kubernetes_engine_clusters = optional(map(map(object({
       enable_gke_hub_host = optional(bool, false)
       node_pools = map(object({
         machine_type   = string
         max_node_count = number
         min_node_count = number
       }))
-    })), {})
+      subnet = object({
+        ip_cidr_range          = string
+        master_ipv4_cidr_block = string
+        pod_ip_cidr_range      = string
+        services_ip_cidr_range = string
+      })
+    }))), {})
 
     dns_subdomain = optional(string, null)
 
@@ -209,12 +215,6 @@ variable "team" {
       owners   = list(string)
     })), {})
 
-    google_subnets = optional(map(map(object({
-      ip_cidr_range          = string
-      master_ipv4_cidr_block = string
-      pod_ip_cidr_range      = string
-      services_ip_cidr_range = string
-    }))), {})
 
     google_xpn_admin_groups_memberships = optional(map(object({
       managers = list(string)
