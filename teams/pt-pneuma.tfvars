@@ -1198,7 +1198,7 @@ team = {
           enable_gke_hub_host = true
           node_pools = {
             default-pool = {
-              machine_type   = "e2-standard-2"
+              machine_type   = "e2-medium"
               max_node_count = 1
               min_node_count = 0
             }
@@ -1248,7 +1248,7 @@ team = {
         "pt-pneuma-us-east4-a" = {
           node_pools = {
             default-pool = {
-              machine_type   = "e2-standard-2"
+              machine_type   = "e2-medium"
               max_node_count = 1
               min_node_count = 0
             }
