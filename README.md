@@ -10,27 +10,6 @@ As the grounding stratum of the platform hierarchy, Logos encodes the organizati
 
 Logos is where the platform’s moral architecture begins — where order is spoken into being so that all subsequent layers may stand upon it.
 
-The foundational infrastructure automates the creation of:
-
-- **Google Cloud folder hierarchy** following Team Topologies (Platform Teams, Stream-aligned Teams, etc.)
-- **Google Cloud Identity Groups** with role-based access (admin, writer, reader)
-- **GitHub Teams** with hierarchical structure and environment-specific approval workflows
-- **GitHub Repositories** with branch protection, webhooks, environments, and team-based access control
-- **Datadog Teams** for monitoring and observability
-- **Datadog Logs Management** with organization-wide log indexes, retention policies, and exclusion filters
-- **Datadog Organization Settings** for SAML configuration, widget sharing, and security policies
-- **User Management** with lifecycle protection for organization owners and admins
-- **Datadog API Keys and Service Accounts** with application keys per team for programmatic access
-- **GitHub Actions Secrets** (`DATADOG_API_KEY`, `DATADOG_APP_KEY`) per configured repository
-- **GitHub Actions Organization Permissions** for consistent Actions configuration
-- **GitHub Repository Files** (`.github/release.yml`, `SECURITY.md`) seeded into each repository
-- **GitHub Issue Labels** with a default set of labels per repository
-- **Google Billing Budgets** per team for cost management
-- **Google Cloud Identity Groups** for billing users and GKE security groups at the organizational level
-- **Foundational outputs** for downstream consumption
-
-This establishes the foundational order creating the organizational hierarchy, team structures, GitHub repositories, and identity management. Teams can operate autonomously with consistent security practices across sandbox, non-production, and production environments while maintaining robust administrative protections.
-
 ## 🏭 Platform Information
 
 - Documentation: [docs.osinfra.io](https://docs.osinfra.io/product-guides/google-cloud-platform/logos)
@@ -136,9 +115,26 @@ google_team_type_folder_ids = {
 
 #### `team`
 
-A map of teams with their team type and membership configuration for hardcoded structures.
+A map of teams with their team type and membership configuration for hardcoded
+structures.
 
-For a complete example of team configuration including all features (GitHub teams, repositories, environments, Google identity groups, Datadog teams), see [`teams/pt-logos.tfvars`](teams/pt-logos.tfvars).
+**Team Configuration Reference:**
+
+- **Complete schema reference**: [`teams/example.tfvars`](teams/example.tfvars)
+  documents ALL possible configuration options with detailed descriptions,
+  examples, and field requirements
+- **Real-world example**: [`teams/pt-pneuma.tfvars`](teams/pt-pneuma.tfvars)
+  shows production team configuration with actual usage patterns
+
+The example.tfvars file is the authoritative reference for:
+
+- All available fields (required and optional)
+- Field types and validation rules
+- Default values and behaviors
+- Usage examples for each configuration option
+- Team Topologies naming conventions
+- GKE cluster and networking configurations
+- GitHub repository and environment setups
 
 ## Team Structure
 
@@ -162,9 +158,15 @@ Each team automatically gets three hardcoded environment folders:
 Each team has exactly 3 Google Cloud identity groups using basic IAM roles applied at the team folder level:
 
 - **Hardcoded basic IAM roles**: reader, writer, admin
-  - reader: Permissions for read-only actions that don't affect state, such as viewing (but not modifying) existing resources or data.
-  - writer: All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources.
-  - admin: All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project.
+  - reader: Permissions for read-only actions that don't affect state, such
+    as viewing (but not modifying) existing resources or data.
+  - writer: All of the permissions in the Reader role, plus permissions for
+    actions that modify state, such as changing existing resources.
+  - admin: All of the permissions in the Writer role, plus permissions for
+    actions like the following: Completing sensitive tasks, like managing tag
+    bindings for Compute Engine resources; Managing roles and permissions for
+    a project and all resources within the project; Setting up billing for a
+    project.
 
 Users can be assigned to one of three roles within each group:
 
@@ -175,49 +177,53 @@ Users can be assigned to one of three roles within each group:
 
 **Auto-generated fields:**
 
-- **`description`**: Uses official Google Cloud role descriptions (e.g., "All of the permissions in the Writer role, plus permissions for actions like...")
-- **`display_name`**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform Team: Logos Administrators")
+- **`description`**: Uses official Google Cloud role descriptions (e.g., "All
+  of the permissions in the Writer role, plus permissions for actions like...")
+- **`display_name`**: `"{Team Type}: {Team Name} {Role}"` (e.g., "Platform
+  Team: Logos Administrators")
 
-**Access Scope**: Groups have access to the entire team folder and all child environment folders.
+**Access Scope**: Groups have access to the entire team folder and all child
+environment folders.
 
-### GitHub Repository Management
+### Optional Team Configurations
 
-Each team can optionally define repositories that will be created and managed:
+Teams can optionally configure additional features beyond the required fields:
 
-- **`github_repositories`**: Optional map of repository configurations
-  - **`description`**: Repository description
-  - **`topics`**: List of repository topics/tags for organization and discovery
-  - **`push_allowances`**: List of teams allowed to push to the repository (typically includes the owning team)
-  - **`enable_discord_webhook`**: Optional boolean to enable Discord webhook notifications (default: true)
-  - **`enable_datadog_webhook`**: Optional boolean to enable Datadog webhook notifications (default: true)
-  - **`enable_datadog_secrets`**: Optional boolean to create Datadog API/APP key Actions secrets for the repository (default: false)
+**Google Kubernetes Engine Clusters** (`google_kubernetes_engine_clusters`):
 
-**Repository Features:**
+- Organized by region with embedded subnet configurations
+- pt-corpus automatically creates Kubernetes project, VPC subnets, and DNS
+  zones
+- pt-pneuma deploys clusters with all configurations
+- Supports multi-cluster service mesh with one fleet host cluster
 
-- Automatic branch protection rules with required reviews and status checks
-- Team-based access control via push allowances
-- Webhook integration for Discord and Datadog notifications
-- Consistent repository settings and security policies
-- GitHub Environments with deployment protection rules
+**Artifact Registry Groups** (`google_artifact_registry_groups_memberships`):
 
-### GitHub Repository Environments
+- Two groups per team: readers (pull images) and writers (push images)
+- Automatically integrates with pt-pneuma and pt-corpus service accounts
 
-Each repository can optionally define environments for deployment protection:
+**DNS Subdomain Override** (`dns_subdomain`):
 
-- **`environments`**: Optional map of environment configurations
-  - **`name`**: Display name for the environment (e.g., "Production: Main")
-  - **`reviewers`**: Configuration for required reviews before deployment
-    - **`teams`**: List of team names that must approve deployments (use full child team names like "pt-logos-production-approvers")
-  - **`deployment_branch_policy`**: Optional deployment branch restrictions
-    - **`protected_branches`**: Boolean to restrict deployments to protected branches only (default: true)
-    - **`custom_branch_policies`**: Boolean to enable custom branch patterns (default: false)
+- Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
+- Override when custom subdomain needed
 
-**Environment Features:**
+**pt-corpus Specific Groups** (only for pt-corpus team):
 
-- Team-based deployment approvals using existing child teams
-- Branch protection for deployments (restricts to protected branches by default)
-- Optional custom branch policies for advanced deployment patterns
-- Automatic team ID resolution from configured team names
+- `google_browser_groups_memberships`: Environment-specific console access for
+  resource discovery
+- `google_project_creator_groups_memberships`: Allows creating projects in
+  team folders
+- `google_xpn_admin_groups_memberships`: Allows attaching service projects to
+  shared VPC
+
+**Additional Projects** (`projects`):
+
+- Define additional GCP projects beyond the standard Kubernetes project
+- Specify API services to enable per project
+- Note: Field is defined but not currently consumed by downstream repos
+
+For complete documentation of all optional fields, see
+[`teams/example.tfvars`](teams/example.tfvars).
 
 ### GitHub Team Structure
 
@@ -244,13 +250,6 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 - **Parent Team**: Gets configured maintainers/members PLUS child team maintainers (auto-inherited as members)
 - **Child Teams**: Hardcoded structure with configurable membership lists
 - **Deduplication**: Users configured directly on parent team take precedence over auto-inherited membership
-
-### Datadog Teams
-
-- **Teams**: One per top-level team for monitoring and observability
-- **Name format**: `"{Team Type}: {Team Name}"` (e.g., "Platform Team: Logos")
-- **Description format**: `"{Team Name} is a {Team Type} {Team Topologies description}."` (e.g., "Logos is a Platform Team providing a compelling internal product to accelerate delivery by Stream-aligned teams.")
-- **Handle format**: `{team_prefix}-{team_name}` (e.g., "pt-logos")
 
 ### Datadog Organization Settings
 
@@ -379,4 +378,4 @@ These outputs provide downstream repositories with foundational infrastructure i
 - **Team prefixes**: `pt-` (platform), `st-` (stream-aligned), `ct-` (complicated-subsystem), `et-` (enabling)
 - **Google Identity groups**: `{team_key}-{plural_role}@{domain}` (where `team_key` already includes the prefix, e.g. `pt-logos-administrators@osinfra.io`, `pt-logos-readers@osinfra.io`)
 - **GitHub teams**: Parent `{team_prefix}-{team_key}`, Children `{parent}-{function}`
-- **Datadog teams**: `{team_prefix}-{team_key}` handle format
+- **Datadog teams**: Handle `{team_prefix}-{team_key}`, Name `"{Team Type}: {Team Name}"`, Description `"{Team Name} is a {Team Type} {Team Topologies description}."`
