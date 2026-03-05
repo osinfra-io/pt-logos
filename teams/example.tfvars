@@ -179,10 +179,11 @@ team = {
     # - DNS zones for team services
     # When specified, pt-pneuma deploys the clusters with all configurations
     google_kubernetes_engine_clusters = {
-      # Region key (must be GCP region, e.g., us-east1, us-east4, us-central1)
+      # Region key (MUST be us-east1 or us-east4 only)
+      # These are the only supported regions for the platform
       "us-east1" = {
         # Cluster name MUST follow pattern: {team-key}-{region}-{zone}
-        # Example: pt-pneuma-us-east1-b, st-ethos-us-central1-a
+        # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
         "example-team-us-east1-b" = {
 
           # Enable GKE Hub Host (OPTIONAL, default: false)
@@ -249,7 +250,7 @@ team = {
         }
       }
 
-      # Additional regions can be added
+      # Only us-east1 and us-east4 regions are supported
       # Each region can contain multiple clusters in different zones
       "us-east4" = {
         "example-team-us-east4-a" = {

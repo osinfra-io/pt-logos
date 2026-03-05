@@ -255,4 +255,14 @@ variable "team" {
     error_message = "Team key must start with the correct prefix for its type: pt- (platform-team), st- (stream-aligned-team), ct- (complicated-subsystem-team), et- (enabling-team)."
   }
 
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.team : [
+        for region, clusters in lookup(team, "google_kubernetes_engine_clusters", {}) :
+        contains(["us-east1", "us-east4"], region)
+      ]
+    ]))
+    error_message = "Only us-east1 and us-east4 regions are supported for GKE clusters."
+  }
+
 }
