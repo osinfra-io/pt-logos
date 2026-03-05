@@ -1198,7 +1198,7 @@ team = {
           enable_gke_hub_host = true
           node_pools = {
             default-pool = {
-              machine_type   = "n1-standard-1"
+              machine_type   = "e2-standard-2"
               max_node_count = 1
               min_node_count = 0
             }
@@ -1245,37 +1245,37 @@ team = {
       }
 
       "us-east4" = {
-        "pt-pneuma-us-east4-a" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "n1-standard-1"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.24.0/21"
-            master_ipv4_cidr_block = "10.63.240.48/28"
-            pod_ip_cidr_range      = "10.6.0.0/15"
-            services_ip_cidr_range = "10.63.16.0/21"
-          }
-        }
-
-        # "pt-pneuma-us-east4-b" = {
+        # "pt-pneuma-us-east4-a" = {
         #   node_pools = {
         #     default-pool = {
-        #       machine_type   = "e2-standard-2"
+        #       machine_type   = "n1-standard-1"
         #       max_node_count = 1
         #       min_node_count = 0
         #     }
         #   }
         #   subnet = {
-        #     ip_cidr_range          = "10.62.32.0/21"
-        #     master_ipv4_cidr_block = "10.63.240.64/28"
-        #     pod_ip_cidr_range      = "10.8.0.0/15"
-        #     services_ip_cidr_range = "10.63.24.0/21"
+        #     ip_cidr_range          = "10.62.24.0/21"
+        #     master_ipv4_cidr_block = "10.63.240.48/28"
+        #     pod_ip_cidr_range      = "10.6.0.0/15"
+        #     services_ip_cidr_range = "10.63.16.0/21"
         #   }
         # }
+
+        "pt-pneuma-us-east4-b" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.32.0/21"
+            master_ipv4_cidr_block = "10.63.240.64/28"
+            pod_ip_cidr_range      = "10.8.0.0/15"
+            services_ip_cidr_range = "10.63.24.0/21"
+          }
+        }
 
         # "pt-pneuma-us-east4-c" = {
         #   node_pools = {
