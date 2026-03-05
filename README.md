@@ -337,10 +337,10 @@ resource "datadog_team_membership" "this" {
 
 ### Benefits
 
-✅ **No Resource Conflicts**: Admin users created once in logos workspace, referenced elsewhere via data sources
-✅ **Clean Separation**: Team workspaces focus on team-specific resources
-✅ **Scalable Architecture**: Works for any number of teams and admin users
-✅ **Maintains Security**: Admin user lifecycle controlled centrally while allowing team participation
+- ✅ **No Resource Conflicts**: Admin users created once in logos workspace, referenced elsewhere via data sources
+- ✅ **Clean Separation**: Team workspaces focus on team-specific resources
+- ✅ **Scalable Architecture**: Works for any number of teams and admin users
+- ✅ **Maintains Security**: Admin user lifecycle controlled centrally while allowing team participation
 
 ## Outputs for Downstream Consumption
 
