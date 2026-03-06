@@ -121,70 +121,45 @@ team = {
     # OPTIONAL FIELDS
     # ============================================================================
 
-    # DNS subdomain for team services (OPTIONAL)
-    # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-    # Creates DNS zones: {subdomain}.osinfra.io (prod), {subdomain}.sb.osinfra.io (sandbox)
-    # Typically only set when you want a subdomain different from the team key
-    dns_subdomain = "example"
-
-    # Google Artifact Registry groups (OPTIONAL)
-    # Only specify if the team needs container registries
-    # Creates two groups for registry access control:
-    # - readers: Can pull container images (roles/artifactregistry.reader)
-    # - writers: Can push container images (roles/artifactregistry.writer)
-    # NOTE: pt-pneuma service accounts are automatically added as managers to readers
-    # NOTE: pt-corpus service accounts are automatically added as managers to writers
-    google_artifact_registry_groups_memberships = {
-      readers = {
-        managers = []
-        members  = []
-        owners   = ["registry-reader@example.com"]
-      }
-      writers = {
-        managers = []
-        members  = []
-        owners   = ["registry-writer@example.com"]
-      }
-    }
-
-    # Google Browser groups (OPTIONAL - pt-corpus only)
-    # Environment-specific console access for pt-corpus service accounts
-    # Allows pt-corpus to browse GCP console to discover resources across all teams
-    # Only used in pt-corpus team configuration - omit for other teams
-    # Grants roles/browser at the environment folder level
-    google_browser_groups_memberships = {
-      sandbox = {
-        managers = []
-        members  = []
-        owners   = []
-      }
-      non-production = {
-        managers = []
-        members  = []
-        owners   = []
-      }
-      production = {
-        managers = []
-        members  = []
-        owners   = []
-      }
-    }
-
-    # Google Kubernetes Engine clusters (OPTIONAL)
-    # Only specify if the team needs GKE clusters
-    # Organized by region, with embedded subnet and node pool configurations
-    # When specified, pt-corpus automatically creates:
-    # - A Kubernetes project for the team
-    # - VPC subnets for each cluster
-    # - DNS zones for team services
-    # When specified, pt-pneuma deploys the clusters with all configurations
+    # Kubernetes configuration (OPTIONAL)
+    # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry
     google_kubernetes_engine_clusters = {
-      # Region key (MUST be us-east1 or us-east4 only)
-      # These are the only supported regions for the platform
-      "us-east1" = {
-        # Cluster name MUST follow pattern: {team-key}-{region}-{zone}
-        # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
-        "example-team-us-east1-b" = {
+
+      # DNS subdomain for team services (OPTIONAL)
+      # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
+      # Creates DNS zones: {subdomain}.osinfra.io (prod), {subdomain}.sb.osinfra.io (sandbox)
+      # Typically only set when you want a subdomain different from the team key
+      dns_subdomain = "example"
+
+      # Artifact Registry groups (OPTIONAL)
+      # Only specify if the team needs container registries
+      # Creates two groups for registry access control:
+      # - readers: Can pull container images (roles/artifactregistry.reader)
+      # - writers: Can push container images (roles/artifactregistry.writer)
+      # NOTE: pt-pneuma service accounts are automatically added as managers to readers
+      # NOTE: pt-corpus service accounts are automatically added as managers to writers
+      artifact_registry_groups_memberships = {
+        readers = {
+          managers = []
+          members  = []
+          owners   = ["registry-reader@example.com"]
+        }
+        writers = {
+          managers = []
+          members  = []
+          owners   = ["registry-writer@example.com"]
+        }
+      }
+
+      # GKE cluster locations (REQUIRED when block is set)
+      # Keyed by GCP location: a zone (us-east1-b) pins node pools to that zone
+      # while the control plane is always regional. Use zone locations to avoid
+      # Istio hotspots by keeping nodes and sidecars co-located.
+      # Cluster name is derived automatically: {team-key}-{location}
+      # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
+      # Only us-east1 and us-east4 zones are supported.
+      locations = {
+        "us-east1-b" = {
 
           # Enable GKE Hub Host (OPTIONAL, default: false)
           # Set true for ONE cluster ONLY (across all teams) to act as the fleet host
@@ -230,8 +205,8 @@ team = {
           }
         }
 
-        # Additional clusters in same region
-        "example-team-us-east1-c" = {
+        # Additional clusters in other zones or regions
+        "us-east1-c" = {
           # Non-host clusters should omit enable_gke_hub_host or set to false
           # These clusters register to the fleet host for multi-cluster services
           node_pools = {
@@ -248,12 +223,8 @@ team = {
             services_ip_cidr_range = "10.63.40.0/21"
           }
         }
-      }
 
-      # Only us-east1 and us-east4 regions are supported
-      # Each region can contain multiple clusters in different zones
-      "us-east4" = {
-        "example-team-us-east4-a" = {
+        "us-east4-a" = {
           node_pools = {
             default-pool = {
               machine_type   = "e2-standard-2"
@@ -268,6 +239,27 @@ team = {
             services_ip_cidr_range = "10.63.16.0/21"
           }
         }
+      }
+    }
+    # Environment-specific console access for pt-corpus service accounts
+    # Allows pt-corpus to browse GCP console to discover resources across all teams
+    # Only used in pt-corpus team configuration - omit for other teams
+    # Grants roles/browser at the environment folder level
+    google_browser_groups_memberships = {
+      sandbox = {
+        managers = []
+        members  = []
+        owners   = []
+      }
+      non-production = {
+        managers = []
+        members  = []
+        owners   = []
+      }
+      production = {
+        managers = []
+        members  = []
+        owners   = []
       }
     }
 

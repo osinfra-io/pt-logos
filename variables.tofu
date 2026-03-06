@@ -155,19 +155,6 @@ variable "team" {
       topics          = list(string)
     })), {})
 
-    google_artifact_registry_groups_memberships = optional(object({
-      readers = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
-      })
-      writers = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
-      })
-    }))
-
     google_basic_groups_memberships = object({
       admin = object({
         managers = list(string)
@@ -192,22 +179,37 @@ variable "team" {
       owners   = list(string)
     })), {})
 
-    google_kubernetes_engine_clusters = optional(map(map(object({
-      enable_gke_hub_host = optional(bool, false)
-      node_pools = map(object({
-        machine_type   = string
-        max_node_count = number
-        min_node_count = number
-      }))
-      subnet = object({
-        ip_cidr_range          = string
-        master_ipv4_cidr_block = string
-        pod_ip_cidr_range      = string
-        services_ip_cidr_range = string
-      })
-    }))), {})
+    google_kubernetes_engine_clusters = optional(object({
+      dns_subdomain = optional(string, null)
 
-    dns_subdomain = optional(string, null)
+      artifact_registry_groups_memberships = optional(object({
+        readers = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        writers = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+      }))
+
+      locations = optional(map(object({
+        enable_gke_hub_host = optional(bool, false)
+        node_pools = map(object({
+          machine_type   = string
+          max_node_count = number
+          min_node_count = number
+        }))
+        subnet = object({
+          ip_cidr_range          = string
+          master_ipv4_cidr_block = string
+          pod_ip_cidr_range      = string
+          services_ip_cidr_range = string
+        })
+      })), {})
+    }))
 
     google_project_creator_groups_memberships = optional(map(object({
       managers = list(string)
@@ -258,11 +260,21 @@ variable "team" {
   validation {
     condition = alltrue(flatten([
       for team_key, team in var.team : [
-        for region, clusters in lookup(team, "google_kubernetes_engine_clusters", {}) :
-        contains(["us-east1", "us-east4"], region)
+        for location in keys(lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "locations", {})) :
+        can(regex("^(us-east1|us-east4)-[a-z]$", location))
       ]
     ]))
-    error_message = "Only us-east1 and us-east4 regions are supported for GKE clusters."
+    error_message = "Only us-east1 and us-east4 locations are supported for GKE clusters (e.g., us-east1-b, us-east4-b)."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.team :
+      team.google_kubernetes_engine_clusters == null ||
+      (team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships == null && team.google_kubernetes_engine_clusters.dns_subdomain == null) ||
+      (team.google_kubernetes_engine_clusters.locations != null && length(team.google_kubernetes_engine_clusters.locations) > 0)
+    ])
+    error_message = "artifact_registry_groups_memberships and dns_subdomain require locations to also be defined in the google_kubernetes_engine_clusters block."
   }
 
 }
