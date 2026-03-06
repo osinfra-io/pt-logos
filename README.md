@@ -256,7 +256,7 @@ Teams can optionally configure additional features beyond the required fields:
 
 - Define additional GCP projects beyond the standard Kubernetes project
 - Specify API services to enable per project
-- Note: Field is defined but not currently consumed by downstream repos
+- Note: Field is defined but not currently consumed by downstream repos — tracked in [osinfra-io/pt-corpus#32](https://github.com/osinfra-io/pt-corpus/issues/32)
 
 ### GitHub Team Structure
 
