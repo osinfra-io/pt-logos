@@ -195,7 +195,7 @@ variable "team" {
         })
       }))
 
-      regions = optional(map(map(object({
+      locations = optional(map(object({
         enable_gke_hub_host = optional(bool, false)
         node_pools = map(object({
           machine_type   = string
@@ -208,7 +208,7 @@ variable "team" {
           pod_ip_cidr_range      = string
           services_ip_cidr_range = string
         })
-      }))), {})
+      })), {})
     }))
 
     google_project_creator_groups_memberships = optional(map(object({
@@ -260,11 +260,11 @@ variable "team" {
   validation {
     condition = alltrue(flatten([
       for team_key, team in var.team : [
-        for region, clusters in lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "regions", {}) :
-        contains(["us-east1", "us-east4"], region)
+        for location in keys(lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "locations", {})) :
+        can(regex("^(us-east1|us-east4)-[a-z]$", location))
       ]
     ]))
-    error_message = "Only us-east1 and us-east4 regions are supported for GKE clusters."
+    error_message = "Only us-east1 and us-east4 locations are supported for GKE clusters (e.g., us-east1-b, us-east4-b)."
   }
 
   validation {
@@ -272,9 +272,9 @@ variable "team" {
       for team_key, team in var.team :
       team.google_kubernetes_engine_clusters == null ||
       (team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships == null && team.google_kubernetes_engine_clusters.dns_subdomain == null) ||
-      (team.google_kubernetes_engine_clusters.regions != null && length(team.google_kubernetes_engine_clusters.regions) > 0)
+      (team.google_kubernetes_engine_clusters.locations != null && length(team.google_kubernetes_engine_clusters.locations) > 0)
     ])
-    error_message = "artifact_registry_groups_memberships and dns_subdomain require regions to also be defined in the google_kubernetes_engine_clusters block."
+    error_message = "artifact_registry_groups_memberships and dns_subdomain require locations to also be defined in the google_kubernetes_engine_clusters block."
   }
 
 }

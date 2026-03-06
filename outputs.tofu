@@ -42,7 +42,7 @@ output "teams" {
       }
 
       # Google Kubernetes Engine clusters for this team
-      google_kubernetes_engine_clusters = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.regions : {}
+      google_kubernetes_engine_clusters = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.locations : {}
 
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
       dns_subdomain = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.dns_subdomain : null
