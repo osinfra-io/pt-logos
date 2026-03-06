@@ -89,7 +89,7 @@ This repository uses a single production workflow that deploys directly on push 
 
 ```mermaid
 graph LR
-    T[Push to main\nor workflow_dispatch]
+    T[Push to main or workflow_dispatch]
 
     T --> C1[Team: pt-logos]
     T --> C2[Team: pt-corpus]
@@ -235,11 +235,13 @@ Teams can optionally configure additional features beyond the required fields:
 
 - Two groups per team: readers (pull images) and writers (push images)
 - Automatically integrates with pt-pneuma and pt-corpus service accounts
+- Only active when the team also has GKE clusters (requires a Kubernetes project in pt-corpus)
 
 **DNS Subdomain Override** (`dns_subdomain`):
 
 - Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-- Override when custom subdomain needed
+- Override when a custom subdomain is needed
+- Only active when the team also has GKE clusters (DNS zones are only created for teams with clusters)
 
 **pt-corpus Specific Groups** (only for pt-corpus team):
 
@@ -254,10 +256,7 @@ Teams can optionally configure additional features beyond the required fields:
 
 - Define additional GCP projects beyond the standard Kubernetes project
 - Specify API services to enable per project
-- Note: Field is defined but not currently consumed by downstream repos
-
-For complete documentation of all optional fields, see
-[`teams/example.tfvars`](teams/example.tfvars).
+- Note: Field is defined but not currently consumed by downstream repos — tracked in [osinfra-io/pt-corpus#32](https://github.com/osinfra-io/pt-corpus/issues/32)
 
 ### GitHub Team Structure
 
@@ -281,9 +280,9 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 **Membership Logic:**
 
-- **Parent Team**: Gets configured maintainers/members PLUS child team maintainers (auto-inherited as members)
-- **Child Teams**: Hardcoded structure with configurable membership lists
-- **Deduplication**: Users configured directly on parent team take precedence over auto-inherited membership
+- **Child → Parent (automatic)**: Maintainers of any child team are automatically added as members of the parent team. This means anyone who can approve deployments or administer repos will always appear in the parent team.
+- **Parent → Child (none)**: Being a member of the parent team does not grant access to any child team. Child team membership must be configured explicitly.
+- **No duplicates**: If a child team maintainer is already explicitly listed on the parent team, they won't be added again.
 
 ### Datadog Organization Settings
 
@@ -296,7 +295,6 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 - **Organization Settings**:
   - SAML configuration (autocreate users, domains, IdP-initiated login, strict mode)
-  - Widget sharing policies
   - Organization name and branding
 
 **Note**: These settings are hardcoded organizational configuration, not team-specific parameters. Modifications require updating `locals.tofu` directly.
@@ -307,48 +305,30 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 - **GitHub**: Hardcoded organization owners in `locals.tofu` get admin role and lifecycle protection
 - **Datadog**: Hardcoded organization admins in `locals.tofu` get admin role and lifecycle protection
-- **Conditional Creation**: Admin/owner resources are only created when running in the `pt-logos-main-production` workspace to prevent conflicts across team deployments
-- **Protection**: Admin users cannot be destroyed via `tofu destroy` due to `prevent_destroy = true` lifecycle rules
-- **Role Protection**: Admin roles cannot be accidentally changed via `ignore_changes` lifecycle rules
+- **Conditional Creation**: Admin/owner resources are only created in the `pt-logos-main-production` workspace to prevent conflicts across team deployments
+- **Protection**: `prevent_destroy = true` and `ignore_changes` lifecycle rules prevent accidental deletion or role changes
 
 **Regular Users:**
 
 - **GitHub**: Team members get standard member role and can be managed normally
 - **Datadog**: Team members get read-only role by default, but can be assigned standard role via hardcoded list in `locals.tofu`
-- **Management**: Can be added/removed through normal Infrastructure as Code workflows
 
 **Admin Removal Process:**
 
 1. Remove user from hardcoded admin list in `locals.tofu`
-2. Run `tofu plan` and `tofu apply`
-3. Manually remove user via platform UI (GitHub/Datadog)
+2. Manually remove user via platform UI (GitHub/Datadog)
+3. Run `tofu plan` and `tofu apply` to clean up remaining managed state
 
-**Security**: This two-step process prevents accidental loss of organization access during infrastructure changes.
+`prevent_destroy = true` ensures admins cannot be accidentally removed by IaC alone — manual removal via the platform UI is always required.
 
 ## Cross-Workspace Architecture
-
-This infrastructure uses a sophisticated cross-workspace architecture that enables clean separation of concerns while allowing shared resources:
 
 ### Workspace Separation
 
 - **`pt-logos-main-production`**: Central workspace that manages organization-level admin resources (GitHub owners, Datadog admin users)
 - **Team Workspaces** (e.g., `pt-corpus-main-production`, `pt-pneuma-main-production`): Individual team workspaces that manage team-specific resources
 
-### Admin User Management
-
-**Admin User Resources**:
-
-- Created only in the `pt-logos-main-production` workspace to prevent resource conflicts
-- Protected by lifecycle rules (`prevent_destroy = true`) to maintain platform access
-- Include GitHub organization owners and Datadog organization admin users
-
-**Team Membership for Admin Users**:
-
-- Admin users can be members of teams across all workspaces using data source lookups
-- Non-logos workspaces use `datadog_user` data sources to reference admin users created in the logos workspace
-- This allows admin users to be team members without creating duplicate user resources
-
-**Example**:
+Admin users are created once in `pt-logos-main-production` and referenced in team workspaces via data sources, allowing them to be team members without duplicate user resources:
 
 ```hcl
 # In pt-logos-main-production workspace
@@ -368,13 +348,6 @@ resource "datadog_team_membership" "this" {
     datadog_user.this[...].id
 }
 ```
-
-### Benefits
-
-- ✅ **No Resource Conflicts**: Admin users created once in logos workspace, referenced elsewhere via data sources
-- ✅ **Clean Separation**: Team workspaces focus on team-specific resources
-- ✅ **Scalable Architecture**: Works for any number of teams and admin users
-- ✅ **Maintains Security**: Admin user lifecycle controlled centrally while allowing team participation
 
 ## Outputs for Downstream Consumption
 
