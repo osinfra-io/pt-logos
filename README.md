@@ -280,9 +280,9 @@ Each team has `maintainers` and `members` lists that you populate with GitHub us
 
 **Membership Logic:**
 
-- **Parent Team**: Gets configured maintainers/members PLUS child team maintainers (auto-inherited as members)
-- **Child Teams**: Hardcoded structure with configurable membership lists
-- **Deduplication**: Users configured directly on parent team take precedence over auto-inherited membership
+- **Child → Parent (automatic)**: Maintainers of any child team are automatically added as members of the parent team. This means anyone who can approve deployments or administer repos will always appear in the parent team.
+- **Parent → Child (none)**: Being a member of the parent team does not grant access to any child team. Child team membership must be configured explicitly.
+- **No duplicates**: If a child team maintainer is already explicitly listed on the parent team, they won't be added again.
 
 ### Datadog Organization Settings
 
