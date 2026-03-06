@@ -263,7 +263,7 @@ team = {
       }
     }
 
-    # Google Browser groups (OPTIONAL - pt-corpus only)
+    # Google Project Creator groups (OPTIONAL - pt-corpus only)
     # Allows pt-corpus service accounts to create GCP projects in team folders
     # Only used in pt-corpus team configuration - omit for other teams
     # Grants roles/resourcemanager.projectCreator at the environment folder level
