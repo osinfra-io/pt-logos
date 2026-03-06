@@ -225,7 +225,7 @@ Teams can optionally configure additional features beyond the required fields:
 
 **Kubernetes** (`google_kubernetes_engine_clusters`):
 
-All Kubernetes-related configuration lives in a single optional block. `regions` is the required foundation — `artifact_registry_groups_memberships` and `dns_subdomain` are only valid when `regions` is also set (enforced by validation).
+All Kubernetes-related configuration lives in a single optional block. `locations` is the required foundation — `artifact_registry_groups_memberships` and `dns_subdomain` are only valid when `locations` is also set (enforced by validation).
 
 - **`locations`** *(required when block is set)*: Flat map keyed by GCP location (e.g., `us-east1-b`). The control plane is always regional; the location key pins node pools to a specific zone, which avoids Istio hotspots by keeping nodes and sidecars co-located. Cluster name is derived as `{team-key}-{location}`. Only `us-east1` and `us-east4` zones are supported. pt-corpus automatically creates a Kubernetes project, VPC subnets, and DNS zones. pt-pneuma deploys the clusters.
 - **`artifact_registry_groups_memberships`**: Two groups per team — readers (pull images) and writers (push images). Automatically integrates with pt-pneuma and pt-corpus service accounts. Requires `locations` to be set.
