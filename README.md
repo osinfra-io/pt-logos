@@ -78,6 +78,10 @@ Additionally, it creates:
 - **GitHub Users** with organization membership management and admin protection
 - **Datadog Teams** for monitoring and observability with admin/member roles, one per top-level team
 - **Datadog Users** with role-based access and admin protection
+- **Datadog API Keys and Service Accounts** with application keys per team for CI/CD integration
+- **GitHub Organization Settings** and Actions permissions (managed only in `pt-logos-main-production` workspace)
+- **GitHub Repository Files** with `release.yml` and `SECURITY.md` automatically injected into every managed repository
+- **Billing Budgets** per team folder with configurable monthly budget thresholds
 
 ## GitHub Actions Workflow
 
@@ -85,16 +89,21 @@ This repository uses a single production workflow that deploys directly on push 
 
 ```mermaid
 graph LR
-    C1[Team: pt-logos]
-    C2[Team: pt-corpus]
-    C3[Team: pt-pneuma]
-    C4[Team: st-ethos]
+    T[Push to main\nor workflow_dispatch]
 
+    T --> C1[Team: pt-logos]
+    T --> C2[Team: pt-corpus]
+    T --> C3[Team: pt-pneuma]
+    T --> C4[Team: st-ethos]
+
+    style T fill:#fff4e6,color:#000
     style C1 fill:#d4edda,color:#000
     style C2 fill:#d4edda,color:#000
     style C3 fill:#d4edda,color:#000
     style C4 fill:#d4edda,color:#000
 ```
+
+All four team jobs run in parallel using a matrix strategy (`fail-fast: false`).
 
 ## Interface
 
@@ -135,6 +144,31 @@ The example.tfvars file is the authoritative reference for:
 - Team Topologies naming conventions
 - GKE cluster and networking configurations
 - GitHub repository and environment setups
+
+### Optional Variables
+
+- **`google_billing_account`** - The GCP billing account ID used for team folder budgets (default: `"01C550-A2C86B-B8F16B"`)
+- **`google_customer_id`** - Google Workspace customer ID for identity group management (default: `"C01hd34v8"`)
+- **`google_monthly_budget_amount`** - Monthly budget threshold in USD per environment folder (default: `100`)
+- **`google_primary_domain`** - Primary Google Workspace domain for identity group email generation (default: `"osinfra.io"`)
+
+### Required Credentials (via GitHub Actions secrets)
+
+These sensitive variables have no defaults and are passed as secrets in the GitHub Actions workflow:
+
+- **`datadog_api_key`** - Datadog API key for monitoring integration
+- **`datadog_app_key`** - Datadog APP key for monitoring integration
+- **`github_token`** - GitHub token for provider authentication
+- **`github_datadog_webhook_api_key`** - Datadog API key for GitHub webhook integration
+- **`github_discord_webhook_api_key`** - Discord API key for GitHub webhook integration
+
+### State Configuration Variables
+
+These variables are required for backend configuration and are provided by GitHub Actions workflows:
+
+- **`state_bucket`** - The name of the GCS bucket to store state files
+- **`state_kms_encryption_key`** - The KMS encryption key for state and plan files
+- **`state_prefix`** - The prefix for state files in the GCS bucket
 
 ## Team Structure
 
