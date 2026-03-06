@@ -267,4 +267,14 @@ variable "team" {
     error_message = "Only us-east1 and us-east4 regions are supported for GKE clusters."
   }
 
+  validation {
+    condition = alltrue([
+      for team_key, team in var.team :
+      team.google_kubernetes_engine_clusters == null ||
+      (team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships == null && team.google_kubernetes_engine_clusters.dns_subdomain == null) ||
+      (team.google_kubernetes_engine_clusters.clusters != null && length(team.google_kubernetes_engine_clusters.clusters) > 0)
+    ])
+    error_message = "artifact_registry_groups_memberships and dns_subdomain require clusters to also be defined in the google_kubernetes_engine_clusters block."
+  }
+
 }

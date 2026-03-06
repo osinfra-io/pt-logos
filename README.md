@@ -225,11 +225,11 @@ Teams can optionally configure additional features beyond the required fields:
 
 **Kubernetes** (`google_kubernetes_engine_clusters`):
 
-All Kubernetes-related configuration lives in a single optional block. Set this when the team needs GKE clusters — DNS zones and Artifact Registry are automatically provisioned alongside the clusters.
+All Kubernetes-related configuration lives in a single optional block. `clusters` is the required foundation — `artifact_registry_groups_memberships` and `dns_subdomain` are only valid when `clusters` is also set (enforced by validation).
 
-- **`clusters`**: Organized by region with embedded subnet configurations. pt-corpus automatically creates a Kubernetes project, VPC subnets, and DNS zones. pt-pneuma deploys clusters with all configurations. Supports multi-cluster service mesh with one fleet host cluster.
-- **`artifact_registry_groups_memberships`**: Two groups per team — readers (pull images) and writers (push images). Automatically integrates with pt-pneuma and pt-corpus service accounts.
-- **`dns_subdomain`**: Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma). Override when a custom subdomain is needed.
+- **`clusters`** *(required when block is set)*: Organized by region with embedded subnet configurations. pt-corpus automatically creates a Kubernetes project, VPC subnets, and DNS zones. pt-pneuma deploys clusters with all configurations. Supports multi-cluster service mesh with one fleet host cluster.
+- **`artifact_registry_groups_memberships`**: Two groups per team — readers (pull images) and writers (push images). Automatically integrates with pt-pneuma and pt-corpus service accounts. Requires `clusters` to be set.
+- **`dns_subdomain`**: Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma). Override when a custom subdomain is needed. Requires `clusters` to be set.
 
 **pt-corpus Specific Groups** (only for pt-corpus team):
 
