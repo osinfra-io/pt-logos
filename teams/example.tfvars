@@ -123,7 +123,7 @@ team = {
 
     # Kubernetes configuration (OPTIONAL)
     # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry
-    kubernetes = {
+    google_kubernetes_engine_clusters = {
 
       # DNS subdomain for team services (OPTIONAL)
       # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)

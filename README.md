@@ -223,7 +223,7 @@ environment folders.
 
 Teams can optionally configure additional features beyond the required fields:
 
-**Kubernetes** (`kubernetes`):
+**Kubernetes** (`google_kubernetes_engine_clusters`):
 
 All Kubernetes-related configuration lives in a single optional block. Set this when the team needs GKE clusters — DNS zones and Artifact Registry are automatically provisioned alongside the clusters.
 
@@ -349,7 +349,7 @@ Complete team infrastructure information including:
 - Folder hierarchy (team type folder, team folder ID, environment folder IDs)
 - Identity groups with email addresses, display names, descriptions, and roles
 
-Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), `dns_subdomain`, and `google_kubernetes_engine_clusters` (cluster configurations with embedded subnet definitions) — both sourced from the team's `kubernetes` block.
+Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), `dns_subdomain`, and `google_kubernetes_engine_clusters` (cluster configurations with embedded subnet definitions) — both sourced from the team's `google_kubernetes_engine_clusters` block.
 
 These outputs provide downstream repositories with foundational infrastructure information including folder placement and access controls for any additional resource deployments.
 

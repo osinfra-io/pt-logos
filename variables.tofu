@@ -179,7 +179,7 @@ variable "team" {
       owners   = list(string)
     })), {})
 
-    kubernetes = optional(object({
+    google_kubernetes_engine_clusters = optional(object({
       dns_subdomain = optional(string, null)
 
       artifact_registry_groups_memberships = optional(object({
@@ -260,7 +260,7 @@ variable "team" {
   validation {
     condition = alltrue(flatten([
       for team_key, team in var.team : [
-        for region, clusters in lookup(lookup(team, "kubernetes", {}), "clusters", {}) :
+        for region, clusters in lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "clusters", {}) :
         contains(["us-east1", "us-east4"], region)
       ]
     ]))

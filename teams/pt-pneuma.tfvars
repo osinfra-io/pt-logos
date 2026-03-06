@@ -1161,7 +1161,7 @@ team = {
       }
     }
 
-    kubernetes = {
+    google_kubernetes_engine_clusters = {
       artifact_registry_groups_memberships = {
         readers = {
           managers = []
