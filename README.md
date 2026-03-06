@@ -235,11 +235,13 @@ Teams can optionally configure additional features beyond the required fields:
 
 - Two groups per team: readers (pull images) and writers (push images)
 - Automatically integrates with pt-pneuma and pt-corpus service accounts
+- Only active when the team also has GKE clusters (requires a Kubernetes project in pt-corpus)
 
 **DNS Subdomain Override** (`dns_subdomain`):
 
 - Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-- Override when custom subdomain needed
+- Override when a custom subdomain is needed
+- Only active when the team also has GKE clusters (DNS zones are only created for teams with clusters)
 
 **pt-corpus Specific Groups** (only for pt-corpus team):
 
