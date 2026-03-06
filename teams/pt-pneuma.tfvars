@@ -1175,7 +1175,7 @@ team = {
         }
       }
 
-      clusters = {
+      regions = {
         "us-east1" = {
           "pt-pneuma-us-east1-b" = {
             enable_gke_hub_host = true

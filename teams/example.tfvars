@@ -158,8 +158,7 @@ team = {
       # - VPC subnets for each cluster
       # - DNS zones for team services
       # When specified, pt-pneuma deploys the clusters with all configurations
-      clusters = {
-        # Region key (MUST be us-east1 or us-east4 only)
+      regions = {
         # These are the only supported regions for the platform
         "us-east1" = {
           # Cluster name MUST follow pattern: {team-key}-{region}-{zone}

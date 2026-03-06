@@ -195,7 +195,7 @@ variable "team" {
         })
       }))
 
-      clusters = optional(map(map(object({
+      regions = optional(map(map(object({
         enable_gke_hub_host = optional(bool, false)
         node_pools = map(object({
           machine_type   = string
@@ -260,7 +260,7 @@ variable "team" {
   validation {
     condition = alltrue(flatten([
       for team_key, team in var.team : [
-        for region, clusters in lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "clusters", {}) :
+        for region, clusters in lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "regions", {}) :
         contains(["us-east1", "us-east4"], region)
       ]
     ]))
@@ -272,9 +272,9 @@ variable "team" {
       for team_key, team in var.team :
       team.google_kubernetes_engine_clusters == null ||
       (team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships == null && team.google_kubernetes_engine_clusters.dns_subdomain == null) ||
-      (team.google_kubernetes_engine_clusters.clusters != null && length(team.google_kubernetes_engine_clusters.clusters) > 0)
+      (team.google_kubernetes_engine_clusters.regions != null && length(team.google_kubernetes_engine_clusters.regions) > 0)
     ])
-    error_message = "artifact_registry_groups_memberships and dns_subdomain require clusters to also be defined in the google_kubernetes_engine_clusters block."
+    error_message = "artifact_registry_groups_memberships and dns_subdomain require regions to also be defined in the google_kubernetes_engine_clusters block."
   }
 
 }
