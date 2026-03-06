@@ -223,25 +223,13 @@ environment folders.
 
 Teams can optionally configure additional features beyond the required fields:
 
-**Google Kubernetes Engine Clusters** (`google_kubernetes_engine_clusters`):
+**Kubernetes** (`kubernetes`):
 
-- Organized by region with embedded subnet configurations
-- pt-corpus automatically creates Kubernetes project, VPC subnets, and DNS
-  zones
-- pt-pneuma deploys clusters with all configurations
-- Supports multi-cluster service mesh with one fleet host cluster
+All Kubernetes-related configuration lives in a single optional block. Set this when the team needs GKE clusters — DNS zones and Artifact Registry are automatically provisioned alongside the clusters.
 
-**Artifact Registry Groups** (`google_artifact_registry_groups_memberships`):
-
-- Two groups per team: readers (pull images) and writers (push images)
-- Automatically integrates with pt-pneuma and pt-corpus service accounts
-- Only active when the team also has GKE clusters (requires a Kubernetes project in pt-corpus)
-
-**DNS Subdomain Override** (`dns_subdomain`):
-
-- Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-- Override when a custom subdomain is needed
-- Only active when the team also has GKE clusters (DNS zones are only created for teams with clusters)
+- **`clusters`**: Organized by region with embedded subnet configurations. pt-corpus automatically creates a Kubernetes project, VPC subnets, and DNS zones. pt-pneuma deploys clusters with all configurations. Supports multi-cluster service mesh with one fleet host cluster.
+- **`artifact_registry_groups_memberships`**: Two groups per team — readers (pull images) and writers (push images). Automatically integrates with pt-pneuma and pt-corpus service accounts.
+- **`dns_subdomain`**: Defaults to team key with prefix removed (e.g., pt-pneuma → pneuma). Override when a custom subdomain is needed.
 
 **pt-corpus Specific Groups** (only for pt-corpus team):
 
@@ -361,7 +349,7 @@ Complete team infrastructure information including:
 - Folder hierarchy (team type folder, team folder ID, environment folder IDs)
 - Identity groups with email addresses, display names, descriptions, and roles
 
-Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), and `google_kubernetes_engine_clusters` (cluster configurations with embedded subnet definitions).
+Each team entry also includes: `billing_users_group` (org-level billing group email), `github_repositories` (full_name, html_url, name per repo), `dns_subdomain`, and `google_kubernetes_engine_clusters` (cluster configurations with embedded subnet definitions) — both sourced from the team's `kubernetes` block.
 
 These outputs provide downstream repositories with foundational infrastructure information including folder placement and access controls for any additional resource deployments.
 
