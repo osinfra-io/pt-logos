@@ -260,7 +260,7 @@ variable "team" {
   validation {
     condition = alltrue(flatten([
       for team_key, team in var.team : [
-        for location in keys(lookup(lookup(team, "google_kubernetes_engine_clusters", {}), "locations", {})) :
+        for location in keys(team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.locations : {}) :
         can(regex("^(us-east1|us-east4)-[a-z]$", location))
       ]
     ]))
