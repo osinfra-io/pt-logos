@@ -121,33 +121,136 @@ team = {
     # OPTIONAL FIELDS
     # ============================================================================
 
-    # DNS subdomain for team services (OPTIONAL)
-    # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-    # Creates DNS zones: {subdomain}.osinfra.io (prod), {subdomain}.sb.osinfra.io (sandbox)
-    # Typically only set when you want a subdomain different from the team key
-    dns_subdomain = "example"
+    # Kubernetes configuration (OPTIONAL)
+    # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry
+    kubernetes = {
 
-    # Google Artifact Registry groups (OPTIONAL)
-    # Only specify if the team needs container registries
-    # Creates two groups for registry access control:
-    # - readers: Can pull container images (roles/artifactregistry.reader)
-    # - writers: Can push container images (roles/artifactregistry.writer)
-    # NOTE: pt-pneuma service accounts are automatically added as managers to readers
-    # NOTE: pt-corpus service accounts are automatically added as managers to writers
-    google_artifact_registry_groups_memberships = {
-      readers = {
-        managers = []
-        members  = []
-        owners   = ["registry-reader@example.com"]
+      # DNS subdomain for team services (OPTIONAL)
+      # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
+      # Creates DNS zones: {subdomain}.osinfra.io (prod), {subdomain}.sb.osinfra.io (sandbox)
+      # Typically only set when you want a subdomain different from the team key
+      dns_subdomain = "example"
+
+      # Artifact Registry groups (OPTIONAL)
+      # Only specify if the team needs container registries
+      # Creates two groups for registry access control:
+      # - readers: Can pull container images (roles/artifactregistry.reader)
+      # - writers: Can push container images (roles/artifactregistry.writer)
+      # NOTE: pt-pneuma service accounts are automatically added as managers to readers
+      # NOTE: pt-corpus service accounts are automatically added as managers to writers
+      artifact_registry_groups_memberships = {
+        readers = {
+          managers = []
+          members  = []
+          owners   = ["registry-reader@example.com"]
+        }
+        writers = {
+          managers = []
+          members  = []
+          owners   = ["registry-writer@example.com"]
+        }
       }
-      writers = {
-        managers = []
-        members  = []
-        owners   = ["registry-writer@example.com"]
+
+      # GKE clusters (OPTIONAL)
+      # Organized by region, with embedded subnet and node pool configurations
+      # When specified, pt-corpus automatically creates:
+      # - A Kubernetes project for the team
+      # - VPC subnets for each cluster
+      # - DNS zones for team services
+      # When specified, pt-pneuma deploys the clusters with all configurations
+      clusters = {
+        # Region key (MUST be us-east1 or us-east4 only)
+        # These are the only supported regions for the platform
+        "us-east1" = {
+          # Cluster name MUST follow pattern: {team-key}-{region}-{zone}
+          # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
+          "example-team-us-east1-b" = {
+
+            # Enable GKE Hub Host (OPTIONAL, default: false)
+            # Set true for ONE cluster ONLY (across all teams) to act as the fleet host
+            # The fleet host cluster manages:
+            # - Multi-cluster service discovery (MCS)
+            # - Cross-cluster ingress and egress
+            # - Fleet-wide policies
+            # All other clusters (across all teams) register to this host
+            # Example: pt-pneuma-us-east1-b is configured as the fleet host
+            enable_gke_hub_host = true
+
+            # Node pools configuration (REQUIRED)
+            # At least one pool (typically "default-pool") must be defined
+            # Each pool supports autoscaling within min/max bounds
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2" # GCE machine type
+                max_node_count = 3               # Maximum nodes for autoscaling
+                min_node_count = 1               # Minimum nodes (can be 0 for cost savings)
+              }
+              # Additional node pools can be added for specialized workloads
+              # Example: high-memory pool, GPU pool, preemptible pool
+            }
+
+            # Subnet configuration (REQUIRED) - Defines all networking for this cluster
+            # These IP ranges are created in the shared VPC by pt-corpus
+            # All ranges must be non-overlapping across all teams and environments
+            subnet = {
+              # Primary IP range for cluster nodes (must be /21 or larger)
+              ip_cidr_range = "10.62.8.0/21"
+
+              # Control plane (master) IP range (MUST be /28)
+              # Used for the GKE control plane private endpoint
+              master_ipv4_cidr_block = "10.63.240.16/28"
+
+              # Secondary IP range for pods (must be /14 or larger for large clusters)
+              # Each node allocates a /24 from this range for its pods
+              pod_ip_cidr_range = "10.2.0.0/15"
+
+              # Secondary IP range for services (must be large enough for all services)
+              # Each Kubernetes Service gets one IP from this range
+              services_ip_cidr_range = "10.63.8.0/21"
+            }
+          }
+
+          # Additional clusters in same region
+          "example-team-us-east1-c" = {
+            # Non-host clusters should omit enable_gke_hub_host or set to false
+            # These clusters register to the fleet host for multi-cluster services
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.62.16.0/21"
+              master_ipv4_cidr_block = "10.63.240.32/28"
+              pod_ip_cidr_range      = "10.4.0.0/15"
+              services_ip_cidr_range = "10.63.40.0/21"
+            }
+          }
+        }
+
+        # Only us-east1 and us-east4 regions are supported
+        # Each region can contain multiple clusters in different zones
+        "us-east4" = {
+          "example-team-us-east4-a" = {
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.62.24.0/21"
+              master_ipv4_cidr_block = "10.63.240.48/28"
+              pod_ip_cidr_range      = "10.6.0.0/15"
+              services_ip_cidr_range = "10.63.16.0/21"
+            }
+          }
+        }
       }
     }
-
-    # Google Browser groups (OPTIONAL - pt-corpus only)
     # Environment-specific console access for pt-corpus service accounts
     # Allows pt-corpus to browse GCP console to discover resources across all teams
     # Only used in pt-corpus team configuration - omit for other teams
@@ -170,108 +273,7 @@ team = {
       }
     }
 
-    # Google Kubernetes Engine clusters (OPTIONAL)
-    # Only specify if the team needs GKE clusters
-    # Organized by region, with embedded subnet and node pool configurations
-    # When specified, pt-corpus automatically creates:
-    # - A Kubernetes project for the team
-    # - VPC subnets for each cluster
-    # - DNS zones for team services
-    # When specified, pt-pneuma deploys the clusters with all configurations
-    google_kubernetes_engine_clusters = {
-      # Region key (MUST be us-east1 or us-east4 only)
-      # These are the only supported regions for the platform
-      "us-east1" = {
-        # Cluster name MUST follow pattern: {team-key}-{region}-{zone}
-        # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
-        "example-team-us-east1-b" = {
-
-          # Enable GKE Hub Host (OPTIONAL, default: false)
-          # Set true for ONE cluster ONLY (across all teams) to act as the fleet host
-          # The fleet host cluster manages:
-          # - Multi-cluster service discovery (MCS)
-          # - Cross-cluster ingress and egress
-          # - Fleet-wide policies
-          # All other clusters (across all teams) register to this host
-          # Example: pt-pneuma-us-east1-b is configured as the fleet host
-          enable_gke_hub_host = true
-
-          # Node pools configuration (REQUIRED)
-          # At least one pool (typically "default-pool") must be defined
-          # Each pool supports autoscaling within min/max bounds
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2" # GCE machine type
-              max_node_count = 3               # Maximum nodes for autoscaling
-              min_node_count = 1               # Minimum nodes (can be 0 for cost savings)
-            }
-            # Additional node pools can be added for specialized workloads
-            # Example: high-memory pool, GPU pool, preemptible pool
-          }
-
-          # Subnet configuration (REQUIRED) - Defines all networking for this cluster
-          # These IP ranges are created in the shared VPC by pt-corpus
-          # All ranges must be non-overlapping across all teams and environments
-          subnet = {
-            # Primary IP range for cluster nodes (must be /21 or larger)
-            ip_cidr_range = "10.62.8.0/21"
-
-            # Control plane (master) IP range (MUST be /28)
-            # Used for the GKE control plane private endpoint
-            master_ipv4_cidr_block = "10.63.240.16/28"
-
-            # Secondary IP range for pods (must be /14 or larger for large clusters)
-            # Each node allocates a /24 from this range for its pods
-            pod_ip_cidr_range = "10.2.0.0/15"
-
-            # Secondary IP range for services (must be large enough for all services)
-            # Each Kubernetes Service gets one IP from this range
-            services_ip_cidr_range = "10.63.8.0/21"
-          }
-        }
-
-        # Additional clusters in same region
-        "example-team-us-east1-c" = {
-          # Non-host clusters should omit enable_gke_hub_host or set to false
-          # These clusters register to the fleet host for multi-cluster services
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.16.0/21"
-            master_ipv4_cidr_block = "10.63.240.32/28"
-            pod_ip_cidr_range      = "10.4.0.0/15"
-            services_ip_cidr_range = "10.63.40.0/21"
-          }
-        }
-      }
-
-      # Only us-east1 and us-east4 regions are supported
-      # Each region can contain multiple clusters in different zones
-      "us-east4" = {
-        "example-team-us-east4-a" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.24.0/21"
-            master_ipv4_cidr_block = "10.63.240.48/28"
-            pod_ip_cidr_range      = "10.6.0.0/15"
-            services_ip_cidr_range = "10.63.16.0/21"
-          }
-        }
-      }
-    }
-
-    # Google Project Creator groups (OPTIONAL - pt-corpus only)
+    # Google Browser groups (OPTIONAL - pt-corpus only)
     # Allows pt-corpus service accounts to create GCP projects in team folders
     # Only used in pt-corpus team configuration - omit for other teams
     # Grants roles/resourcemanager.projectCreator at the environment folder level

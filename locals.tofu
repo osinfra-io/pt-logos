@@ -434,7 +434,7 @@ locals {
   # Uses official Google Cloud role descriptions
   google_cloud_identity_groups = merge(
     # Artifact registry groups for teams that enable them
-    # Only created when google_artifact_registry_groups_memberships is defined for a team
+    # Only created when kubernetes.artifact_registry_groups_memberships is defined for a team
     # Automatically adds pt-pneuma GitHub service accounts as managers to readers group (pneuma manages all registries)
     # Automatically adds pt-corpus GitHub service accounts as managers to writers group (corpus manages group membership for registry writers)
     { for identity_group in flatten([
@@ -446,14 +446,14 @@ locals {
           key          = "${team_key}-registry-${group_key}"
 
           managers = group_key == "readers" ? concat(
-            team.google_artifact_registry_groups_memberships[group_key].managers,
+            team.kubernetes.artifact_registry_groups_memberships[group_key].managers,
             [
               "pt-pneuma-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com",
               "pt-pneuma-github@pt-corpus-tf16-prod.iam.gserviceaccount.com",
               "pt-pneuma-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com"
             ]
             ) : concat(
-            team.google_artifact_registry_groups_memberships[group_key].managers,
+            team.kubernetes.artifact_registry_groups_memberships[group_key].managers,
             [
               "pt-corpus-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com",
               "pt-corpus-github@pt-corpus-tf16-prod.iam.gserviceaccount.com",
@@ -461,12 +461,12 @@ locals {
             ]
           )
 
-          members = team.google_artifact_registry_groups_memberships[group_key].members
-          owners  = team.google_artifact_registry_groups_memberships[group_key].owners
+          members = team.kubernetes.artifact_registry_groups_memberships[group_key].members
+          owners  = team.kubernetes.artifact_registry_groups_memberships[group_key].owners
           team    = team_key
         }
       ]
-      if team.google_artifact_registry_groups_memberships != null
+      if team.kubernetes != null && team.kubernetes.artifact_registry_groups_memberships != null
     ]) : identity_group.key => identity_group },
 
     # Standard groups for all teams (admin, writer, reader)

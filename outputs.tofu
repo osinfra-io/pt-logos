@@ -42,10 +42,10 @@ output "teams" {
       }
 
       # Google Kubernetes Engine clusters for this team
-      google_kubernetes_engine_clusters = lookup(team, "google_kubernetes_engine_clusters", {})
+      google_kubernetes_engine_clusters = team.kubernetes != null ? team.kubernetes.clusters : {}
 
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
-      dns_subdomain = lookup(team, "dns_subdomain", null)
+      dns_subdomain = team.kubernetes != null ? team.kubernetes.dns_subdomain : null
 
       # Identity groups for this team
       identity_groups = {
