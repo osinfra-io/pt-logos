@@ -48,7 +48,15 @@ The module creates a three-level Google Cloud Platform folder hierarchy followin
 
 ```text
 Platform Teams/ (pre-created)
+├── Arche/
+│   ├── Sandbox/
+│   ├── Non-Production/
+│   └── Production/
 ├── Corpus/
+│   ├── Sandbox/
+│   ├── Non-Production/
+│   └── Production/
+├── Ekklesia/
 │   ├── Sandbox/
 │   ├── Non-Production/
 │   └── Production/
@@ -56,7 +64,11 @@ Platform Teams/ (pre-created)
 │   ├── Sandbox/
 │   ├── Non-Production/
 │   └── Production/
-└── Pneuma/
+├── Pneuma/
+│   ├── Sandbox/
+│   ├── Non-Production/
+│   └── Production/
+└── Techne/
     ├── Sandbox/
     ├── Non-Production/
     └── Production/
@@ -91,19 +103,25 @@ This repository uses a single production workflow that deploys directly on push 
 graph LR
     T[Push to main or workflow_dispatch]
 
-    T --> C1[Team: pt-logos]
+    T --> C1[Team: pt-arche]
     T --> C2[Team: pt-corpus]
-    T --> C3[Team: pt-pneuma]
-    T --> C4[Team: st-ethos]
+    T --> C3[Team: pt-ekklesia]
+    T --> C4[Team: pt-logos]
+    T --> C5[Team: pt-pneuma]
+    T --> C6[Team: pt-techne]
+    T --> C7[Team: st-ethos]
 
     style T fill:#fff4e6,color:#000
     style C1 fill:#d4edda,color:#000
     style C2 fill:#d4edda,color:#000
     style C3 fill:#d4edda,color:#000
     style C4 fill:#d4edda,color:#000
+    style C5 fill:#d4edda,color:#000
+    style C6 fill:#d4edda,color:#000
+    style C7 fill:#d4edda,color:#000
 ```
 
-All four team jobs run in parallel using a matrix strategy (`fail-fast: false`).
+All seven team jobs run in parallel using a matrix strategy (`fail-fast: false`).
 
 ## Interface
 
