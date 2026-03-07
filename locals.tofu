@@ -469,14 +469,13 @@ locals {
       if team.google_kubernetes_engine_clusters != null && team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships != null
     ]) : identity_group.key => identity_group },
 
-    # Standard groups for all teams (admin, writer, reader)
+    # Standard groups for all teams (administrators, writers, readers)
     { for identity_group in flatten([
       for team_key, team in var.team : [
         for group_key in ["admin", "writer", "reader"] : {
           description  = local.google_role_descriptions[group_key]
-          display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${local.google_role_display_names[group_key]}"
-          email_key    = "${team_key}-${local.google_role_email_suffixes[group_key]}"
-          key          = "${team_key}-${group_key}"
+          display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(local.google_role_plural_names[group_key])}"
+          key          = "${team_key}-${local.google_role_plural_names[group_key]}"
           managers     = team.google_basic_groups_memberships[group_key].managers
           members      = team.google_basic_groups_memberships[group_key].members
           owners       = team.google_basic_groups_memberships[group_key].owners
@@ -588,15 +587,8 @@ locals {
     "writer" = "All of the permissions in the Reader role, plus permissions for actions that modify state, such as changing existing resources."
   }
 
-  # Google Cloud role display names mapping (plural forms for group names)
-  google_role_display_names = {
-    "admin"  = "Administrators"
-    "reader" = "Readers"
-    "writer" = "Writers"
-  }
-
-  # Google Cloud role email suffixes mapping (plural forms for email addresses)
-  google_role_email_suffixes = {
+  # Google Cloud role display names mapping (plural forms for group names and email addresses)
+  google_role_plural_names = {
     "admin"  = "administrators"
     "reader" = "readers"
     "writer" = "writers"
