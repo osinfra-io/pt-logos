@@ -11,7 +11,7 @@ These repositories form a three-layer dependency hierarchy:
 **Deployment order**: pt-logos → pt-corpus → pt-pneuma. Changes to foundational layers must be applied before dependent layers.
 
 ## Coding Standards
-- Always run pre-commit validation after changing OpenTofu files: `pre-commit run -a`.
+- Always run pre-commit validation after making any changes: `pre-commit run -a`.
 - Document complex logic with comments.
 
 ### Automated Pre-Commit Execution
@@ -121,4 +121,4 @@ The `.github/copilot-instructions.md` file **MUST be identical across all platfo
 - Maintain consistency to ensure Copilot behavior is uniform across the platform
 
 ## References
-- [Repository instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions)
+- [Repository instructions documentation](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions)

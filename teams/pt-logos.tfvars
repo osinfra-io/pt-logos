@@ -32,6 +32,24 @@ team = {
     }
 
     github_repositories = {
+      # pt-logos owns this repository as the foundational governance team responsible for
+      # org-wide standards and shared tooling. As the platform matures and teams grow,
+      # ownership of pt-ai-context may migrate to a dedicated team.
+      "pt-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
+
+        push_allowances = [
+          "osinfra-io/pt-logos"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team"
+        ]
+      }
+
       "pt-logos" = {
         description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously." # This can be inferred from the team description (NOTE: need a description in the variable).
 
