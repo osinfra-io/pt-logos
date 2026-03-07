@@ -58,12 +58,32 @@ team = {
         enable_discord_webhook = true
 
         environments = {
+          arche-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-arche"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           corpus-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
               protected_branches     = true
             }
             name = "Production: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          ekklesia-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-ekklesia"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
             }
@@ -94,6 +114,16 @@ team = {
               protected_branches     = true
             }
             name = "Production: pt-pneuma"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          techne-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-techne"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
             }
