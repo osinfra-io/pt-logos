@@ -24,9 +24,12 @@ jobs:
       fail-fast: false
       matrix:
         team:
-          - pt-logos
+          - pt-arche
           - pt-corpus
+          - pt-ekklesia
+          - pt-logos
           - pt-pneuma
+          - pt-techne
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
