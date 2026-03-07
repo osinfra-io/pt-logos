@@ -38,10 +38,6 @@ team = {
       "pt-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
 
-        enable_datadog_secrets = false
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
-
         push_allowances = [
           "osinfra-io/pt-logos"
         ]
