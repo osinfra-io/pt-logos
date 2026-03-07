@@ -31,6 +31,48 @@ team = {
       members     = []
     }
 
+    github_repositories = {
+      "pt-techne-opentofu-workflows" = {
+        description = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
+
+        enable_datadog_webhook = true
+        enable_discord_webhook = true
+
+        environments = {
+          non-production = {
+            name = "Non-Production: Main"
+            reviewers = {
+              teams = ["pt-techne-non-production-approvers"]
+            }
+          }
+          production = {
+            name = "Production: Main"
+            reviewers = {
+              teams = ["pt-techne-production-approvers"]
+            }
+          }
+          sandbox = {
+            name = "Sandbox: Main"
+            reviewers = {
+              teams = ["pt-techne-sandbox-approvers"]
+            }
+          }
+        }
+
+        push_allowances = [
+          "osinfra-io/pt-techne"
+        ]
+
+        topics = [
+          "github-actions",
+          "google-cloud-platform",
+          "opentofu",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+    }
+
     google_basic_groups_memberships = {
       admin = {
         managers = []
