@@ -492,8 +492,7 @@ locals {
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to browse ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Browsers"
-        email_key    = "pt-corpus-${environment}-browsers"
-        key          = "pt-corpus-${environment}-browser"
+        key          = "pt-corpus-${environment}-browsers"
         managers     = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
         members      = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
         owners       = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
@@ -507,8 +506,7 @@ locals {
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to create projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
-        email_key    = "pt-corpus-${environment}-project-creators"
-        key          = "pt-corpus-${environment}-project-creator"
+        key          = "pt-corpus-${environment}-project-creators"
         managers     = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
         members      = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
         owners       = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
@@ -523,8 +521,7 @@ locals {
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to administer shared VPC in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} XPN Administrators"
-        email_key    = "pt-corpus-${environment}-xpn-administrators"
-        key          = "pt-corpus-${environment}-xpn-admin"
+        key          = "pt-corpus-${environment}-xpn-administrators"
         managers     = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
         members      = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
         owners       = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
