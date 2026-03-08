@@ -33,8 +33,7 @@ team = {
 
     github_repositories = {
       # pt-logos owns this repository as the foundational governance team responsible for
-      # org-wide standards and shared tooling. As the platform matures and teams grow,
-      # ownership of pt-ai-context may migrate to a dedicated team.
+      # org-wide standards and shared tooling.
       "pt-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
 
@@ -47,6 +46,22 @@ team = {
           "github",
           "osinfra",
           "platform-team"
+        ]
+      }
+
+      "pt-logos-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-logos team."
+
+        push_allowances = [
+          "osinfra-io/pt-logos"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-logos"
         ]
       }
 

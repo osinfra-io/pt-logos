@@ -32,6 +32,22 @@ team = {
     }
 
     github_repositories = {
+      "pt-arche-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-arche team."
+
+        push_allowances = [
+          "osinfra-io/pt-arche"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
       "pt-arche-core-helpers" = {
         description = "OpenTofu example module for helpers providing core platform functionality including workspace parsing, resource labeling, and logos integration for team and project management."
 

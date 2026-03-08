@@ -32,6 +32,22 @@ team = {
     }
 
     github_repositories = {
+      "pt-ekklesia-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-ekklesia team."
+
+        push_allowances = [
+          "osinfra-io/pt-ekklesia"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-ekklesia"
+        ]
+      }
+
       "pt-ekklesia" = {
         description = "Backstage developer portal running on Google Kubernetes Engine, providing a centralized platform service catalog and developer tooling."
 

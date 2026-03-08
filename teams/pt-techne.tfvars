@@ -32,6 +32,22 @@ team = {
     }
 
     github_repositories = {
+      "pt-techne-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-techne team."
+
+        push_allowances = [
+          "osinfra-io/pt-techne"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-misc-workflows" = {
         description = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
 

@@ -32,6 +32,22 @@ team = {
     }
 
     github_repositories = {
+      "pt-corpus-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-corpus team."
+
+        push_allowances = [
+          "osinfra-io/pt-corpus"
+        ]
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-corpus"
+        ]
+      }
+
       "pt-corpus" = {
         description = "The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate." # This can be inferred from the team description (NOTE: need a description in the variable).
 
