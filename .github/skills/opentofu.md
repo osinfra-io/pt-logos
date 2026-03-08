@@ -13,7 +13,7 @@ Specialized guidance for OpenTofu (Terraform) infrastructure-as-code workflows.
 - `outputs.tofu` - Output values
 - `providers.tofu` - Provider configurations
 - `backend.tofu` - State storage configuration
-- `helpers.tofu` - Always present; invokes `opentofu-core-helpers` which is the central source for environment detection, labels, team data, and project naming — check here before hardcoding any of those values
+- `helpers.tofu` - Always present; invokes `pt-arche-core-helpers` which is the central source for environment detection, labels, team data, and project naming — check here before hardcoding any of those values
 
 ### Logic Belongs in Locals
 
