@@ -31,6 +31,77 @@ team = {
       members     = []
     }
 
+    github_repositories = {
+      "pt-ekklesia" = {
+        description = "Backstage developer portal running on Google Kubernetes Engine, providing a centralized platform service catalog and developer tooling."
+
+        enable_datadog_secrets = true
+        enable_datadog_webhook = true
+        enable_discord_webhook = true
+
+        environments = {
+          sandbox = {
+            name = "Sandbox: Main"
+            reviewers = {
+              teams = ["pt-ekklesia-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east1-b = {
+            name = "Sandbox: Regional - us-east1-b"
+            reviewers = {
+              teams = ["pt-ekklesia-sandbox-approvers"]
+            }
+          }
+        }
+
+        push_allowances = [
+          "osinfra-io/pt-ekklesia"
+        ]
+
+        topics = [
+          "backstage",
+          "google-cloud-platform",
+          "opentofu",
+          "platform-team",
+          "pt-ekklesia"
+        ]
+      }
+
+      "pt-ekklesia-docs" = {
+        description = "Platform documentation for the pt-ekklesia team powered by GitBook."
+
+        enable_datadog_webhook = true
+        enable_discord_webhook = true
+
+        push_allowances = [
+          "osinfra-io/pt-ekklesia"
+        ]
+
+        topics = [
+          "documentation",
+          "platform-team",
+          "pt-ekklesia"
+        ]
+      }
+
+      "pt-ekklesia-repository-templates" = {
+        description = "Repository templates providing standardized skeletons for creating new platform repositories."
+
+        enable_datadog_webhook = true
+        enable_discord_webhook = true
+
+        push_allowances = [
+          "osinfra-io/pt-ekklesia"
+        ]
+
+        topics = [
+          "backstage",
+          "platform-team",
+          "pt-ekklesia",
+        ]
+      }
+    }
+
     google_basic_groups_memberships = {
       admin = {
         managers = []

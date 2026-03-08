@@ -21,3 +21,18 @@ import {
   id = "pt-techne-pre-commit-hooks"
   to = github_repository.this["pt-techne-pre-commit-hooks"]
 }
+
+import {
+  id = "pt-ekklesia"
+  to = github_repository.this["pt-ekklesia"]
+}
+
+import {
+  id = "pt-ekklesia-docs"
+  to = github_repository.this["pt-ekklesia-docs"]
+}
+
+import {
+  id = "pt-ekklesia-repository-templates"
+  to = github_repository.this["pt-ekklesia-repository-templates"]
+}
