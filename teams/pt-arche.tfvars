@@ -43,8 +43,6 @@ team = {
         ]
 
         topics = [
-          "github-actions",
-          "google-cloud-platform",
           "opentofu",
           "platform-team",
           "pt-arche"
@@ -63,7 +61,6 @@ team = {
 
         topics = [
           "datadog",
-          "github-actions",
           "google-cloud-platform",
           "opentofu",
           "platform-team",
@@ -82,7 +79,6 @@ team = {
         ]
 
         topics = [
-          "github-actions",
           "google-cloud-platform",
           "kubernetes",
           "opentofu",
@@ -102,7 +98,6 @@ team = {
         ]
 
         topics = [
-          "github-actions",
           "google-cloud-platform",
           "opentofu",
           "platform-team",
@@ -121,7 +116,6 @@ team = {
         ]
 
         topics = [
-          "github-actions",
           "google-cloud-platform",
           "opentofu",
           "platform-team",
@@ -140,7 +134,6 @@ team = {
         ]
 
         topics = [
-          "github-actions",
           "google-cloud-platform",
           "opentofu",
           "platform-team",
@@ -159,8 +152,7 @@ team = {
         ]
 
         topics = [
-          "github-actions",
-          "google-cloud-platform",
+          "cert-manager",
           "kubernetes",
           "opentofu",
           "platform-team",
@@ -180,8 +172,6 @@ team = {
 
         topics = [
           "datadog",
-          "github-actions",
-          "google-cloud-platform",
           "kubernetes",
           "opentofu",
           "platform-team",
@@ -200,8 +190,7 @@ team = {
         ]
 
         topics = [
-          "github-actions",
-          "google-cloud-platform",
+          "istio",
           "kubernetes",
           "opentofu",
           "platform-team",
@@ -220,9 +209,8 @@ team = {
         ]
 
         topics = [
-          "github-actions",
-          "google-cloud-platform",
           "kubernetes",
+          "opa-gatekeeper",
           "opentofu",
           "platform-team",
           "pt-arche"
