@@ -165,6 +165,7 @@ team = {
 
         topics = [
           "cert-manager",
+          "helm",
           "infrastructure-as-code",
           "kubernetes",
           "opentofu",
@@ -186,6 +187,7 @@ team = {
 
         topics = [
           "datadog",
+          "helm",
           "infrastructure-as-code",
           "kubernetes",
           "opentofu",
@@ -206,6 +208,7 @@ team = {
         ]
 
         topics = [
+          "helm",
           "infrastructure-as-code",
           "istio",
           "kubernetes",
@@ -227,6 +230,7 @@ team = {
         ]
 
         topics = [
+          "helm",
           "infrastructure-as-code",
           "kubernetes",
           "opa-gatekeeper",
