@@ -60,9 +60,7 @@ team = {
 
         topics = [
           "backstage",
-          "github-actions",
           "google-cloud-platform",
-          "kubernetes",
           "opentofu",
           "platform-team",
           "pt-ekklesia"
@@ -81,7 +79,6 @@ team = {
 
         topics = [
           "documentation",
-          "github-actions",
           "platform-team",
           "pt-ekklesia"
         ]
@@ -98,12 +95,9 @@ team = {
         ]
 
         topics = [
-          "github-actions",
-          "google-cloud-platform",
-          "opentofu",
+          "backstage",
           "platform-team",
           "pt-ekklesia",
-          "repository-template"
         ]
       }
     }
