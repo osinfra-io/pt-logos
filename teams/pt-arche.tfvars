@@ -43,7 +43,9 @@ team = {
         ]
 
         topics = [
+          "infrastructure-as-code",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -62,7 +64,9 @@ team = {
         topics = [
           "datadog",
           "google-cloud-platform",
+          "infrastructure-as-code",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -80,8 +84,10 @@ team = {
 
         topics = [
           "google-cloud-platform",
+          "infrastructure-as-code",
           "kubernetes",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -99,7 +105,9 @@ team = {
 
         topics = [
           "google-cloud-platform",
+          "infrastructure-as-code",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -117,7 +125,9 @@ team = {
 
         topics = [
           "google-cloud-platform",
+          "infrastructure-as-code",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -135,7 +145,9 @@ team = {
 
         topics = [
           "google-cloud-platform",
+          "infrastructure-as-code",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -153,8 +165,11 @@ team = {
 
         topics = [
           "cert-manager",
+          "helm",
+          "infrastructure-as-code",
           "kubernetes",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -172,8 +187,11 @@ team = {
 
         topics = [
           "datadog",
+          "helm",
+          "infrastructure-as-code",
           "kubernetes",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -190,9 +208,12 @@ team = {
         ]
 
         topics = [
+          "helm",
+          "infrastructure-as-code",
           "istio",
           "kubernetes",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
@@ -209,9 +230,12 @@ team = {
         ]
 
         topics = [
+          "helm",
+          "infrastructure-as-code",
           "kubernetes",
           "opa-gatekeeper",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
