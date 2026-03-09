@@ -329,6 +329,13 @@ team = {
         # When true, configures webhook to send notifications to Discord
         enable_discord_webhook = true
 
+        # Enable GCP Workload Identity Federation service account binding (OPTIONAL, default: false)
+        # When true, creates a google_service_account_iam_member binding so this repository
+        # can authenticate to GCP via OIDC using the team's GitHub Actions service account.
+        # Only set to true for repositories that have GitHub Actions workflows deploying
+        # infrastructure or pushing container images to GCP (e.g., pt-corpus, pt-pneuma).
+        enable_google_wif_service_account = true
+
         # GitHub environments for deployment protection (OPTIONAL)
         # Can include main environments (sandbox, non-production, production)
         # and regional/component-specific environments for granular deployments

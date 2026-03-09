@@ -51,9 +51,10 @@ team = {
       "pt-pneuma" = {
         description = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation." # This can be inferred from the team description (NOTE: need a description in the variable).
 
-        enable_datadog_secrets = true
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
+        enable_datadog_secrets            = true
+        enable_datadog_webhook            = true
+        enable_discord_webhook            = true
+        enable_google_wif_service_account = true
 
         environments = {
           non-production = {
@@ -1162,7 +1163,8 @@ team = {
       }
 
       "pt-pneuma-istio-test" = {
-        description = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
+        description                       = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
+        enable_google_wif_service_account = true
 
         push_allowances = [
           "osinfra-io/pt-pneuma" # This can be inferred from the team association.

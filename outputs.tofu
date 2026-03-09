@@ -34,9 +34,10 @@ output "teams" {
       github_repositories = {
         for repo_key, repo in local.github_repositories :
         repo_key => {
-          full_name = github_repository.this[repo_key].full_name
-          html_url  = github_repository.this[repo_key].html_url
-          name      = github_repository.this[repo_key].name
+          enable_google_wif_service_account = repo.enable_google_wif_service_account
+          full_name                         = github_repository.this[repo_key].full_name
+          html_url                          = github_repository.this[repo_key].html_url
+          name                              = github_repository.this[repo_key].name
         }
         if repo.team_key == team_key
       }

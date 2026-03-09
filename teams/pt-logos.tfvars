@@ -68,9 +68,10 @@ team = {
       "pt-logos" = {
         description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously." # This can be inferred from the team description (NOTE: need a description in the variable).
 
-        enable_datadog_secrets = true
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
+        enable_datadog_secrets            = true
+        enable_datadog_webhook            = true
+        enable_discord_webhook            = true
+        enable_google_wif_service_account = true
 
         environments = {
           arche-production = {

@@ -264,14 +264,15 @@ locals {
   github_repositories = { for repo in flatten([
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
-        description            = repo.description
-        enable_datadog_secrets = repo.enable_datadog_secrets
-        enable_datadog_webhook = repo.enable_datadog_webhook
-        enable_discord_webhook = repo.enable_discord_webhook
-        key                    = repo_key
-        push_allowances        = repo.push_allowances
-        team_key               = team_key
-        topics                 = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
+        description                       = repo.description
+        enable_datadog_secrets            = repo.enable_datadog_secrets
+        enable_datadog_webhook            = repo.enable_datadog_webhook
+        enable_discord_webhook            = repo.enable_discord_webhook
+        enable_google_wif_service_account = repo.enable_google_wif_service_account
+        key                               = repo_key
+        push_allowances                   = repo.push_allowances
+        team_key                          = team_key
+        topics                            = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
       }
     ]
   ]) : repo.key => repo }
