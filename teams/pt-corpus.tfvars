@@ -51,9 +51,10 @@ team = {
       "pt-corpus" = {
         description = "The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate." # This can be inferred from the team description (NOTE: need a description in the variable).
 
-        enable_datadog_secrets = true
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
+        enable_datadog_secrets            = true
+        enable_datadog_webhook            = true
+        enable_discord_webhook            = true
+        enable_google_wif_service_account = true
 
         environments = {
           non-production = {

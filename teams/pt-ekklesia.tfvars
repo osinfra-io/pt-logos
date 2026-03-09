@@ -51,9 +51,10 @@ team = {
       "pt-ekklesia" = {
         description = "Backstage developer portal running on Google Kubernetes Engine, providing a centralized platform service catalog and developer tooling."
 
-        enable_datadog_secrets = true
-        enable_datadog_webhook = true
-        enable_discord_webhook = true
+        enable_datadog_secrets            = true
+        enable_datadog_webhook            = true
+        enable_discord_webhook            = true
+        enable_google_wif_service_account = true
 
         environments = {
           sandbox = {
@@ -84,8 +85,7 @@ team = {
       }
 
       "pt-ekklesia-docs" = {
-        description = "Platform documentation for the pt-ekklesia team powered by GitBook."
-
+        description            = "Platform documentation for the pt-ekklesia team powered by GitBook."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 
@@ -101,8 +101,7 @@ team = {
       }
 
       "pt-ekklesia-repository-templates" = {
-        description = "Repository templates providing standardized skeletons for creating new platform repositories."
-
+        description            = "Repository templates providing standardized skeletons for creating new platform repositories."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 

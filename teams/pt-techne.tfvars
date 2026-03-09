@@ -49,8 +49,7 @@ team = {
       }
 
       "pt-techne-misc-workflows" = {
-        description = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
-
+        description            = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 
@@ -68,8 +67,7 @@ team = {
       }
 
       "pt-techne-opentofu-codespace" = {
-        description = "GitHub Codespace for OpenTofu Infrastructure as Code development providing standardized developer environments."
-
+        description            = "GitHub Codespace for OpenTofu Infrastructure as Code development providing standardized developer environments."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 
@@ -88,8 +86,7 @@ team = {
       }
 
       "pt-techne-opentofu-workflows" = {
-        description = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
-
+        description            = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 
@@ -128,8 +125,7 @@ team = {
       }
 
       "pt-techne-pre-commit-hooks" = {
-        description = "Pre-commit hooks for Infrastructure as Code (IaC) tools including OpenTofu format, validate, and test."
-
+        description            = "Pre-commit hooks for Infrastructure as Code (IaC) tools including OpenTofu format, validate, and test."
         enable_datadog_webhook = true
         enable_discord_webhook = true
 

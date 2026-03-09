@@ -135,10 +135,11 @@ variable "team" {
     })
 
     github_repositories = optional(map(object({
-      description            = string
-      enable_datadog_secrets = optional(bool, false)
-      enable_datadog_webhook = optional(bool, true)
-      enable_discord_webhook = optional(bool, true)
+      description                       = string
+      enable_datadog_secrets            = optional(bool, false)
+      enable_datadog_webhook            = optional(bool, true)
+      enable_discord_webhook            = optional(bool, true)
+      enable_google_wif_service_account = optional(bool, false)
 
       environments = optional(map(object({
         deployment_branch_policy = optional(object({
