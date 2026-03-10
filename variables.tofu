@@ -25,12 +25,6 @@ variable "github_datadog_webhook_api_key" {
   type        = string
 }
 
-variable "github_discord_webhook_api_key" {
-  description = "The Discord API key used for creating GitHub webhooks"
-  sensitive   = true
-  type        = string
-}
-
 variable "github_token" {
   description = "The GitHub token to authenticate with the GitHub provider"
   sensitive   = true
@@ -138,7 +132,6 @@ variable "team" {
       description                       = string
       enable_datadog_secrets            = optional(bool, false)
       enable_datadog_webhook            = optional(bool, true)
-      enable_discord_webhook            = optional(bool, true)
       enable_google_wif_service_account = optional(bool, false)
 
       environments = optional(map(object({

@@ -267,7 +267,6 @@ locals {
         description                       = repo.description
         enable_datadog_secrets            = repo.enable_datadog_secrets
         enable_datadog_webhook            = repo.enable_datadog_webhook
-        enable_discord_webhook            = repo.enable_discord_webhook
         enable_google_wif_service_account = repo.enable_google_wif_service_account
         key                               = repo_key
         push_allowances                   = repo.push_allowances
@@ -312,17 +311,6 @@ locals {
     "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
     "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
   }
-
-  # Filter GitHub repositories that have Discord webhooks enabled
-  github_repository_discord_webhooks = { for repo in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.github_repositories : {
-        key                    = repo_key
-        enable_discord_webhook = repo.enable_discord_webhook
-      }
-      if repo.enable_discord_webhook
-    ]
-  ]) : repo.key => repo }
 
   # Flatten GitHub repository environments for each repository that has environments configured
   github_repository_environments = { for env in flatten([

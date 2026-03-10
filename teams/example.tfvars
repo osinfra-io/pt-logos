@@ -325,10 +325,6 @@ team = {
         # When true, configures webhook to send events to Datadog
         enable_datadog_webhook = true
 
-        # Enable Discord webhook for notifications (OPTIONAL, default: true)
-        # When true, configures webhook to send notifications to Discord
-        enable_discord_webhook = true
-
         # Enable GCP Workload Identity Federation service account binding (OPTIONAL, default: false)
         # When true, creates a google_service_account_iam_member binding so this repository
         # can authenticate to GCP via OIDC using the team's GitHub Actions service account.
@@ -405,7 +401,7 @@ team = {
 
         # Repositories can omit environments if they don't need deployment protection
         # Common for libraries, tools, documentation, or simple automation repositories
-        # Default webhook settings will be used (enable_datadog_webhook and enable_discord_webhook default to true)
+        # Default webhook settings will be used (enable_datadog_webhook defaults to true)
 
         push_allowances = ["osinfra-io/example-team"]
         topics          = ["golang", "infrastructure"]

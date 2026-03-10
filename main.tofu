@@ -526,26 +526,6 @@ resource "github_repository_webhook" "datadog" {
   repository = each.key
 }
 
-resource "github_repository_webhook" "discord" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repository_discord_webhooks
-
-  active = true
-
-  configuration {
-    content_type = "json"
-    insecure_ssl = false
-    url          = "https://discord.com/api/webhooks/1175823442415722517/${var.github_discord_webhook_api_key}/github"
-  }
-
-  events = ["*"]
-
-  repository = each.key
-}
-
 # GitHub Team Resource - Child Teams
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
 

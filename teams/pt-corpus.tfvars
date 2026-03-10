@@ -53,7 +53,6 @@ team = {
 
         enable_datadog_secrets            = true
         enable_datadog_webhook            = true
-        enable_discord_webhook            = true
         enable_google_wif_service_account = true
 
         environments = {
