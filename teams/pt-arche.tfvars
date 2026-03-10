@@ -84,6 +84,24 @@ team = {
         ]
       }
 
+      "pt-arche-google-cloud-sql" = {
+        description            = "OpenTofu example module that provisions a Google Cloud SQL instance with configurable database version, high availability, automated backups, query insights, and private IP connectivity."
+        enable_datadog_webhook = true
+
+        push_allowances = [
+          "osinfra-io/pt-arche"
+        ]
+
+        topics = [
+          "google-cloud-platform",
+          "infrastructure-as-code",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
       "pt-arche-google-kubernetes-engine" = {
         description            = "OpenTofu example module that provisions a GKE cluster with Workload Identity, KMS encryption, CIS GKE Benchmark hardening, and GKE Fleet support for multi-cluster service discovery and ingress."
         enable_datadog_webhook = true
