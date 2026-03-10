@@ -514,12 +514,14 @@ resource "github_repository_webhook" "datadog" {
     "dependabot_alert",               # This event occurs when there is activity relating to Dependabot alerts
     "issue_comment",                  # This event occurs when there is activity relating to a comment on an issue or pull request
     "issues",                         # This event occurs when there is activity relating to an issue
+    "membership",                     # This event occurs when there is activity relating to team membership
     "public",                         # This event occurs when repository visibility changes from private to public
     "pull_request",                   # This event occurs when there is activity on a pull request
     "pull_request_review_comment",    # This event occurs when there is activity relating to a pull request review comment
     "push",                           # This event occurs when there is a push to a repository branch
     "repository",                     # This event occurs when there is activity relating to repositories
     "repository_vulnerability_alert", # This event occurs when there is activity relating to a security vulnerability alert in a repository
+    "security_advisory",              # This event occurs when there is activity relating to a security advisory
     "team_add"                        # This event occurs when a team is added to a repository
   ]
 
