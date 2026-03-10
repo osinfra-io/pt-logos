@@ -48,6 +48,24 @@ team = {
         ]
       }
 
+      "pt-techne-development-setup" = {
+        description            = "Local development environment setup scripts example for working with Infrastructure as Code (IaC)."
+        enable_datadog_webhook = true
+        enable_discord_webhook = true
+
+        push_allowances = [
+          "osinfra-io/pt-techne"
+        ]
+
+        topics = [
+          "developer-tools",
+          "docker",
+          "opentofu",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-misc-workflows" = {
         description            = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
         enable_datadog_webhook = true
