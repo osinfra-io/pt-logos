@@ -49,5 +49,4 @@ jobs:
         -var=datadog_api_key=${{ secrets.DATADOG_API_KEY }}
         -var=datadog_app_key=${{ secrets.DATADOG_APP_KEY }}
         -var=github_datadog_webhook_api_key=${{ secrets.DATADOG_WEBHOOK_API_KEY }}
-        -var=github_discord_webhook_api_key=${{ secrets.DISCORD_WEBHOOK_API_KEY }}
         -var=github_token=${{ secrets.TOKEN }}
