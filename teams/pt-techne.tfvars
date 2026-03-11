@@ -101,8 +101,10 @@ team = {
       }
 
       "pt-techne-opentofu-workflows" = {
-        description            = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
-        enable_datadog_webhook = true
+        description                       = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
+        enable_datadog_webhook            = true
+        enable_google_wif_service_account = true
+
 
         environments = {
           non-production = {
