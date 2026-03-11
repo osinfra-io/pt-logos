@@ -7,6 +7,9 @@ team = {
 
     display_name = "Ekklesia" # The assembly of the called-out — where distinct capabilities are gathered into a unified body, deliberating and acting in concert toward shared platform purpose.
 
+    enable_opentofu_state_management = true
+    enable_workflows                 = true
+
     github_child_teams_memberships = {
       non-production-approvers = {
         maintainers = ["brettcurtis"]

@@ -35,6 +35,20 @@ team = {
     # Invalid examples: "logos", "corpus-team", "Pneuma_Team"
     display_name = "Example"
 
+    # Enable OpenTofu state management (OPTIONAL, default: false)
+    # When true (requires enable_workflows = true), creates:
+    # - State storage bucket for OpenTofu state files
+    # - Storage IAM for the GitHub Actions service account
+    # - KMS crypto key IAM for state encryption
+    # enable_opentofu_state_management = true
+
+    # Enable workflows (OPTIONAL, default: false)
+    # When true, creates:
+    # - GitHub Actions service account for GCP authentication
+    # - Workload Identity Federation bindings (per repo with enable_google_wif_service_account)
+    # - Group memberships (browser, billing, registry writers)
+    # enable_workflows = true
+
     # GitHub child teams (REQUIRED - hardcoded structure)
     # Four predefined teams with customizable memberships
     # Control deployment approvals and repository administration

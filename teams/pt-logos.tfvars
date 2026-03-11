@@ -7,6 +7,9 @@ team = {
 
     display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
 
+    enable_opentofu_state_management = true
+    enable_workflows                 = true
+
     github_child_teams_memberships = {
       non-production-approvers = {
         maintainers = ["brettcurtis"]

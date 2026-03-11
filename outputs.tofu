@@ -21,7 +21,9 @@ output "teams" {
       } : null
 
       # Team metadata
-      display_name = team.display_name
+      display_name                     = team.display_name
+      enable_opentofu_state_management = team.enable_opentofu_state_management
+      enable_workflows                 = team.enable_workflows
 
       # Environment folders
       environments = {

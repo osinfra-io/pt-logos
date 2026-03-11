@@ -103,6 +103,9 @@ variable "team" {
 
     display_name = string
 
+    enable_opentofu_state_management = optional(bool, false)
+    enable_workflows                 = optional(bool, false)
+
     # GitHub child teams (hardcoded teams - only add members to predefined teams)
     github_child_teams_memberships = object({
       non-production-approvers = object({

@@ -7,6 +7,9 @@ team = {
 
     display_name = "Pneuma" # The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation.
 
+    enable_opentofu_state_management = true
+    enable_workflows                 = true
+
     github_child_teams_memberships = {
       non-production-approvers = {
         maintainers = ["brettcurtis"]
