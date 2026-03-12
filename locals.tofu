@@ -526,10 +526,14 @@ locals {
         description  = "Service accounts authorized to read Logos OpenTofu state"
         display_name = "Platform Team: Logos State Readers"
         key          = "pt-logos-state-readers"
-        managers     = []
-        members      = []
-        owners       = []
-        team         = "pt-logos"
+        managers = [
+          "pt-corpus-github@pt-corpus-tf16-prod.iam.gserviceaccount.com",
+          "pt-corpus-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com",
+          "pt-corpus-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com",
+        ]
+        members = []
+        owners  = []
+        team    = "pt-logos"
       }
     } : {}
   )
