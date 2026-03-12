@@ -423,10 +423,9 @@ team = {
     }
 
     # Google Cloud projects (OPTIONAL)
-    # Additional GCP projects beyond the standard Kubernetes project
-    # NOTE: This field is defined in the schema but not currently used by any downstream repos
-    # Planned for future use when teams need additional projects (data, ML, etc.)
-    projects = {
+    # Additional GCP projects created by pt-corpus in the team's environment folder
+    # Key is the project description, value contains optional services to enable
+    google_projects = {
       # Project key (used to generate project ID)
       "data-platform" = {
         # List of GCP API services to enable in this project (REQUIRED)

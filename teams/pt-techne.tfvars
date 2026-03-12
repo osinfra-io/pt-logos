@@ -181,6 +181,12 @@ team = {
       }
     }
 
+    google_projects = {
+      "testing" = {
+        services = []
+      }
+    }
+
     team_type = "platform-team"
   }
 }
