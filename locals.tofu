@@ -516,7 +516,22 @@ locals {
         owners       = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
-    ]) : identity_group.key => identity_group } : {}
+    ]) : identity_group.key => identity_group } : {},
+
+    # State readers group for pt-logos
+    # Grants read access to the Logos OpenTofu state bucket so all teams can use pt-arche-core-helpers root module
+    # Membership managed by pt-corpus, not pt-logos (service accounts are created in pt-corpus)
+    contains(keys(var.team), "pt-logos") ? {
+      "pt-logos-state-readers" = {
+        description  = "Service accounts authorized to read Logos OpenTofu state"
+        display_name = "Platform Team: Logos State Readers"
+        key          = "pt-logos-state-readers"
+        managers     = []
+        members      = []
+        owners       = []
+        team         = "pt-logos"
+      }
+    } : {}
   )
 
   # This Google Group is required to enable Kubernetes role-based access control (RBAC)
