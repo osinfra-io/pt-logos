@@ -186,7 +186,7 @@ locals {
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
         key             = repo_key
-        push_allowances = repo.push_allowances
+        push_allowances = local.within_logos ? concat(repo.push_allowances, [data.github_app.pr_approve_and_merge_osinfra_io.node_id]) : repo.push_allowances
 
         required_status_checks_contexts = []
       }
