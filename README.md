@@ -1,6 +1,6 @@
 # Logos
 
-[![Dependabot](https://img.shields.io/github/actions/workflow/status/osinfra-io/pt-logos/dependabot.yml?style=for-the-badge&logo=github&color=2088FF&label=Dependabot)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml)
+[![Dependabot](https://img.shields.io/github/actions/workflow/status/osinfra-io/pt-logos/dependabot.yml?style=for-the-badge&logo=github&color=2088FF&label=Dependabot)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml) [![Datadog Security Enabled](https://img.shields.io/badge/Datadog%20Security-Enabled-632CA6?style=for-the-badge&logo=datadog)](https://app.datadoghq.com/security/code-security/repositories?repository_id=pt-logos)
 
 ## 📄 Repository Description
 
@@ -15,7 +15,7 @@ Logos is where the platform’s moral architecture begins — where order is spo
 - Documentation: [docs.osinfra.io](https://docs.osinfra.io/product-guides/google-cloud-platform/logos)
 - Service Interfaces: [github.com](https://github.com/osinfra-io/pt-logos/issues/new/choose)
 
-## <img align="left" width="35" height="35" src="https://github.com/osinfra-io/github-organization-management/assets/1610100/39d6ae3b-ccc2-42db-92f1-276a5bc54e65"> Development
+## <img align="left" width="35" height="35" src="https://github.com/user-attachments/assets/eb98a3be-2ffe-4c05-91a4-072fe795a167"> Development
 
 Our focus is on the core fundamental practice of platform engineering, Infrastructure as Code.
 
@@ -98,28 +98,6 @@ Additionally, it creates:
 ## GitHub Actions Workflow
 
 This repository uses a single production workflow that deploys directly on push to main (excluding `.md` files) and supports manual dispatch:
-
-```mermaid
-graph LR
-    T[Push to main or workflow_dispatch]
-
-    T --> C1[Team: pt-arche]
-    T --> C2[Team: pt-corpus]
-    T --> C3[Team: pt-ekklesia]
-    T --> C4[Team: pt-logos]
-    T --> C5[Team: pt-pneuma]
-    T --> C6[Team: pt-techne]
-    T --> C7[Team: st-ethos]
-
-    style T fill:#fff4e6,color:#000
-    style C1 fill:#d4edda,color:#000
-    style C2 fill:#d4edda,color:#000
-    style C3 fill:#d4edda,color:#000
-    style C4 fill:#d4edda,color:#000
-    style C5 fill:#d4edda,color:#000
-    style C6 fill:#d4edda,color:#000
-    style C7 fill:#d4edda,color:#000
-```
 
 All seven team jobs run in parallel using a matrix strategy (`fail-fast: false`).
 
