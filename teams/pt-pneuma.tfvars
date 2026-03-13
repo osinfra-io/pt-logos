@@ -1013,6 +1013,12 @@ team = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
+          sandbox-istio-us-east1-b = {
+            name = "Sandbox Istio: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
           sandbox-istio-us-east1-c = {
             name = "Sandbox Istio: us-east1-c"
             reviewers = {
