@@ -8,3 +8,7 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 ## Team Configuration Schema
 
 `teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
+
+## GitHub Actions
+
+Logos deploys only to production — on push to `main` and via `workflow_dispatch`. Each team's tfvars file is applied as a separate matrix job (e.g. `pt-corpus`, `pt-pneuma`).
