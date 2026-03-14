@@ -1,22 +1,14 @@
-name: New Team Onboarding
+name: "Team: Onboarding"
 description: Onboard a new team onto the osinfra.io platform. Fill out this form and Copilot will generate the team configuration file.
-title: "Onboard team: [TEAM-KEY]"
+title: "🚀 Team: Onboarding"
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Welcome to the osinfra.io Platform! 👋
+        Fill out this form to onboard your team. Copilot will generate a `teams/{team-key}.tfvars` file and open a pull request. Once merged, the platform provisions your GCP folder, Google Cloud Identity groups, GitHub team, and Datadog team automatically.
 
-        This form collects everything needed to onboard your team. Once submitted, Copilot will use your answers to generate a `teams/{team-key}.tfvars` configuration file and open a pull request. After the PR merges, the platform automatically provisions:
-
-        - 📁 **GCP folder** in the correct Team Topologies hierarchy
-        - 👥 **Google Cloud Identity groups** for IAM access control
-        - 🐙 **GitHub team** with predefined deployment approval structure
-        - 📊 **Datadog team** for observability and monitoring
-        - 🏗️ **Downstream infrastructure** — Corpus and Pneuma build on top of what Logos creates here
-
-        > **Reference:** [`teams/example.tfvars`](../blob/main/teams/example.tfvars) is the canonical schema reference. All fields and valid values are documented there.
+        > **Reference:** [`teams/example.tfvars`](../blob/main/teams/example.tfvars) documents all fields and valid values.
 
         ---
 
@@ -28,8 +20,6 @@ body:
     attributes:
       value: |
         ## 1 — Team Identity
-
-        These three fields are the foundation of your team's identity across GCP, GitHub, and Datadog.
 
   - type: input
     id: team_key
@@ -86,8 +76,7 @@ body:
       value: |
         ## 2 — Datadog Team Memberships
 
-        Your team gets a dedicated Datadog team for shared dashboards, monitors, and on-call schedules.
-        Use **email addresses** (not GitHub usernames) for all Datadog fields.
+        Use **email addresses** for all Datadog fields.
 
   - type: textarea
     id: datadog_admins
@@ -121,8 +110,7 @@ body:
       value: |
         ## 3 — GitHub Parent Team
 
-        Your GitHub team is the parent team that all child teams inherit permissions from.
-        Use **GitHub usernames** (not email addresses) for all GitHub fields.
+        Use **GitHub usernames** for all GitHub fields.
 
   - type: textarea
     id: github_parent_maintainers
@@ -157,15 +145,7 @@ body:
       value: |
         ## 4 — GitHub Child Teams (Deployment Approvers)
 
-        Four predefined teams control who can approve deployments to each environment.
-        GitHub Actions **requires approval** from these teams before deploying.
-
-        - **Sandbox** — Lowest risk. Typically fine to have a wider group here.
-        - **Non-Production** — Pre-production gate. Catch issues before they reach prod.
-        - **Production** — Highest privilege. **Keep this group small and trusted.**
-        - **Repository Administrators** — Can manage repo settings, branch protection, and secrets.
-
-        Use **GitHub usernames** (not email addresses). Leave `members` blank if not needed.
+        These teams control who can approve deployments to each environment. Use **GitHub usernames**.
 
   - type: textarea
     id: sandbox_approvers_maintainers
@@ -252,19 +232,13 @@ body:
       value: |
         ## 5 — Google Cloud Identity Groups
 
-        Three Google Cloud Identity groups are created for your team, each granting a different
-        IAM role at the **GCP folder level** for all of your team's projects.
+        Three groups grant IAM roles at your team's GCP folder level. Use **email addresses**.
 
-        > **Note:** The `owners` field controls who **manages the Google group itself** (add/remove members),
-        > not GCP project ownership. Use **email addresses** (not GitHub usernames) for all fields.
-
-        | Group | GCP Role | Use for |
-        |-------|----------|---------|
-        | **admin** | Full control | Team leads, engineers who create/delete resources and manage IAM |
-        | **reader** | Read-only | Auditors, stakeholders, CI tools that only inspect resources |
-        | **writer** | Create & update | App developers who deploy but shouldn't manage IAM or delete resources |
-
-        Leave `managers` and `members` blank if not needed.
+        | Group | GCP Role |
+        |-------|----------|
+        | **admin** | Full control |
+        | **reader** | Read-only |
+        | **writer** | Create & update |
 
   - type: textarea
     id: gcp_admin_owners
@@ -361,8 +335,6 @@ body:
       value: |
         ## 6 — Optional Features
 
-        These features are disabled by default. Enable them if your team needs GCP deployments or OpenTofu state management.
-
   - type: checkboxes
     id: optional_features
     attributes:
@@ -389,19 +361,7 @@ body:
       value: |
         ## 7 — GitHub Repositories *(optional)*
 
-        Define the repositories your team owns. Leave blank if you don't have any repos yet — they can be added later.
-
-        The platform will create the repositories, configure branch protection, set up GitHub environments
-        for deployment approval, and optionally bind them to GCP Workload Identity.
-
-        **When to enable each flag:**
-        - `enable_datadog_webhook` *(default: true)* — Sends deployment and CI events to Datadog. Recommended for all repos.
-        - `enable_datadog_secrets` — Adds `DD_API_KEY` and `DD_APP_KEY` as repository secrets. Only needed if your repo's code directly instruments with Datadog (e.g., a service sending custom metrics).
-        - `enable_google_wif_service_account` — Allows this repo's GitHub Actions to authenticate to GCP via OIDC. Requires `enable_workflows` to be enabled above. Only set for repos that deploy infrastructure or push container images.
-
-        **Environments** control which teams must approve before GitHub Actions can deploy. Omit `environments` entirely for non-infra repos (libraries, docs, tools, etc.) that don't need deployment gates.
-
-        Use the YAML structure below. Copy and repeat the `your-repo-name` block for each repository.
+        Define the repositories your team owns. Leave blank to add later. Copy the YAML block for each repository.
 
   - type: textarea
     id: github_repositories

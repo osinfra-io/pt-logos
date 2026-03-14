@@ -11,17 +11,19 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 ## Issue Templates
 
-`.github/ISSUE_TEMPLATE/team-onboarding.yml` is the onboarding issue form for new teams. It mirrors every field in `teams/example.tfvars` and is designed to produce output that Copilot can turn directly into a valid `teams/{team-key}.tfvars` file.
+One issue template manages the team lifecycle. It lives in `.github/ISSUE_TEMPLATE/team-create.yml`.
 
-**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the issue template must also be updated** — including the field label, description, placeholder, whether it is required or optional, and any inline guidance about when and why a team would use that field.
+**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the issue template must also be updated** — including field labels, descriptions, placeholders, required/optional status, and inline guidance.
 
-When a team-onboarding issue is submitted, three files must be created or updated as a single pull request:
+### Create: `team-create.yml`
 
-1. **Create `teams/{team-key}.tfvars`** — Generate from the issue answers. All list-type answers (one item per line) convert to HCL list syntax. All YAML blocks in the repository, GKE, project, and corpus group fields convert to equivalent HCL structure.
+When submitted, open a single pull request with these three changes:
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into the `jobs.main.strategy.matrix.team` list in alphabetical order.
+1. **Create `teams/{team-key}.tfvars`** — Generate from the issue answers. List-type answers (one per line) convert to HCL list syntax. YAML blocks in the repositories, GKE, projects, and corpus group fields convert to equivalent HCL structure.
 
-3. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry following the existing pattern. The environment key is the team key with its prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
+2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.team` in alphabetical order.
+
+3. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry. The environment key is the team key with its type prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
    ```hcl
    myteam-production = {
      deployment_branch_policy = {
