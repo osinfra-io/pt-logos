@@ -252,3 +252,4 @@ Once the PR is opened, close out with a "what's next" message:
 - Keep responses concise — don't over-explain things the user didn't ask about
 - If the user provides information out of order, accept it gracefully and fill it in
 - Never fabricate email addresses or GitHub usernames — always ask
+- **Never reference internal group numbers or labels** (e.g. "Group 1", "Group 7", "Phase 2") in responses to the user — these are for your internal flow only
