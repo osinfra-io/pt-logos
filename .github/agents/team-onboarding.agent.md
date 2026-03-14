@@ -45,6 +45,8 @@ Introduce yourself briefly, explain what you'll produce, and ask only for the te
 - `.github/workflows/production.yml` — to see the current matrix.team list
 - `teams/pt-logos.tfvars` — to see the current GitHub environments
 
+Do **not** send any follow-up message after reading the files. Wait silently for the user's reply.
+
 **Step 3 — Once they reply**, validate the team key, then continue with Group 1.
 
 ## Conversation flow
