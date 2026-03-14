@@ -150,7 +150,7 @@ Ask: *"Does your team need to deploy infrastructure or push container images to 
 Ask: *"Do you have any GitHub repositories to register? (You can always add these later)"*
 
 If yes, for each repository collect:
-- **Name** (the repo name)
+- **Name** (the repo name) — must be exactly the team key (e.g. `et-tereo`) or prefixed with the team key followed by a hyphen (e.g. `et-tereo-docs`, `et-tereo-api`). Reject any name that doesn't match this pattern and explain the convention.
 - **Description**
 - **Topics** (comma-separated, e.g. `opentofu, google-cloud-platform`)
 - **Push allowances** — default to `osinfra-io/{team-key}` unless they specify otherwise
