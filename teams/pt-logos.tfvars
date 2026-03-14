@@ -146,6 +146,16 @@ team = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          tereo-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: et-tereo"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
         }
 
         push_allowances = [
