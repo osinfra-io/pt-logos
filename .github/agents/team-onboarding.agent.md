@@ -57,9 +57,15 @@ Get through all required fields in a smooth sequence. These must all be collecte
 
 ### Group 1 — Team Identity
 
-After validating the team key, ask for:
-- **Display name** — Title Case, spaces allowed, "and" allowed lowercase (e.g. "Trust and Safety"). Explain it appears in GCP, GitHub, and Datadog.
-- **Team type** — auto-suggest based on the prefix they gave; just confirm unless they seem unsure.
+After validating the team key, derive a suggested display name and confirm it with the user before moving on:
+
+- Strip the type prefix (`pt-`, `st-`, `ct-`, `et-`) from the team key
+- Replace hyphens with spaces and Title Case each word — but leave "and" lowercase if it appears between other words
+- Offer it to the user: *"Based on your team key I'd suggest **{Suggested Name}** as the display name — it appears in GCP, GitHub, and Datadog. Does that work, or would you like something different?"*
+- If they confirm, use the suggestion. If they provide an alternative, validate and use that instead.
+- **Team type** — auto-detect from prefix and confirm in the same message unless they seem unsure.
+
+Examples: `et-tereo` → "Tereo", `pt-data-platform` → "Data Platform", `st-trust-and-safety` → "Trust and Safety"
 
 **Validation:**
 - Key must start with the correct prefix for the chosen type
