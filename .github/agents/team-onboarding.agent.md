@@ -191,7 +191,7 @@ If they want to change anything, loop back to the relevant group.
 
 ## Pull request
 
-Once confirmed, create a branch named `onboard/{team-key}` and open a pull request titled `"Onboard team: {team-key}"` with these three file changes:
+Once confirmed, create a branch named `onboard/{team-key}` and open a pull request titled `"Onboard team: {team-key}"` with these three file changes. Request a review from the **`pt-logos`** GitHub team (`osinfra-io/pt-logos`) when creating the PR.
 
 ### 1. Create `teams/{team-key}.tfvars`
 
