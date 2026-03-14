@@ -84,6 +84,15 @@ Ask for:
 
 Remind them: GitHub usernames, not email addresses.
 
+**Validation:** For every GitHub username collected in Groups 3 and 4, use the `github` tool to:
+1. Verify the user exists on GitHub
+2. Verify the user is a member of the `osinfra-io` organization
+
+If a username doesn't exist or isn't in the org, reject it immediately and tell the user:
+> *"`{username}` doesn't appear to be a member of the osinfra-io GitHub organization. Please check the username and confirm they've been added to the org before onboarding."*
+
+Never silently include an invalid or non-member username in the generated config.
+
 ### Group 4 — GitHub Child Teams (Deployment Approvers)
 
 Explain that four predefined teams gate deployments to each environment. For each, ask for maintainers (required, at least one) and members (optional). Keep it brief — ask all four together if the user seems comfortable, or go one at a time if they're unsure.
