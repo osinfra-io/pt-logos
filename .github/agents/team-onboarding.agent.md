@@ -76,6 +76,9 @@ Ask for:
 
 Collect as comma- or newline-separated email addresses.
 
+**Validation:** Every email address collected in Groups 2 and 5 must end in `@osinfra.io`. Reject any address that doesn't match and tell the user:
+> *"`{email}` is not a valid osinfra.io email address. All Datadog and GCP group members must use their `@osinfra.io` address."*
+
 ### Group 3 — GitHub Parent Team
 
 Ask for:
