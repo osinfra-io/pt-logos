@@ -274,4 +274,20 @@ variable "team" {
     error_message = "artifact_registry_groups_memberships and dns_subdomain require locations to also be defined in the google_kubernetes_engine_clusters block."
   }
 
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.team : [
+        for repo in values(team.github_repositories) :
+        contains(repo.topics, team_key) &&
+        contains(repo.topics, lookup({
+          "ct" = "complicated-subsystem-team",
+          "et" = "enabling-team",
+          "pt" = "platform-team",
+          "st" = "stream-aligned-team"
+        }, substr(team_key, 0, 2), ""))
+      ]
+    ]))
+    error_message = "Every repository's topics must include the team key (e.g. \"et-tereo\") and team type (\"complicated-subsystem-team\", \"enabling-team\", \"platform-team\", or \"stream-aligned-team\")."
+  }
+
 }
