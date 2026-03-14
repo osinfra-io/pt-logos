@@ -1,5 +1,5 @@
 ---
-name: team-onboarding
+name: Team Onboarding
 description: Guides new teams through onboarding onto the osinfra.io platform. Asks questions, validates answers, and opens a pull request with all required configuration changes.
 tools: ["read", "edit", "search", "github/*"]
 ---
