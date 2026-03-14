@@ -9,19 +9,19 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 `teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
 
-## Issue Templates
+## Team Onboarding Agent
 
-`.github/ISSUE_TEMPLATE/team-onboarding.yml` is the onboarding issue form for new teams. It mirrors every field in `teams/example.tfvars` and is designed to produce output that Copilot can turn directly into a valid `teams/{team-key}.tfvars` file.
+`.github/agents/team-onboarding.agent.md` is the Copilot agent for onboarding new teams. It reads the schema, guides teams through a conversational onboarding flow, and opens a pull request with all required changes.
 
-**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the issue template must also be updated** — including the field label, description, placeholder, whether it is required or optional, and any inline guidance about when and why a team would use that field.
+**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
-When a team-onboarding issue is submitted, three files must be created or updated as a single pull request:
+When onboarding a team, the agent opens a single pull request with these three changes:
 
-1. **Create `teams/{team-key}.tfvars`** — Generate from the issue answers. All list-type answers (one item per line) convert to HCL list syntax. All YAML blocks in the repository, GKE, project, and corpus group fields convert to equivalent HCL structure.
+1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into the `jobs.main.strategy.matrix.team` list in alphabetical order.
+2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.team` in alphabetical order.
 
-3. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry following the existing pattern. The environment key is the team key with its prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
+3. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry. The environment key is the team key with its type prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
    ```hcl
    myteam-production = {
      deployment_branch_policy = {
