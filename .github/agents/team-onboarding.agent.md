@@ -152,7 +152,7 @@ Ask: *"Do you have any GitHub repositories to register? (You can always add thes
 If yes, for each repository collect:
 - **Name** (the repo name) — must be exactly the team key (e.g. `et-tereo`) or prefixed with the team key followed by a hyphen (e.g. `et-tereo-docs`, `et-tereo-api`). Reject any name that doesn't match this pattern and explain the convention.
 - **Description**
-- **Topics** (comma-separated, e.g. `opentofu, google-cloud-platform`)
+- **Topics** (comma-separated) — always include the team key (e.g. `et-tereo`) and team type (e.g. `enabling-team`) as topics; add any additional technology topics the repo warrants (e.g. `opentofu`, `google-cloud-platform`). Auto-add them if the user doesn't include them — never generate a repo block without both required topics present. Team type topic values: `pt-` → `platform-team`, `st-` → `stream-aligned-team`, `ct-` → `complicated-subsystem-team`, `et-` → `enabling-team`
 - **Push allowances** — default to `osinfra-io/{team-key}` unless they specify otherwise
 - **enable_datadog_webhook** — default true; only ask if they want to change it
 - **enable_datadog_secrets** — only if the repo directly instruments code with Datadog (sends custom metrics/traces); default false

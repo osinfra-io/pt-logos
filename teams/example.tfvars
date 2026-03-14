@@ -402,7 +402,13 @@ team = {
 
         # Repository topics (REQUIRED) - Tags for categorization and discovery
         # Used for searching and filtering in GitHub organization
+        # MUST always include the team key and team type as the first two topics:
+        #   - team key:  e.g. "example-team" (the key used in this file)
+        #   - team type: "platform-team" | "stream-aligned-team" | "complicated-subsystem-team" | "enabling-team"
+        # Additional technology topics follow (e.g. "opentofu", "google-cloud-platform")
         topics = [
+          "example-team",
+          "platform-team",
           "opentofu",
           "google-cloud-platform",
           "kubernetes"
@@ -418,7 +424,7 @@ team = {
         # Default webhook settings will be used (enable_datadog_webhook defaults to true)
 
         push_allowances = ["osinfra-io/example-team"]
-        topics          = ["golang", "infrastructure"]
+        topics          = ["example-team", "platform-team", "golang", "infrastructure"]
       }
     }
 
