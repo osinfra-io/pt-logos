@@ -66,7 +66,9 @@ Scan every `teams/*.tfvars` file (excluding `example.tfvars`) and build a list o
 
 **Step 5 — Present personalised context and ask what they need:**
 
-**If they appear in one or more teams**, summarise their current memberships and ask what they'd like to do:
+**If they appear in one or more teams**, summarise their current memberships and ask what they'd like to do.
+
+**Always render the membership summary as a markdown table — never as inline text with separators.** Use `—` for fields that don't apply.
 
 > *"Welcome back, {first name}! Here's where I can see you across the platform:*
 >
@@ -206,20 +208,28 @@ For each repository collect:
 
 ##### Group 8 — Google Kubernetes Engine Clusters
 
-Only if the team runs Kubernetes workloads. Collect:
-- **DNS subdomain** (optional — defaults to team key without prefix)
-- **Artifact Registry** — reader/writer group emails if they publish images
-- **Cluster locations** — supported zones: `us-east1-b`, `us-east1-c`, `us-east1-d`, `us-east4-a`, `us-east4-b`, `us-east4-c`
-  - For each: node pool machine type (default `e2-standard-2`), min/max nodes (default 1/3)
-  - **Auto-populate subnet ranges** — do not ask the user for CIDRs; instead:
-    1. Read all `teams/*.tfvars` files (including commented-out blocks) to collect every allocated `ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, and `master_ipv4_cidr_block`
-    2. The IPAM sequence uses the `10.0.0.0/10` block with these slot increments:
-       - **Primary** (`ip_cidr_range`): starts at `10.62.0.0/21`, increments by `/21` (8 addresses) — e.g. slot 1: `10.62.0.0/21`, slot 2: `10.62.8.0/21`, slot 3: `10.62.16.0/21` …
-       - **Pods** (`pod_ip_cidr_range`): starts at `10.0.0.0/15`, increments by `/15` (2 × /16) — e.g. slot 1: `10.0.0.0/15`, slot 2: `10.2.0.0/15`, slot 3: `10.4.0.0/15` …
-       - **Services** (`services_ip_cidr_range`): starts at `10.62.248.0/21`, increments by `/21` — e.g. slot 1: `10.62.248.0/21`, slot 2: `10.63.0.0/21`, slot 3: `10.63.8.0/21` …
-       - **Master** (`master_ipv4_cidr_block`): starts at `10.63.240.0/28`, increments by `/28` (16 addresses) — e.g. slot 1: `10.63.240.0/28`, slot 2: `10.63.240.16/28`, slot 3: `10.63.240.32/28` …
-    3. Find the lowest slot number whose primary CIDR is not yet allocated, and suggest all four ranges for that slot; present them to the user for confirmation before including in the HCL
-  - `enable_gke_hub_host` — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
+Only if the team runs Kubernetes workloads.
+
+**Step 1 — Ask all GKE questions upfront in a single message** (do not ask these individually across multiple turns):
+- **DNS subdomain** — suggest the team key without prefix (e.g. `temp` for `st-temp`); confirm or let them override
+- **Artifact Registry** — does the team publish container images? If yes, collect reader/writer group email addresses. Default role to **owner** for anyone being added during onboarding — only ask for a different role if they volunteer one
+- **Cluster locations** — supported zones: `us-east1-b`, `us-east1-c`, `us-east1-d`, `us-east4-a`, `us-east4-b`, `us-east4-c`; or a region (e.g. `us-east1`) for a standard regional cluster
+- **Node pool** — machine type (default `e2-standard-2`), min nodes (default `1`), max nodes (default `3`) for each cluster location
+
+Do **not** repeat these questions if the user corrects a zone or other value — retain all already-answered fields and only re-validate what changed.
+
+**Step 2 — Auto-populate subnet ranges** after all zone inputs are confirmed valid:
+1. Read all `teams/*.tfvars` files (including commented-out blocks) to collect every allocated `ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, and `master_ipv4_cidr_block`
+2. The IPAM sequence uses the `10.0.0.0/10` block with these slot increments:
+   - **Primary** (`ip_cidr_range`): starts at `10.62.0.0/21`, increments by `/21` — e.g. slot 1: `10.62.0.0/21`, slot 2: `10.62.8.0/21`, slot 3: `10.62.16.0/21` …
+   - **Pods** (`pod_ip_cidr_range`): starts at `10.0.0.0/15`, increments by `/15` — e.g. slot 1: `10.0.0.0/15`, slot 2: `10.2.0.0/15`, slot 3: `10.4.0.0/15` …
+   - **Services** (`services_ip_cidr_range`): starts at `10.62.248.0/21`, increments by `/21` — e.g. slot 1: `10.62.248.0/21`, slot 2: `10.63.0.0/21`, slot 3: `10.63.8.0/21` …
+   - **Master** (`master_ipv4_cidr_block`): starts at `10.63.240.0/28`, increments by `/28` — e.g. slot 1: `10.63.240.0/28`, slot 2: `10.63.240.16/28`, slot 3: `10.63.240.32/28` …
+3. Find the lowest unallocated slot and suggest all four ranges; present them to the user for confirmation before including in the HCL
+
+**`enable_gke_hub_host`** — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
+
+**Proactively suggest `enable_workflows`** — if the user configures Artifact Registry groups or any repository with `enable_google_wif_service_account`, prompt: *"You'll want `enable_workflows` enabled — it creates the GitHub Actions service account, wires it into Artifact Registry, and enables OIDC Workload Identity Federation. Want to enable it now (and optionally `enable_opentofu_state_management` too)?"* Ask this before the summary, not after.
 
 ##### Group 9 — Additional Google Cloud Platform Projects
 
