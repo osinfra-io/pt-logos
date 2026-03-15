@@ -9,9 +9,11 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 `teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
 
-## Team Onboarding Agent
+## Logos Operations Agent
 
-`.github/agents/team-onboarding.agent.md` is the Copilot agent for onboarding new teams. It reads the schema, guides teams through a conversational onboarding flow, and opens a pull request with all required changes.
+`.github/agents/logos.agent.md` is the Copilot agent for managing all logos-owned resources. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
+
+Supported operations: onboard a new team, add or remove members (GitHub teams, Datadog team, GCP Identity groups), add or remove repositories, add or remove GitHub environments, enable or disable feature flags, add or remove GCP projects, add GKE cluster locations, and update a team's display name.
 
 **Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
@@ -34,6 +36,8 @@ When onboarding a team, the agent opens a single pull request with these three c
      }
    }
    ```
+
+All other operations open a PR against only the relevant `teams/{team-key}.tfvars` file.
 
 ## GitHub Actions
 
