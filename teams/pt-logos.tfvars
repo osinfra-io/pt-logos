@@ -146,6 +146,16 @@ team = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          temp-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: st-temp"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
         }
 
         push_allowances = [
