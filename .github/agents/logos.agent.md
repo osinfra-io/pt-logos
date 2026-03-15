@@ -68,10 +68,12 @@ Scan every `teams/*.tfvars` file (excluding `example.tfvars`) and build a list o
 
 **If they appear in one or more teams**, summarise their current memberships and ask what they'd like to do:
 
-> *"Welcome back! Here's where I can see you in the platform:*
+> *"Welcome back, {first name}! Here's where I can see you across the platform:*
 >
-> *`pt-corpus` — GitHub maintainer · Datadog admin · Google Cloud Platform admin group owner*
-> *`pt-logos` — GitHub member · Datadog member*
+> | Team | GitHub | Datadog | Google Cloud Platform |
+> |------|--------|---------|----------------------|
+> | `pt-corpus` | maintainer (parent + all child teams) | admin | admin/reader/writer group owner |
+> | `pt-logos` | member | member | — |
 >
 > *What would you like to do? I can help with any of these teams, or set something up for a different one.*"
 
