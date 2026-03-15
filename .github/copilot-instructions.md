@@ -9,7 +9,7 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 `teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
 
-## Logos Operations Agent
+## Logos Agent
 
 `.github/agents/logos.agent.md` is the Copilot agent for managing all logos-owned resources. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
 
