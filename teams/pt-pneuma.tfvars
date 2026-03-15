@@ -1166,7 +1166,9 @@ team = {
         topics = [
           "google-cloud-platform",
           "kubernetes",
-          "opentofu"
+          "opentofu",
+          "platform-team",
+          "pt-pneuma"
         ]
       }
 
@@ -1182,7 +1184,9 @@ team = {
           "golang",
           "google-cloud-platform",
           "infrastructure-as-code",
-          "opentofu"
+          "opentofu",
+          "platform-team",
+          "pt-pneuma"
         ]
       }
     }

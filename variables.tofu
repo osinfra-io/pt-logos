@@ -287,7 +287,7 @@ variable "team" {
         }, substr(team_key, 0, 2), ""))
       ]
     ]))
-    error_message = "Every repository's topics must include the team key (e.g. \"et-tereo\") and team type (\"complicated-subsystem-team\", \"enabling-team\", \"platform-team\", or \"stream-aligned-team\")."
+    error_message = "Every repository's topics must include the team key (e.g. \"pt-logos\") and team type (\"complicated-subsystem-team\", \"enabling-team\", \"platform-team\", or \"stream-aligned-team\")."
   }
 
 }

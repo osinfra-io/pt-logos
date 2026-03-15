@@ -121,7 +121,9 @@ team = {
 
         topics = [
           "google-cloud-platform",
-          "opentofu"
+          "opentofu",
+          "platform-team",
+          "pt-corpus"
         ]
       }
     }

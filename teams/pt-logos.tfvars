@@ -48,7 +48,8 @@ team = {
           "copilot",
           "github",
           "osinfra",
-          "platform-team"
+          "platform-team",
+          "pt-logos"
         ]
       }
 
@@ -163,7 +164,9 @@ team = {
         ]
 
         topics = [
-          "opentofu"
+          "opentofu",
+          "platform-team",
+          "pt-logos"
         ]
       }
     }
