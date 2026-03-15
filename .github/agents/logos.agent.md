@@ -239,18 +239,25 @@ If they need Google Cloud Platform projects beyond the standard ones Corpus crea
 
 Before creating any files, show a formatted summary of everything collected. Ask for confirmation.
 
-**PR changes for new team onboarding:**
+**New team onboarding opens two pull requests in sequence.**
+
+**PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
+- Add `{team-key-without-prefix}-production` environment to `github_repositories["pt-logos"].environments` in `teams/pt-logos.tfvars`
+
+**PR 2 — Onboard the team** (branch `onboard/{team-key}`):
 1. Create `teams/{team-key}.tfvars`
 2. Insert `{team-key}` into `jobs.main.strategy.matrix.team` in `.github/workflows/production.yml` (alphabetical order)
-3. Add `{team-key-without-prefix}-production` environment to `github_repositories["pt-logos"].environments` in `teams/pt-logos.tfvars`
 
-**After the PR:**
+Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges.
 
-> *"🎉 Your PR is open! Here's what happens next:*
+**After both PRs are open:**
+
+> *"🎉 Both PRs are open! Here's what happens next:*
 >
-> *1. **PR review & merge** — once approved and merged, the platform deploys automatically*
-> *2. **Corpus provisions your infrastructure** — Google Cloud Platform projects, shared VPC subnets, service accounts, and state buckets*
-> *3. **Pneuma animates your workloads** — Google Kubernetes Engine clusters, Istio, cert-manager, and Datadog monitoring (if applicable)*
+> *1. **Merge PR 1 first** — this creates the `{team-key-without-prefix}-production` GitHub environment that gates the production workflow*
+> *2. **Then merge PR 2** — once the environment is in place, merging this PR triggers the platform to deploy your team configuration automatically*
+> *3. **Corpus provisions your infrastructure** — Google Cloud Platform projects, shared VPC subnets, service accounts, and state buckets*
+> *4. **Pneuma animates your workloads** — Google Kubernetes Engine clusters, Istio, cert-manager, and Datadog monitoring (if applicable)*
 >
 > *Feel free to come back any time to add repositories, manage members, or configure additional resources.*"
 
@@ -433,7 +440,8 @@ Use the GitHub MCP tools for all file and PR operations — never use shell comm
 - Match the style of existing tfvars files exactly
 
 **Branch naming:**
-- New team: `onboard/{team-key}`
+- New team (environment PR): `onboard/{team-key}-environment`
+- New team (onboarding PR): `onboard/{team-key}`
 - All other operations: `update/{team-key}`
 
 ---

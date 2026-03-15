@@ -17,13 +17,11 @@ Supported operations: onboard a new team, add or remove members (GitHub teams, D
 
 **Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
-When onboarding a team, the agent opens a single pull request with these three changes:
+When onboarding a team, the agent opens **two pull requests in sequence** — the GitHub environment must exist before the second PR's deployment can be gated by it:
 
-1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
+**PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.team` in alphabetical order.
-
-3. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry. The environment key is the team key with its type prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
+1. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry. The environment key is the team key with its type prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
    ```hcl
    myteam-production = {
      deployment_branch_policy = {
@@ -36,6 +34,14 @@ When onboarding a team, the agent opens a single pull request with these three c
      }
    }
    ```
+
+**PR 2 — Onboard the team** (branch `onboard/{team-key}`):
+
+1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
+
+2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.team` in alphabetical order.
+
+PR 1 must be merged first so the `{team-key-without-prefix}-production` GitHub environment exists to gate the workflow that fires when PR 2 merges.
 
 All other operations open a PR against only the relevant `teams/{team-key}.tfvars` file.
 
