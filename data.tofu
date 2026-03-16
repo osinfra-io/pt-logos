@@ -38,14 +38,6 @@ data "datadog_user" "existing_admins" {
 # GitHub Application Data Source
 # https://search.opentofu.org/provider/integrations/github/latest/docs/data-sources/app
 
-# Currently private GitHub Apps can only use this endpoint on themselves and if we use a private GitHub App for authentication, we can't
-# use this data source to get the node_id of another GitHub App.
-# Only fetch in logos-production-main workspace to avoid conflicts
-
 data "github_app" "pr_approve_and_merge_osinfra_io" {
-  lifecycle {
-    enabled = local.within_logos
-  }
-
   slug = "pr-approve-and-merge-osinfra-io"
 }
