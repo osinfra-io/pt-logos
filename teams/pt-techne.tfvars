@@ -38,9 +38,6 @@ team = {
       "pt-techne-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-techne team."
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "copilot",
@@ -55,9 +52,6 @@ team = {
         description            = "Local development environment setup scripts example for working with Infrastructure as Code (IaC)."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "developer-tools",
@@ -72,9 +66,6 @@ team = {
         description            = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "github-actions",
@@ -89,9 +80,6 @@ team = {
         description            = "GitHub Codespace for OpenTofu Infrastructure as Code development providing standardized developer environments."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "codespace",
@@ -130,9 +118,6 @@ team = {
           }
         }
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "github-actions",
@@ -147,9 +132,6 @@ team = {
         description            = "Pre-commit hooks for Infrastructure as Code (IaC) tools including OpenTofu format, validate, and test."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-techne"
-        ]
 
         topics = [
           "github-actions",

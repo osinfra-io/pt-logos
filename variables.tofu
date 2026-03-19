@@ -148,8 +148,7 @@ variable "team" {
         })
       })), {})
 
-      push_allowances = list(string)
-      topics          = list(string)
+      topics = list(string)
     })), {})
 
     google_basic_groups_memberships = object({

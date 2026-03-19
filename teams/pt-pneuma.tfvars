@@ -38,9 +38,6 @@ team = {
       "pt-pneuma-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-pneuma team."
 
-        push_allowances = [
-          "osinfra-io/pt-pneuma"
-        ]
 
         topics = [
           "copilot",
@@ -1159,9 +1156,6 @@ team = {
           }
         }
 
-        push_allowances = [
-          "osinfra-io/pt-pneuma" # This can be inferred from the team association.
-        ]
 
         topics = [
           "google-cloud-platform",
@@ -1176,9 +1170,6 @@ team = {
         description                       = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
         enable_google_wif_service_account = true
 
-        push_allowances = [
-          "osinfra-io/pt-pneuma" # This can be inferred from the team association.
-        ]
 
         topics = [
           "golang",
