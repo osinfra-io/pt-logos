@@ -602,10 +602,9 @@ locals {
     email => replace(replace(email, "@", "-at-"), ".", "-")
   }
 
-  # Installation ID of the pr-approve-and-merge-osinfra-io GitHub App in the osinfra-io org
+  # App ID of the pr-approve-and-merge-osinfra-io GitHub App
   # Used as bypass actor in repository rulesets to allow the app to satisfy code owner review requirements
-  # Retrieve with: gh api /orgs/osinfra-io/installations --jq '.installations[] | select(.app_slug=="pr-approve-and-merge-osinfra-io") | .id'
-  pr_approve_and_merge_installation_id = 58094114
+  pr_approve_and_merge_app_id = 1080767
 
   # Team Topologies descriptions mapping
   team_topologies_descriptions = {

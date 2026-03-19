@@ -280,7 +280,7 @@ resource "github_repository_ruleset" "this" {
   target      = "branch"
 
   bypass_actors {
-    actor_id    = local.pr_approve_and_merge_installation_id
+    actor_id    = local.pr_approve_and_merge_app_id
     actor_type  = "Integration"
     bypass_mode = "pull_request"
   }
