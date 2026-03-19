@@ -182,6 +182,23 @@ team = {
         ]
       }
 
+      "pt-arche-kubernetes-chaos-mesh" = {
+        description            = "OpenTofu example module for Chaos Mesh on Google Kubernetes Engine."
+        enable_datadog_webhook = true
+
+
+        topics = [
+          "chaos-mesh",
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
       "pt-arche-kubernetes-datadog-operator" = {
         description            = "OpenTofu example module for the Datadog Kubernetes Operator on Google Kubernetes Engine."
         enable_datadog_webhook = true
