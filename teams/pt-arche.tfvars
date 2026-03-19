@@ -45,6 +45,20 @@ team = {
         ]
       }
 
+      "pt-arche-child-module-template" = {
+        description            = "Skeleton and Copilot agent for creating new pt-arche OpenTofu child module repositories."
+        enable_datadog_webhook = true
+
+
+        topics = [
+          "copilot",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche",
+        ]
+      }
+
       "pt-arche-core-helpers" = {
         description            = "OpenTofu example module for helpers providing core platform functionality including workspace parsing, resource labeling, and logos integration for team and project management."
         enable_datadog_webhook = true
