@@ -38,9 +38,6 @@ team = {
       "pt-ekklesia-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-ekklesia team."
 
-        push_allowances = [
-          "osinfra-io/pt-ekklesia"
-        ]
 
         topics = [
           "copilot",
@@ -73,9 +70,6 @@ team = {
           }
         }
 
-        push_allowances = [
-          "osinfra-io/pt-ekklesia"
-        ]
 
         topics = [
           "backstage",
@@ -90,9 +84,6 @@ team = {
         description            = "Platform documentation for the pt-ekklesia team powered by GitBook."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-ekklesia"
-        ]
 
         topics = [
           "documentation",
@@ -105,9 +96,6 @@ team = {
         description            = "Repository templates providing standardized skeletons for creating new platform repositories."
         enable_datadog_webhook = true
 
-        push_allowances = [
-          "osinfra-io/pt-ekklesia"
-        ]
 
         topics = [
           "backstage",

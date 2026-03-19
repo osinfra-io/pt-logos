@@ -40,9 +40,6 @@ team = {
       "pt-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
 
-        push_allowances = [
-          "osinfra-io/pt-logos"
-        ]
 
         topics = [
           "copilot",
@@ -56,9 +53,6 @@ team = {
       "pt-logos-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-logos team."
 
-        push_allowances = [
-          "osinfra-io/pt-logos"
-        ]
 
         topics = [
           "copilot",
@@ -149,9 +143,6 @@ team = {
           }
         }
 
-        push_allowances = [
-          "osinfra-io/pt-logos" # This can be inferred from the team association.
-        ]
 
         topics = [
           "opentofu",

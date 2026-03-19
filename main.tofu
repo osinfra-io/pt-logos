@@ -264,36 +264,56 @@ resource "github_actions_secret" "datadog_app_key" {
   secret_name     = "DATADOG_APP_KEY"
 }
 
-# Github Branch Protection Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/branch_protection
+# Github Repository Ruleset Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_ruleset
 
-resource "github_branch_protection" "this" {
+resource "github_repository_ruleset" "this" {
   depends_on = [
     github_repository.this
   ]
 
-  for_each = local.github_branch_protections
+  for_each = local.github_repository_rulesets
 
-  enforce_admins                  = false
-  pattern                         = "main"
-  repository_id                   = github_repository.this[each.key].name
-  require_conversation_resolution = true
-  require_signed_commits          = true
-  required_linear_history         = true
+  enforcement = "active"
+  name        = "main"
+  repository  = github_repository.this[each.key].name
+  target      = "branch"
 
-  required_pull_request_reviews {
-    dismiss_stale_reviews           = true
-    require_code_owner_reviews      = true
-    required_approving_review_count = 1
+  bypass_actors {
+    actor_id    = local.pr_approve_and_merge_installation_id
+    actor_type  = "Integration"
+    bypass_mode = "pull_request"
   }
 
-  required_status_checks {
-    contexts = each.value.required_status_checks_contexts
-    strict   = true
+  bypass_actors {
+    actor_id    = 1
+    actor_type  = "OrganizationAdmin"
+    bypass_mode = "always"
   }
 
-  restrict_pushes {
-    push_allowances = each.value.push_allowances
+  bypass_actors {
+    actor_id    = tonumber(github_team.parents[each.value.team_key].id)
+    actor_type  = "Team"
+    bypass_mode = "always"
+  }
+
+  conditions {
+    ref_name {
+      exclude = []
+      include = ["~DEFAULT_BRANCH"]
+    }
+  }
+
+  rules {
+    required_linear_history = true
+    required_signatures     = true
+
+    pull_request {
+      dismiss_stale_reviews_on_push     = true
+      require_code_owner_review         = true
+      required_approving_review_count   = 1
+      required_review_thread_resolution = true
+    }
   }
 }
 

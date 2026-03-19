@@ -181,14 +181,12 @@ locals {
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
 
-  # Create branch protection configurations for repositories
-  github_branch_protections = { for repo in flatten([
+  # Create ruleset configurations for repositories
+  github_repository_rulesets = { for repo in flatten([
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : {
-        key             = repo_key
-        push_allowances = concat(repo.push_allowances, [data.github_app.pr_approve_and_merge_osinfra_io.node_id])
-
-        required_status_checks_contexts = []
+        key      = repo_key
+        team_key = team_key
       }
     ]
   ]) : repo.key => repo }
@@ -269,7 +267,6 @@ locals {
         enable_datadog_webhook            = repo.enable_datadog_webhook
         enable_google_wif_service_account = repo.enable_google_wif_service_account
         key                               = repo_key
-        push_allowances                   = repo.push_allowances
         team_key                          = team_key
         topics                            = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
       }
@@ -604,6 +601,11 @@ locals {
     for email in local.all_datadog_users :
     email => replace(replace(email, "@", "-at-"), ".", "-")
   }
+
+  # Installation ID of the pr-approve-and-merge-osinfra-io GitHub App in the osinfra-io org
+  # Used as bypass actor in repository rulesets to allow the app to satisfy code owner review requirements
+  # Retrieve with: gh api /orgs/osinfra-io/installations --jq '.installations[] | select(.app_slug=="pr-approve-and-merge-osinfra-io") | .id'
+  pr_approve_and_merge_installation_id = 58094114
 
   # Team Topologies descriptions mapping
   team_topologies_descriptions = {

@@ -38,9 +38,6 @@ team = {
       "pt-corpus-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-corpus team."
 
-        push_allowances = [
-          "osinfra-io/pt-corpus"
-        ]
 
         topics = [
           "copilot",
@@ -115,9 +112,6 @@ team = {
           }
         }
 
-        push_allowances = [
-          "osinfra-io/pt-corpus" # This can be inferred from the team association.
-        ]
 
         topics = [
           "google-cloud-platform",

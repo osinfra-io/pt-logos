@@ -34,10 +34,3 @@ data "datadog_user" "existing_admins" {
   exact_match = true
   filter      = each.value
 }
-
-# GitHub Application Data Source
-# https://search.opentofu.org/provider/integrations/github/latest/docs/data-sources/app
-
-data "github_app" "pr_approve_and_merge_osinfra_io" {
-  slug = "pr-approve-and-merge-osinfra-io"
-}

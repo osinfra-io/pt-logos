@@ -396,9 +396,6 @@ team = {
 
         # Push allowances (REQUIRED) - Teams/users allowed to push to protected branches
         # Typically includes the team's parent GitHub team
-        push_allowances = [
-          "osinfra-io/example-team" # Usually inferred from team association
-        ]
 
         # Repository topics (REQUIRED) - Tags for categorization and discovery
         # Used for searching and filtering in GitHub organization
@@ -423,8 +420,7 @@ team = {
         # Common for libraries, tools, documentation, or simple automation repositories
         # Default webhook settings will be used (enable_datadog_webhook defaults to true)
 
-        push_allowances = ["osinfra-io/example-team"]
-        topics          = ["example-team", "platform-team", "golang", "infrastructure"]
+        topics = ["example-team", "platform-team", "golang", "infrastructure"]
       }
     }
 
