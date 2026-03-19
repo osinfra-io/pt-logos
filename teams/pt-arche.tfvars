@@ -182,23 +182,6 @@ team = {
         ]
       }
 
-      "pt-arche-kubernetes-datadog-chaos-controller" = {
-        description            = "OpenTofu module for the Datadog Chaos Controller on Google Kubernetes Engine."
-        enable_datadog_webhook = true
-
-
-        topics = [
-          "datadog",
-          "helm",
-          "infrastructure-as-code",
-          "kubernetes",
-          "opentofu",
-          "opentofu-child-module",
-          "platform-team",
-          "pt-arche"
-        ]
-      }
-
       "pt-arche-kubernetes-datadog-operator" = {
         description            = "OpenTofu example module for the Datadog Kubernetes Operator on Google Kubernetes Engine."
         enable_datadog_webhook = true
