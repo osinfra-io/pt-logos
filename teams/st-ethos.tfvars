@@ -66,7 +66,7 @@ team = {
         }
       }
 
-      dns_subdomain = "ethos"
+      dns_subdomain = "www"
 
       locations = {
         "us-east1-b" = {
@@ -77,15 +77,16 @@ team = {
               min_node_count = 1
             }
           }
+
           subnet = {
-            ip_cidr_range          = "10.62.56.0/21"
-            master_ipv4_cidr_block = "10.63.240.112/28"
-            pod_ip_cidr_range      = "10.14.0.0/15"
-            services_ip_cidr_range = "10.63.48.0/21"
+            ip_cidr_range          = "10.62.0.0/21"
+            master_ipv4_cidr_block = "10.63.240.0/28"
+            pod_ip_cidr_range      = "10.0.0.0/15"
+            services_ip_cidr_range = "10.62.248.0/21"
           }
         }
 
-        "us-east4-a" = {
+        "us-east4-b" = {
           node_pools = {
             default-pool = {
               machine_type   = "e2-standard-2"
@@ -93,11 +94,12 @@ team = {
               min_node_count = 1
             }
           }
+
           subnet = {
-            ip_cidr_range          = "10.62.64.0/21"
-            master_ipv4_cidr_block = "10.63.240.128/28"
-            pod_ip_cidr_range      = "10.16.0.0/15"
-            services_ip_cidr_range = "10.63.56.0/21"
+            ip_cidr_range          = "10.62.16.0/21"
+            master_ipv4_cidr_block = "10.63.240.32/28"
+            pod_ip_cidr_range      = "10.4.0.0/15"
+            services_ip_cidr_range = "10.63.0.0/21"
           }
         }
       }
