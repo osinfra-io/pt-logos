@@ -77,7 +77,6 @@ team = {
               min_node_count = 1
             }
           }
-
           subnet = {
             ip_cidr_range          = "10.62.0.0/21"
             master_ipv4_cidr_block = "10.63.240.0/28"
@@ -94,12 +93,11 @@ team = {
               min_node_count = 1
             }
           }
-
           subnet = {
-            ip_cidr_range          = "10.62.16.0/21"
-            master_ipv4_cidr_block = "10.63.240.32/28"
-            pod_ip_cidr_range      = "10.4.0.0/15"
-            services_ip_cidr_range = "10.63.0.0/21"
+            ip_cidr_range          = "10.62.24.0/21"
+            master_ipv4_cidr_block = "10.63.240.48/28"
+            pod_ip_cidr_range      = "10.6.0.0/15"
+            services_ip_cidr_range = "10.63.16.0/21"
           }
         }
       }
