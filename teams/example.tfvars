@@ -141,7 +141,7 @@ team = {
 
       # DNS subdomain for team services (OPTIONAL)
       # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-      # Creates DNS zones: {subdomain}.osinfra.io (prod), {subdomain}.sb.osinfra.io (sandbox)
+      # Creates DNS zones: {subdomain}.osinfra.io (production), {subdomain}.nonprod.osinfra.io (non-production), {subdomain}.sb.osinfra.io (sandbox)
       # Typically only set when you want a subdomain different from the team key
       dns_subdomain = "example"
 
