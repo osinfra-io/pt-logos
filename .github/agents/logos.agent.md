@@ -210,7 +210,7 @@ For each repository collect:
 Only if the team runs Kubernetes workloads.
 
 **Step 1 — Ask all GKE questions upfront in a single message** (do not ask these individually across multiple turns):
-- **DNS subdomain** — suggest the team key without prefix (e.g. `temp` for `st-temp`); confirm or let them override
+- **DNS subdomain** — suggest the team key without prefix (e.g. `temp` for `st-temp`); show the user the three resulting zone names with the suggested value already substituted in (e.g., `temp.osinfra.io` (production), `temp.nonprod.osinfra.io` (non-production), `temp.sb.osinfra.io` (sandbox)); confirm or let them override
 - **Artifact Registry** — does the team publish container images? If yes, collect reader/writer group email addresses. Default role to **owner** for anyone being added during onboarding — only ask for a different role if they volunteer one
 - **Cluster locations** — supported zones: `us-east1-b`, `us-east1-c`, `us-east1-d`, `us-east4-a`, `us-east4-b`, `us-east4-c`; or a region (e.g. `us-east1`) for a standard regional cluster
 - **Node pool** — machine type (default `e2-standard-2`), min nodes (default `1`), max nodes (default `3`) for each cluster location
@@ -426,7 +426,7 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 Use the GitHub MCP tools for all file and PR operations — never use shell commands, `gh` CLI, or ask the user to run anything locally.
 
 **For all operations:**
-1. `create_branch` — create the feature branch off `main`
+1. `search_pull_requests` — before creating the branch, check whether an open PR already targets the intended branch (e.g., `head:update/{team-key} is:open`). If one exists, tell the user: *"There's already an open PR for `{team-key}` at {url}. I'll add this change to that branch rather than opening a new one."* Skip `create_branch` and proceed directly to `get_file_contents`. If no open PR exists, call `create_branch` to create the feature branch off `main`.
 2. `get_file_contents` — fetch each file to be modified (required to get the current SHA for updates)
 3. `push_files` — write all changed files to the branch in a single commit
 4. `create_pull_request` — open a PR from the feature branch → `main`
