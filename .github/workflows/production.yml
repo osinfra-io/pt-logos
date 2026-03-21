@@ -31,7 +31,6 @@ jobs:
           - pt-arche
           - pt-corpus
           - pt-ekklesia
-          - pt-kratos
           - pt-logos
           - pt-pneuma
           - pt-techne
