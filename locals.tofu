@@ -188,6 +188,7 @@ locals {
         key      = repo_key
         team_key = team_key
       }
+      if repo.enable_ruleset
     ]
   ]) : repo.key => repo }
 

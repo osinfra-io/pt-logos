@@ -136,6 +136,7 @@ variable "team" {
       enable_datadog_secrets            = optional(bool, false)
       enable_datadog_webhook            = optional(bool, true)
       enable_google_wif_service_account = optional(bool, false)
+      enable_ruleset                    = optional(bool, true)
 
       environments = optional(map(object({
         deployment_branch_policy = optional(object({
