@@ -19,7 +19,7 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
   - **Google Cloud Platform basic Identity groups** — owners, managers, or members for admin, reader, and writer groups (email addresses)
   - **Google Cloud Platform Kubernetes Identity groups** — owners, managers, or members for artifact registry readers and writers groups (email addresses)
   - **Datadog team** — admins or members (email addresses)
-- **GitHub repositories** — add or remove repositories from a team's configuration; each repository has a description, topics (must include team key and team type), push allowances, and optional feature flags (`enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`)
+- **GitHub repositories** — add or remove repositories from a team's configuration; each repository has a description, topics (must include team key and team type), push allowances, and optional feature flags (`enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`)
   - **GitHub environments** — add or remove deployment environments on a repository; each environment has a display name, reviewer teams, and an optional deployment branch policy (protected branches or custom branch patterns)
 - **Google Cloud Platform projects** — add or remove additional Google Cloud projects for a team
 - **Google Kubernetes Engine cluster locations** — add a cluster location to a team's Kubernetes configuration; two modes are supported:
@@ -34,6 +34,7 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
     - `enable_datadog_webhook` — configures a webhook to send repository events to Datadog (default: true)
     - `enable_datadog_secrets` — adds `DD_API_KEY` and `DD_APP_KEY` as repository secrets (default: false)
     - `enable_google_wif_service_account` — creates a Workload Identity Federation binding so the repository can authenticate to Google Cloud Platform via OIDC using the team's GitHub Actions service account (default: false)
+    - `enable_ruleset` — creates a branch protection ruleset enforcing linear history, signed commits, pull request reviews, and code owner approval on the default branch (default: true)
 
 ## Startup
 
@@ -203,6 +204,7 @@ For each repository collect:
 - **enable_datadog_webhook** — default true
 - **enable_datadog_secrets** — only if the repo instruments code with Datadog; default false
 - **enable_google_wif_service_account** — only if the repo deploys infra or pushes images to Google Cloud Platform; default false
+- **enable_ruleset** — default true; only set to false for repos that manage their own branch protection or don't need it (e.g., docs-only repos)
 - **Environments** — only for repos with GitHub Actions deployments; reviewer teams default to `{team-key}-{env}-approvers`
 
 ##### Group 8 — Google Kubernetes Engine Clusters
@@ -303,6 +305,7 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 6. **enable_datadog_webhook** — default true; only ask if they want to change it
 7. **enable_datadog_secrets** — only if the repo instruments code with Datadog
 8. **enable_google_wif_service_account** — only if it deploys infra or pushes images to Google Cloud Platform; uses OIDC Workload Identity Federation — no long-lived service account keys
+9. **enable_ruleset** — default true; only set false for repos that manage their own branch protection or don't need it
 9. **Environments** — ask if they need deployment protection; if yes, follow the environments sub-flow
 
 **Read** `teams/{team-key}.tfvars` to see if the repo already exists. If it does, tell the user and offer to update it instead.
@@ -358,7 +361,7 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 1. Which **team key**?
 2. Which **flag**? Present a menu of applicable flags:
    - **Team-level:** `enable_workflows`, `enable_opentofu_state_management`
-   - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`
+   - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`
 3. **Enable or disable?**
 
 **Read** `teams/{team-key}.tfvars`. Show the current value and confirm the change.

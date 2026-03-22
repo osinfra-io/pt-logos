@@ -346,6 +346,12 @@ team = {
         # infrastructure or pushing container images to GCP (e.g., pt-corpus, pt-pneuma).
         enable_google_wif_service_account = true
 
+        # Enable branch protection ruleset (OPTIONAL, default: true)
+        # When true, creates a ruleset enforcing linear history, signed commits, pull request
+        # reviews, and code owner approval on the default branch.
+        # Set to false only for repos that manage their own branch protection or don't need it.
+        # enable_ruleset = false
+
         # GitHub environments for deployment protection (OPTIONAL)
         # Can include main environments (sandbox, non-production, production)
         # and regional/component-specific environments for granular deployments
