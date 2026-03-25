@@ -1207,10 +1207,10 @@ team = {
             }
           }
           subnet = {
-            ip_cidr_range          = "10.62.8.0/21"
-            master_ipv4_cidr_block = "10.63.240.16/28"
-            pod_ip_cidr_range      = "10.2.0.0/15"
-            services_ip_cidr_range = "10.63.8.0/21"
+            ip_cidr_range          = "10.62.0.0/21"
+            master_ipv4_cidr_block = "10.63.240.0/28"
+            pod_ip_cidr_range      = "10.0.0.0/15"
+            services_ip_cidr_range = "10.63.0.0/21"
           }
         }
 
@@ -1223,10 +1223,10 @@ team = {
             }
           }
           subnet = {
-            ip_cidr_range          = "10.62.0.0/21"
-            master_ipv4_cidr_block = "10.63.240.0/28"
-            pod_ip_cidr_range      = "10.0.0.0/15"
-            services_ip_cidr_range = "10.63.0.0/21"
+            ip_cidr_range          = "10.62.8.0/21"
+            master_ipv4_cidr_block = "10.63.240.16/28"
+            pod_ip_cidr_range      = "10.2.0.0/15"
+            services_ip_cidr_range = "10.63.8.0/21"
           }
         }
 
