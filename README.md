@@ -19,9 +19,11 @@ Logos is where the platform’s moral architecture begins — where order is spo
 
 Links to documentation and other resources required to develop and iterate in this repository successfully.
 
+- [datadog logs](https://docs.datadoghq.com/logs/)
 - [datadog teams](https://docs.datadoghq.com/account_management/teams/)
 - [github repositories](https://docs.github.com/en/repositories)
 - [github teams](https://docs.github.com/en/organizations/organizing-members-into-teams/about-teams)
+- [google billing budgets](https://cloud.google.com/billing/docs/how-to/budgets)
 - [google cloud platform groups](https://cloud.google.com/identity/docs/groups)
 - [google cloud platform iam](https://cloud.google.com/iam/docs/overview)
 - [google cloud platform resource landing-zone](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-landing-zone)
