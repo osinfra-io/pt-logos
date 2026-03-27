@@ -10,21 +10,6 @@ As the grounding stratum of the platform hierarchy, Logos encodes the organizati
 
 Logos is where the platform’s moral architecture begins — where order is spoken into being so that all subsequent layers may stand upon it.
 
-## 🏭 Platform Information
-
-- Documentation: [docs.osinfra.io](https://docs.osinfra.io/product-guides/google-cloud-platform/logos)
-- Service Interfaces: [github.com](https://github.com/osinfra-io/pt-logos/issues/new/choose)
-
-## <img align="left" width="35" height="35" src="https://github.com/user-attachments/assets/eb98a3be-2ffe-4c05-91a4-072fe795a167"> Development
-
-Our focus is on the core fundamental practice of platform engineering, Infrastructure as Code.
-
->Open Source Infrastructure (as Code) is a development model for infrastructure that focuses on open collaboration and applying relative lessons learned from software development practices that organizations can use internally at scale. - [Open Source Infrastructure (as Code)](https://www.osinfra.io)
-
-To avoid slowing down stream-aligned teams, we want to open up the possibility for contributions. The Open Source Infrastructure (as Code) model allows team members external to the platform team to contribute with only a slight increase in cognitive load. This section is for developers who want to contribute to this repository, describing the tools used, the skills, and the knowledge required, along with OpenTofu documentation.
-
-See the [documentation](https://docs.osinfra.io/fundamentals/development-setup) for setting up a development environment.
-
 ### 🛠️ Tools
 
 - [pre-commit](https://github.com/pre-commit/pre-commit)
