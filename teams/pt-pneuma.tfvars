@@ -1196,6 +1196,8 @@ team = {
         }
       }
 
+      enable_datadog = true
+
       locations = {
         "us-east1-b" = {
           enable_gke_hub_host = true

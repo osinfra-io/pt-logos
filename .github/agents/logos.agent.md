@@ -30,6 +30,10 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
   - **Team-level flags** (set on the team, not a repository):
     - `enable_workflows` — creates a GitHub Actions service account for Google Cloud Platform authentication, Workload Identity Federation bindings, and group memberships (browser, billing, artifact registry writers)
     - `enable_opentofu_state_management` — requires `enable_workflows`; creates an OpenTofu state storage bucket, Storage IAM for the GitHub Actions service account, and KMS crypto key IAM for state encryption
+  - **Kubernetes-level flags** (set on `google_kubernetes_engine_clusters`, not a repository):
+    - `enable_datadog` — opts the team's GKE project into Datadog Google Cloud integration (default: false); corpus must also have `datadog_enable = true` in the target environment
+  - **Google project-level flags** (set per `google_projects` entry):
+    - `enable_datadog` — opts that specific additional GCP project into Datadog Google Cloud integration (default: false); corpus must also have `datadog_enable = true` in the target environment
   - **Repository-level flags** (set per repository):
     - `enable_datadog_webhook` — configures a webhook to send repository events to Datadog (default: true)
     - `enable_datadog_secrets` — adds `DD_API_KEY` and `DD_APP_KEY` as repository secrets (default: false)
@@ -223,11 +227,13 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 **`enable_gke_hub_host`** — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
 
+**`enable_datadog`** — ask if the team wants Datadog monitoring for their GKE project (default: `false`); note that corpus must also have `datadog_enable = true` in the target environment for this to take effect
+
 **Proactively suggest `enable_workflows`** — if the user configures Artifact Registry groups or any repository with `enable_google_wif_service_account`, prompt: *"You'll want `enable_workflows` enabled — it creates the GitHub Actions service account, wires it into Artifact Registry, and enables OIDC Workload Identity Federation. Want to enable it now (and optionally `enable_opentofu_state_management` too)?"* Ask this before the summary, not after.
 
 ##### Group 9 — Additional Google Cloud Platform Projects
 
-If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each.
+If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each. Also ask if they want Datadog Google Cloud integration enabled for each project (`enable_datadog`, default: `false`); note that corpus must also have `datadog_enable = true` in the target environment.
 
 #### Summary and PR
 
@@ -352,6 +358,8 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 1. Which **team key**?
 2. Which **flag**? Present a menu of applicable flags:
    - **Team-level:** `enable_workflows`, `enable_opentofu_state_management`
+   - **Kubernetes-level:** `enable_datadog` on `google_kubernetes_engine_clusters` (only shown if the team has GKE clusters configured)
+   - **Google project-level:** `enable_datadog` on a specific `google_projects` entry — ask which project key (only shown if the team has `google_projects` configured)
    - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`
 3. **Enable or disable?**
 
@@ -361,6 +369,11 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 - `enable_opentofu_state_management = true` requires `enable_workflows = true`
 - `enable_google_wif_service_account = true` requires `enable_workflows = true` at the team level
 - Warn if they try to disable `enable_workflows` while either dependent flag is still enabled
+- For `enable_datadog` (Kubernetes-level or Google project-level): note that corpus must also have `datadog_enable = true` in the target environment for the integration to take effect
+
+**HCL placement rules for `enable_datadog`:**
+- **Kubernetes-level:** emit `enable_datadog = true/false` inside the `google_kubernetes_engine_clusters` block, alphabetically between `dns_subdomain` and `artifact_registry_groups_memberships` (or before `locations` if those fields are absent). See `teams/example.tfvars` for the canonical form.
+- **Google project-level:** emit `enable_datadog = true/false` as the first key inside the named `google_projects` entry (alphabetically before `services`). See `teams/example.tfvars` for the canonical form.
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: {enable/disable} {flag-name}"`
 
@@ -410,6 +423,8 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 3. Present the suggested ranges to the user for confirmation before including in the HCL
 
 **`enable_gke_hub_host`** — always `false`; only the `pt-pneuma` team manages the fleet host cluster
+
+**`enable_datadog`** — preserve the existing value; default is `false`
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Kubernetes Engine cluster location {location}"`
 

@@ -177,7 +177,8 @@ variable "team" {
     })), {})
 
     google_kubernetes_engine_clusters = optional(object({
-      dns_subdomain = optional(string, null)
+      dns_subdomain  = optional(string, null)
+      enable_datadog = optional(bool, false)
 
       artifact_registry_groups_memberships = optional(object({
         readers = object({
@@ -222,7 +223,8 @@ variable "team" {
     })), {})
 
     google_projects = optional(map(object({
-      services = optional(list(string), [])
+      enable_datadog = optional(bool, false)
+      services       = optional(list(string), [])
     })), {})
 
     team_type = string

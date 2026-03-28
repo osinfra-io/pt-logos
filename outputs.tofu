@@ -22,6 +22,7 @@ output "teams" {
 
       # Team metadata
       display_name                     = team.display_name
+      enable_kubernetes_datadog        = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.enable_datadog : false
       enable_opentofu_state_management = team.enable_opentofu_state_management
       enable_workflows                 = team.enable_workflows
 
@@ -48,7 +49,13 @@ output "teams" {
       google_kubernetes_engine_clusters = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.locations : {}
 
       # Google projects for this team (generic project creation via corpus)
-      google_projects = team.google_projects
+      google_projects = {
+        for description, project in team.google_projects :
+        description => {
+          enable_datadog = project.enable_datadog
+          services       = project.services
+        }
+      }
 
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
       dns_subdomain = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.dns_subdomain : null
