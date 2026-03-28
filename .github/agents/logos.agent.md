@@ -358,6 +358,8 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 1. Which **team key**?
 2. Which **flag**? Present a menu of applicable flags:
    - **Team-level:** `enable_workflows`, `enable_opentofu_state_management`
+   - **Kubernetes-level:** `enable_datadog` on `google_kubernetes_engine_clusters` (only shown if the team has GKE clusters configured)
+   - **Google project-level:** `enable_datadog` on a specific `google_projects` entry — ask which project key (only shown if the team has `google_projects` configured)
    - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`
 3. **Enable or disable?**
 
@@ -367,6 +369,11 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 - `enable_opentofu_state_management = true` requires `enable_workflows = true`
 - `enable_google_wif_service_account = true` requires `enable_workflows = true` at the team level
 - Warn if they try to disable `enable_workflows` while either dependent flag is still enabled
+- For `enable_datadog` (Kubernetes-level or Google project-level): note that corpus must also have `datadog_enable = true` in the target environment for the integration to take effect
+
+**HCL placement rules for `enable_datadog`:**
+- **Kubernetes-level:** emit `enable_datadog = true/false` inside the `google_kubernetes_engine_clusters` block, alphabetically between `dns_subdomain` and `artifact_registry_groups_memberships` (or before `locations` if those fields are absent). See `teams/example.tfvars` for the canonical form.
+- **Google project-level:** emit `enable_datadog = true/false` as the first key inside the named `google_projects` entry (alphabetically before `services`). See `teams/example.tfvars` for the canonical form.
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: {enable/disable} {flag-name}"`
 
