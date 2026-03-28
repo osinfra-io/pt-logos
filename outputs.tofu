@@ -22,6 +22,7 @@ output "teams" {
 
       # Team metadata
       display_name                     = team.display_name
+      enable_kubernetes_datadog        = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.enable_datadog : false
       enable_opentofu_state_management = team.enable_opentofu_state_management
       enable_workflows                 = team.enable_workflows
 

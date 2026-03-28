@@ -145,6 +145,11 @@ team = {
       # Typically only set when you want a subdomain different from the team key
       dns_subdomain = "example"
 
+      # Enable Datadog integration for this team's Kubernetes project (OPTIONAL, default: false)
+      # Requires datadog_enable = true in the corpus environment tfvars and a valid Datadog API key.
+      # When enabled, corpus will create a Datadog Google Cloud integration for the team's GKE project.
+      enable_datadog = true
+
       # Artifact Registry groups (OPTIONAL)
       # Only specify if the team needs container registries
       # Creates two groups for registry access control:

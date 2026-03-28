@@ -30,6 +30,8 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
   - **Team-level flags** (set on the team, not a repository):
     - `enable_workflows` — creates a GitHub Actions service account for Google Cloud Platform authentication, Workload Identity Federation bindings, and group memberships (browser, billing, artifact registry writers)
     - `enable_opentofu_state_management` — requires `enable_workflows`; creates an OpenTofu state storage bucket, Storage IAM for the GitHub Actions service account, and KMS crypto key IAM for state encryption
+  - **Kubernetes-level flags** (set on `google_kubernetes_engine_clusters`, not a repository):
+    - `enable_datadog` — opts the team's GKE project into Datadog Google Cloud integration (default: false); corpus must also have `datadog_enable = true` in the target environment
   - **Repository-level flags** (set per repository):
     - `enable_datadog_webhook` — configures a webhook to send repository events to Datadog (default: true)
     - `enable_datadog_secrets` — adds `DD_API_KEY` and `DD_APP_KEY` as repository secrets (default: false)
@@ -223,6 +225,8 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 **`enable_gke_hub_host`** — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
 
+**`enable_datadog`** — ask if the team wants Datadog monitoring for their GKE project (default: `false`); note that corpus must also have `datadog_enable = true` in the target environment for this to take effect
+
 **Proactively suggest `enable_workflows`** — if the user configures Artifact Registry groups or any repository with `enable_google_wif_service_account`, prompt: *"You'll want `enable_workflows` enabled — it creates the GitHub Actions service account, wires it into Artifact Registry, and enables OIDC Workload Identity Federation. Want to enable it now (and optionally `enable_opentofu_state_management` too)?"* Ask this before the summary, not after.
 
 ##### Group 9 — Additional Google Cloud Platform Projects
@@ -410,6 +414,8 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 3. Present the suggested ranges to the user for confirmation before including in the HCL
 
 **`enable_gke_hub_host`** — always `false`; only the `pt-pneuma` team manages the fleet host cluster
+
+**`enable_datadog`** — preserve the existing value; default is `false`
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Kubernetes Engine cluster location {location}"`
 
