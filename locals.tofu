@@ -117,10 +117,10 @@ locals {
   datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
 
   # Computed index IDs for datadog_logs_index_order resource
-  datadog_logs_index_order_indexes = [
+  datadog_logs_index_order_indexes = local.within_logos ? [
     for index_name in local.datadog_log_indexes_order :
     datadog_logs_index.this[index_name].id
-  ]
+  ] : []
 
   # Hardcoded Datadog organization admins - users who should have admin role
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
