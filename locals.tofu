@@ -137,6 +137,13 @@ locals {
     replace(replace(email, "@", "-at-"), ".", "-") => email
   }
 
+  # Determine Datadog service account role IDs (logos team gets admin, others get standard)
+  datadog_service_account_roles = {
+    for team_key in keys(local.datadog_teams) : team_key => [
+      team_key == "pt-logos" ? data.datadog_role.this["Datadog Admin Role"].id : data.datadog_role.this["Datadog Standard Role"].id
+    ]
+  }
+
   # Flatten Datadog team memberships with role handling
   # Admin users can be team members in any workspace using data source lookups for cross-workspace references
   # Regular users are managed in current workspace only
@@ -162,6 +169,15 @@ locals {
       ]
     )
   ]) : membership.key => membership }
+
+  # Resolve Datadog team membership user IDs with cross-workspace admin lookup
+  datadog_team_membership_user_ids = {
+    for key, membership in local.datadog_team_memberships : key => (
+      membership.user_id_lookup == "admin" ? (
+        local.within_logos ? datadog_user.admins[local.normalize_email[membership.user_email]].id : data.datadog_user.existing_admins[local.normalize_email[membership.user_email]].id
+      ) : datadog_user.this[local.normalize_email[membership.user_email]].id
+    )
+  }
 
   # Create Datadog teams for each top-level team with hardcoded definitions and customizable membership
   datadog_teams = {
@@ -325,11 +341,11 @@ locals {
     for team_key, team in var.team : [
       for repo_key, repo in team.github_repositories : [
         for env_key, environment in repo.environments : {
-          deployment_branch_policy = environment.deployment_branch_policy
-          environment              = environment.name
-          key                      = "${repo_key}-${env_key}"
-          repo_key                 = repo_key
-          reviewing_teams          = environment.reviewers.teams
+          deployment_branch_policies = environment.deployment_branch_policy != null ? [environment.deployment_branch_policy] : []
+          environment                = environment.name
+          key                        = "${repo_key}-${env_key}"
+          repo_key                   = repo_key
+          reviewing_teams            = environment.reviewers.teams
         }
       ]
     ]
