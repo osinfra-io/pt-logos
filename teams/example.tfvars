@@ -441,6 +441,10 @@ team = {
     google_projects = {
       # Project key (used to generate project ID)
       "data-platform" = {
+        # Enable Datadog Google Cloud integration for this project (OPTIONAL, default: false)
+        # Requires datadog_enable = true in the corpus environment tfvars and a valid Datadog API key.
+        enable_datadog = true
+
         # List of GCP API services to enable in this project (REQUIRED)
         services = [
           "bigquery.googleapis.com",

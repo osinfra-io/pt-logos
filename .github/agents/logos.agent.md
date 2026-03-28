@@ -32,6 +32,8 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
     - `enable_opentofu_state_management` — requires `enable_workflows`; creates an OpenTofu state storage bucket, Storage IAM for the GitHub Actions service account, and KMS crypto key IAM for state encryption
   - **Kubernetes-level flags** (set on `google_kubernetes_engine_clusters`, not a repository):
     - `enable_datadog` — opts the team's GKE project into Datadog Google Cloud integration (default: false); corpus must also have `datadog_enable = true` in the target environment
+  - **Google project-level flags** (set per `google_projects` entry):
+    - `enable_datadog` — opts that specific additional GCP project into Datadog Google Cloud integration (default: false); corpus must also have `datadog_enable = true` in the target environment
   - **Repository-level flags** (set per repository):
     - `enable_datadog_webhook` — configures a webhook to send repository events to Datadog (default: true)
     - `enable_datadog_secrets` — adds `DD_API_KEY` and `DD_APP_KEY` as repository secrets (default: false)
@@ -231,7 +233,7 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 ##### Group 9 — Additional Google Cloud Platform Projects
 
-If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each.
+If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each. Also ask if they want Datadog Google Cloud integration enabled for each project (`enable_datadog`, default: `false`); note that corpus must also have `datadog_enable = true` in the target environment.
 
 #### Summary and PR
 

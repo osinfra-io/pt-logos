@@ -223,7 +223,8 @@ variable "team" {
     })), {})
 
     google_projects = optional(map(object({
-      services = optional(list(string), [])
+      enable_datadog = optional(bool, false)
+      services       = optional(list(string), [])
     })), {})
 
     team_type = string
