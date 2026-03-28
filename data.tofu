@@ -1,6 +1,3 @@
-# Data Sources
-# https://opentofu.org/docs/language/data-sources
-
 # Datadog Logs Index Order Data Source
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/logs_index_order
 
@@ -26,10 +23,7 @@ data "datadog_role" "this" {
 # Lookup existing Datadog users by email for cross-workspace references
 # Only lookup organization admin users in non-logos workspaces
 data "datadog_user" "existing_admins" {
-  for_each = local.within_logos ? tomap({}) : {
-    for email in local.datadog_organization_admins :
-    replace(replace(email, "@", "-at-"), ".", "-") => email
-  }
+  for_each = local.datadog_existing_admins_for_each
 
   exact_match = true
   filter      = each.value

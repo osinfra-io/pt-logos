@@ -1,6 +1,3 @@
-# Resources
-# https://opentofu.org/docs/language/resources
-
 # Datadog API Key Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/api_key
 
@@ -15,7 +12,7 @@ resource "datadog_api_key" "this" {
 # Organization-level resource managed only in logos-production-main workspace
 
 resource "datadog_logs_index" "this" {
-  for_each = local.within_logos ? local.datadog_log_indexes : {}
+  for_each = local.datadog_log_indexes_for_each
 
   daily_limit = each.value.daily_limit
 
@@ -63,10 +60,7 @@ resource "datadog_logs_index_order" "this" {
     enabled = local.within_logos && length(local.datadog_log_indexes) > 0
   }
 
-  indexes = [
-    for index_name in local.datadog_log_indexes_order :
-    datadog_logs_index.this[index_name].id
-  ]
+  indexes = local.datadog_logs_index_order_indexes
 
   name = "logs-index-order"
 }
@@ -171,7 +165,7 @@ resource "datadog_user" "admins" {
     data.datadog_role.this
   ]
 
-  for_each = local.within_logos ? local.datadog_admin_users : tomap({})
+  for_each = local.datadog_admin_users_for_each
 
   # Protect organization admins from accidental deletion
   lifecycle {
@@ -251,6 +245,9 @@ resource "github_actions_secret" "datadog_api_key" {
   repository      = each.key
   secret_name     = "DATADOG_API_KEY"
 }
+
+# GitHub Actions Secret Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
 
 resource "github_actions_secret" "datadog_app_key" {
   depends_on = [
@@ -343,7 +340,7 @@ resource "github_membership" "members" {
 
 # GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
 resource "github_membership" "owners" {
-  for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
+  for_each = local.github_organization_owners_for_each
 
   # Protect organization owners from accidental deletion
   lifecycle {
@@ -486,6 +483,9 @@ resource "github_repository_file" "release" {
   repository          = each.key
 }
 
+# GitHub Repository File Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
+
 resource "github_repository_file" "security_policy" {
   depends_on = [
     github_repository.this
@@ -585,6 +585,9 @@ resource "github_team_membership" "child_maintainers" {
   username = each.value.username
 }
 
+# GitHub Team Membership Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
+
 resource "github_team_membership" "child_members" {
   for_each = local.github_child_team_members
 
@@ -619,6 +622,9 @@ resource "github_team_repository" "children" {
   repository = github_repository.this[each.value.repository].name
   team_id    = github_team.children[each.value.child_team_key].id
 }
+
+# Github Team Repository Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
 
 resource "github_team_repository" "parents" {
   depends_on = [
@@ -682,7 +688,7 @@ resource "google_billing_account_iam_member" "billing_users" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_budget
 
 resource "google_billing_budget" "teams" {
-  for_each = var.google_billing_account != null ? var.team : {}
+  for_each = local.google_billing_budget_for_each
 
   amount {
     specified_amount {
@@ -768,6 +774,9 @@ resource "google_cloud_identity_group" "gke_security_groups" {
   parent = "customers/${var.google_customer_id}"
 }
 
+# Cloud Identity Group Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
 resource "google_cloud_identity_group" "this" {
   for_each = local.google_cloud_identity_groups
 
@@ -796,7 +805,7 @@ resource "google_cloud_identity_group" "this" {
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "gke_security_groups_managers" {
-  for_each = local.within_logos ? local.google_gke_security_groups_managers : {}
+  for_each = local.google_gke_security_groups_managers_for_each
 
   group = google_cloud_identity_group.gke_security_groups.id
 
@@ -809,8 +818,11 @@ resource "google_cloud_identity_group_membership" "gke_security_groups_managers"
   roles { name = "MANAGER" }
 }
 
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
 resource "google_cloud_identity_group_membership" "gke_security_groups_members" {
-  for_each = local.within_logos ? local.google_gke_security_groups_members : {}
+  for_each = local.google_gke_security_groups_members_for_each
 
   group = google_cloud_identity_group.gke_security_groups.id
 
@@ -821,8 +833,11 @@ resource "google_cloud_identity_group_membership" "gke_security_groups_members" 
   roles { name = "MEMBER" }
 }
 
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
 resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
-  for_each = local.within_logos ? local.google_gke_security_groups_owners : {}
+  for_each = local.google_gke_security_groups_owners_for_each
 
   group = google_cloud_identity_group.gke_security_groups.id
 
@@ -834,6 +849,9 @@ resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
   roles { name = "OWNER" }
   roles { name = "MEMBER" }
 }
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "managers" {
   # Iterate over local.google_cloud_identity_group_managers to create a resource for each user in the manager list.
@@ -850,6 +868,9 @@ resource "google_cloud_identity_group_membership" "managers" {
   roles { name = "MANAGER" }
 }
 
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
 resource "google_cloud_identity_group_membership" "members" {
   # Iterate over local.google_cloud_identity_group_members to create a resource for each user in the member list.
   for_each = local.google_cloud_identity_group_members
@@ -862,6 +883,9 @@ resource "google_cloud_identity_group_membership" "members" {
 
   roles { name = "MEMBER" }
 }
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
 
 resource "google_cloud_identity_group_membership" "owners" {
   # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
@@ -895,6 +919,9 @@ resource "google_folder" "environment" {
   display_name        = each.value.environment
   parent              = google_folder.team[each.value.team].name
 }
+
+# Google Folder Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
 
 resource "google_folder" "team" {
   for_each = var.team
@@ -933,6 +960,9 @@ resource "google_folder_iam_member" "corpus_browsers" {
   role   = "roles/browser"
 }
 
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
+
 # Grant corpus project creator groups access to environment folders for centralized project factory
 # Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
 # This allows pt-corpus to create projects in the appropriate environment folders for any team
@@ -959,6 +989,9 @@ resource "google_folder_iam_member" "corpus_project_creators" {
   role   = "roles/resourcemanager.projectCreator"
 }
 
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
+
 # Grant corpus XPN admin groups access to environment folders for shared VPC administration
 # Each corpus group (sandbox/non-production/production) has compute.xpnAdmin role on corresponding environment folders across all teams
 # This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
@@ -984,6 +1017,9 @@ resource "google_folder_iam_member" "corpus_xpn_admins" {
   member = "group:${each.value.group_key}"
   role   = "roles/compute.xpnAdmin"
 }
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
 
 # Assign identity groups to team folders with their specified roles
 # Groups inherit access to all child environment folders
