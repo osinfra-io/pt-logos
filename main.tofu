@@ -1,3 +1,609 @@
+# Datadog User Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/user
+
+# Datadog User Management - Split resources for lifecycle protection
+# Organization admins are conditionally created only in logos-production-main workspace to prevent conflicts
+# Note: Resource keys use normalized email addresses (@ -> -at-, . -> -) but actual email values are preserved
+# Datadog Organization Admins - Protected from deletion
+resource "datadog_user" "admins" {
+  depends_on = [
+    data.datadog_role.this
+  ]
+
+  for_each = local.datadog_admin_users_for_each
+
+  # Protect organization admins from accidental deletion
+  lifecycle {
+    ignore_changes = [
+      roles
+    ] # Prevent accidental role changes
+
+    prevent_destroy = true
+  }
+
+  email = each.value
+  name  = each.value
+
+  roles = [
+    local.datadog_user_roles[each.value]
+  ]
+}
+
+# Google Billing Account IAM Member
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
+
+# Grant billing user role to organization billing users group
+# Single group where all team service accounts are added for billing access
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_billing_account_iam_member" "billing_users" {
+  lifecycle {
+    enabled = local.within_logos && var.google_billing_account != null
+  }
+
+  billing_account_id = var.google_billing_account
+  member             = "group:${google_cloud_identity_group.billing_users.group_key[0].id}"
+  role               = "roles/billing.user"
+}
+
+# Cloud Identity Group Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
+
+# Billing users group - single organization-wide group for service accounts with billing access
+# Team repos manage membership via google_cloud_identity_group_membership resources
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_cloud_identity_group" "billing_users" {
+  lifecycle {
+    enabled = local.within_logos
+  }
+
+  description  = local.google_billing_users_group.description
+  display_name = local.google_billing_users_group.display_name
+
+  group_key {
+    id = "${local.google_billing_users_group.group_key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
+
+# GitHub Team Membership Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
+
+resource "github_team_membership" "child_maintainers" {
+  for_each = local.github_child_team_maintainers
+
+  role     = each.value.role
+  team_id  = github_team.children[each.value.team_key].id
+  username = each.value.username
+}
+
+# GitHub Team Membership Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
+
+resource "github_team_membership" "child_members" {
+  for_each = local.github_child_team_members
+
+  role     = each.value.role
+  team_id  = github_team.children[each.value.team_key].id
+  username = each.value.username
+}
+
+# GitHub Team Resource - Child Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+
+resource "github_team" "children" {
+  for_each = local.github_child_teams
+
+  description    = each.value.description
+  name           = each.value.name
+  parent_team_id = github_team.parents[each.value.parent_team].id
+  privacy        = each.value.privacy
+}
+
+# Github Team Repository Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
+
+resource "github_team_repository" "children" {
+  depends_on = [
+    github_repository.this,
+    github_team.children
+  ]
+
+  for_each = local.github_team_repository_child_permissions
+
+  permission = each.value.permission
+  repository = github_repository.this[each.value.repository].name
+  team_id    = github_team.children[each.value.child_team_key].id
+}
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
+
+# Grant corpus browser groups access to environment folders for resource discovery
+# Each corpus group (sandbox/non-production/production) has browser role on corresponding environment folders across all teams
+# This allows service accounts to list/discover resources without needing direct access
+# Created in every team workspace to grant access to that team's environment folders
+resource "google_folder_iam_member" "corpus_browsers" {
+  depends_on = [
+    google_folder.environment
+  ]
+
+  for_each = {
+    for pair in flatten([
+      for env_key, env in local.environments : {
+        environment = env.environment
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
+        key         = env_key
+        team        = env.team
+      }
+    ]) : pair.key => pair
+  }
+
+  folder = each.value.folder
+  member = "group:${each.value.group_key}"
+  role   = "roles/browser"
+}
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
+
+# Grant corpus project creator groups access to environment folders for centralized project factory
+# Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
+# This allows pt-corpus to create projects in the appropriate environment folders for any team
+# Created in every team workspace to grant access to that team's environment folders
+resource "google_folder_iam_member" "corpus_project_creators" {
+  depends_on = [
+    google_folder.environment
+  ]
+
+  for_each = {
+    for pair in flatten([
+      for env_key, env in local.environments : {
+        environment = env.environment
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
+        key         = env_key
+        team        = env.team
+      }
+    ]) : pair.key => pair
+  }
+
+  folder = each.value.folder
+  member = "group:${each.value.group_key}"
+  role   = "roles/resourcemanager.projectCreator"
+}
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
+
+# Grant corpus XPN admin groups access to environment folders for shared VPC administration
+# Each corpus group (sandbox/non-production/production) has compute.xpnAdmin role on corresponding environment folders across all teams
+# This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
+# Created in every team workspace to grant access to that team's environment folders
+resource "google_folder_iam_member" "corpus_xpn_admins" {
+  depends_on = [
+    google_folder.environment
+  ]
+
+  for_each = {
+    for pair in flatten([
+      for env_key, env in local.environments : {
+        environment = env.environment
+        folder      = google_folder.environment[env_key].name
+        group_key   = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
+        key         = env_key
+        team        = env.team
+      }
+    ]) : pair.key => pair
+  }
+
+  folder = each.value.folder
+  member = "group:${each.value.group_key}"
+  role   = "roles/compute.xpnAdmin"
+}
+
+# Github Repository Webhook Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
+
+resource "github_repository_webhook" "datadog" {
+  depends_on = [
+    github_repository.this
+  ]
+
+  for_each = local.github_repository_datadog_webhooks
+
+  active = true
+
+  configuration {
+    content_type = "json"
+    insecure_ssl = false
+    url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.github_datadog_webhook_api_key}"
+  }
+
+  events = [
+    "branch_protection_rule",         # This event occurs when there is activity relating to branch protection rules
+    "commit_comment",                 # This event occurs when there is activity relating to commit comments
+    "create",                         # This event occurs when a Git branch or tag is created
+    "delete",                         # This event occurs when a Git branch or tag is deleted
+    "dependabot_alert",               # This event occurs when there is activity relating to Dependabot alerts
+    "issue_comment",                  # This event occurs when there is activity relating to a comment on an issue or pull request
+    "issues",                         # This event occurs when there is activity relating to an issue
+    "public",                         # This event occurs when repository visibility changes from private to public
+    "pull_request",                   # This event occurs when there is activity on a pull request
+    "pull_request_review_comment",    # This event occurs when there is activity relating to a pull request review comment
+    "push",                           # This event occurs when there is a push to a repository branch
+    "repository",                     # This event occurs when there is activity relating to repositories
+    "repository_vulnerability_alert", # This event occurs when there is activity relating to a security vulnerability alert in a repository
+    "team_add"                        # This event occurs when a team is added to a repository
+  ]
+
+  repository = each.key
+}
+
+# GitHub Actions Secret Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
+
+resource "github_actions_secret" "datadog_api_key" {
+  depends_on = [
+    github_repository.this
+  ]
+
+  for_each = local.github_repository_datadog_secrets
+
+  plaintext_value = datadog_api_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_API_KEY"
+}
+
+# GitHub Actions Secret Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
+
+resource "github_actions_secret" "datadog_app_key" {
+  depends_on = [
+    github_repository.this
+  ]
+
+  for_each = local.github_repository_datadog_secrets
+
+  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
+  repository      = each.key
+  secret_name     = "DATADOG_APP_KEY"
+}
+
+# Google Folder Resources
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
+
+# Folder resources provide grouping mechanism and isolation boundaries between projects.
+# This creates a 2-level hierarchy following Team Topologies methodology:
+#   Teams (Logos, Pneuma, Ethos, etc.) - created under pre-existing team type folders
+#   └── Environments (Sandbox, Non-Production, Production)
+#
+# Team type folders (Platform Teams, Stream-aligned Teams, etc.) are pre-created and referenced via google_team_type_folder_ids variable.
+
+resource "google_folder" "environment" {
+  for_each = local.environments
+
+  deletion_protection = false
+  display_name        = each.value.environment
+  parent              = google_folder.team[each.value.team].name
+}
+
+# GKE security groups - organization-wide group for Kubernetes RBAC
+# This Google Group is required to enable Kubernetes role-based access control (RBAC) in your GKE clusters
+# Add your groups as nested groups to this group (don't add individual users)
+# Organization-level resource managed only in logos-production-main workspace
+resource "google_cloud_identity_group" "gke_security_groups" {
+  lifecycle {
+    enabled = local.within_logos
+  }
+
+  description  = local.google_gke_security_groups.description
+  display_name = local.google_gke_security_groups.display_name
+
+  group_key {
+    id = "${local.google_gke_security_groups.group_key}@${var.google_primary_domain}"
+  }
+
+  initial_group_config = "EMPTY"
+
+  labels = {
+    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
+    "cloudidentity.googleapis.com/groups.security"         = ""
+  }
+
+  parent = "customers/${var.google_customer_id}"
+}
+
+# Cloud Identity Group Membership Resources
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_managers" {
+  for_each = local.google_gke_security_groups_managers_for_each
+
+  group = google_cloud_identity_group.gke_security_groups.id
+
+  preferred_member_key {
+    id = each.value.manager
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "MEMBER" }
+  roles { name = "MANAGER" }
+}
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_members" {
+  for_each = local.google_gke_security_groups_members_for_each
+
+  group = google_cloud_identity_group.gke_security_groups.id
+
+  preferred_member_key {
+    id = each.value.member
+  }
+
+  roles { name = "MEMBER" }
+}
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
+  for_each = local.google_gke_security_groups_owners_for_each
+
+  group = google_cloud_identity_group.gke_security_groups.id
+
+  preferred_member_key {
+    id = each.value.owner
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "OWNER" }
+  roles { name = "MEMBER" }
+}
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "managers" {
+  # Iterate over local.google_cloud_identity_group_managers to create a resource for each user in the manager list.
+  for_each = local.google_cloud_identity_group_managers
+
+  group = google_cloud_identity_group.this[each.value.group].id
+
+  preferred_member_key {
+    id = each.value.manager
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "MEMBER" }
+  roles { name = "MANAGER" }
+}
+
+# GitHub Organization Membership Management - Split resources for lifecycle protection
+# Organization owners are protected from deletion to maintain platform access
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
+
+# Regular GitHub Members - Can be destroyed normally
+resource "github_membership" "members" {
+  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
+
+  role     = "member"
+  username = each.value
+}
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "members" {
+  # Iterate over local.google_cloud_identity_group_members to create a resource for each user in the member list.
+  for_each = local.google_cloud_identity_group_members
+
+  group = google_cloud_identity_group.this[each.value.group].id
+
+  preferred_member_key {
+    id = each.value.member
+  }
+
+  roles { name = "MEMBER" }
+}
+
+# GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
+resource "github_membership" "owners" {
+  for_each = local.github_organization_owners_for_each
+
+  # Protect organization owners from accidental deletion
+  lifecycle {
+    ignore_changes  = [role] # Prevent accidental demotion
+    prevent_destroy = true
+  }
+
+  role     = "admin"
+  username = each.value
+}
+
+# Cloud Identity Group Membership Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
+
+resource "google_cloud_identity_group_membership" "owners" {
+  # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
+  for_each = local.google_cloud_identity_group_owners
+
+  group = google_cloud_identity_group.this[each.value.group].id
+
+  preferred_member_key {
+    id = each.value.owner
+  }
+
+  # MEMBER role must be specified. The order of roles should not be changed.
+  roles { name = "OWNER" }
+  roles { name = "MEMBER" }
+}
+
+# GitHub Team Resource - Parent Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+
+# If you need to import a team, you can do so with the following command:
+# tofu import github_team.parents\["team-key"\] <team_id>
+
+# To get the team ids, you can run the following curl command with a token that has the read:org scope against your own organization.
+# curl -H "Authorization: token $GITHUB_READ_ORG_TOKEN" https://api.github.com/orgs/osinfra-io/teams
+
+resource "github_team" "parents" {
+  for_each = local.github_parent_teams
+
+  description = each.value.description
+  name        = each.value.name
+  privacy     = each.value.privacy
+}
+
+# GitHub Team Membership Resource - Parent Teams
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
+
+resource "github_team_membership" "parents" {
+  for_each = local.github_parent_team_memberships
+
+  role     = each.value.role
+  team_id  = github_team.parents[each.value.team_key].id
+  username = each.value.username
+}
+
+# Github Team Repository Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
+
+resource "github_team_repository" "parents" {
+  depends_on = [
+    github_repository.this,
+    github_team.parents
+  ]
+
+  for_each = local.github_team_repository_parent_permissions
+
+  permission = each.value.permission
+  repository = github_repository.this[each.value.repository].name
+  team_id    = github_team.parents[each.value.team_key].id
+}
+
+# GitHub Repository File Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
+
+resource "github_repository_file" "release" {
+  depends_on = [
+    github_repository.this
+  ]
+
+  for_each = local.github_repositories
+
+  branch         = "main"
+  commit_author  = "Open Source Infrastructure as Code Service Account"
+  commit_email   = "github-sa@osinfra.io"
+  commit_message = "Update .github/release.yml"
+
+  content = file("${path.module}/markdown/release.yml")
+
+  file                = ".github/release.yml"
+  overwrite_on_create = true
+  repository          = each.key
+}
+
+# GitHub Repository File Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
+
+resource "github_repository_file" "security_policy" {
+  depends_on = [
+    github_repository.this
+  ]
+
+  for_each = local.github_repositories
+
+  branch         = "main"
+  commit_author  = "Open Source Infrastructure as Code Service Account"
+  commit_email   = "github-sa@osinfra.io"
+  commit_message = "Update SECURITY.md"
+
+  content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
+    repository = each.key
+  })
+
+  file                = "SECURITY.md"
+  overwrite_on_create = true
+  repository          = each.key
+}
+
+# Google Folder Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
+
+resource "google_folder" "team" {
+  for_each = var.team
+
+  deletion_protection = false
+  display_name        = each.value.display_name
+  parent              = "folders/${var.google_team_type_folder_ids[each.value.team_type]}"
+}
+
+# Google Folder IAM Member Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
+
+# Assign identity groups to team folders with their specified roles
+# Groups inherit access to all child environment folders
+resource "google_folder_iam_member" "team_access" {
+  depends_on = [
+    google_cloud_identity_group.this,
+    google_folder.team
+  ]
+
+  for_each = local.google_iam_bindings
+
+  folder = google_folder.team[each.value.team_key].name
+  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
+  role   = each.value.role
+}
+
+# Google Billing Budget Resource
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_budget
+
+resource "google_billing_budget" "teams" {
+  for_each = local.google_billing_budget_for_each
+
+  amount {
+    specified_amount {
+      currency_code = "USD"
+      units         = var.google_monthly_budget_amount
+    }
+  }
+
+  billing_account = var.google_billing_account
+
+  budget_filter {
+    resource_ancestors = [google_folder.team[each.key].id]
+  }
+
+  display_name = "${each.value.display_name} Monthly"
+
+  threshold_rules {
+    spend_basis       = "CURRENT_SPEND"
+    threshold_percent = 0.50
+  }
+
+  threshold_rules {
+    spend_basis       = "CURRENT_SPEND"
+    threshold_percent = 0.75
+  }
+
+  threshold_rules {
+    spend_basis       = "CURRENT_SPEND"
+    threshold_percent = 1.0
+  }
+}
+
 # Datadog API Key Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/api_key
 
@@ -153,37 +759,6 @@ resource "datadog_team_membership" "this" {
   ) : datadog_user.this[local.normalize_email[each.value.user_email]].id
 }
 
-# Datadog User Resource
-# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/user
-
-# Datadog User Management - Split resources for lifecycle protection
-# Organization admins are conditionally created only in logos-production-main workspace to prevent conflicts
-# Note: Resource keys use normalized email addresses (@ -> -at-, . -> -) but actual email values are preserved
-# Datadog Organization Admins - Protected from deletion
-resource "datadog_user" "admins" {
-  depends_on = [
-    data.datadog_role.this
-  ]
-
-  for_each = local.datadog_admin_users_for_each
-
-  # Protect organization admins from accidental deletion
-  lifecycle {
-    ignore_changes = [
-      roles
-    ] # Prevent accidental role changes
-
-    prevent_destroy = true
-  }
-
-  email = each.value
-  name  = each.value
-
-  roles = [
-    local.datadog_user_roles[each.value]
-  ]
-}
-
 # Regular Datadog Users - Can be destroyed normally
 resource "datadog_user" "this" {
   depends_on = [
@@ -231,89 +806,6 @@ resource "github_actions_organization_permissions" "this" {
   enabled_repositories = "all"
 }
 
-# GitHub Actions Secret Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
-
-resource "github_actions_secret" "datadog_api_key" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repository_datadog_secrets
-
-  plaintext_value = datadog_api_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_API_KEY"
-}
-
-# GitHub Actions Secret Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/actions_secret
-
-resource "github_actions_secret" "datadog_app_key" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repository_datadog_secrets
-
-  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_APP_KEY"
-}
-
-# Github Repository Ruleset Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_ruleset
-
-resource "github_repository_ruleset" "this" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repository_rulesets
-
-  enforcement = "active"
-  name        = "main"
-  repository  = github_repository.this[each.key].name
-  target      = "branch"
-
-  bypass_actors {
-    actor_id    = local.pr_approve_and_merge_app_id
-    actor_type  = "Integration"
-    bypass_mode = "pull_request"
-  }
-
-  bypass_actors {
-    actor_id    = 1
-    actor_type  = "OrganizationAdmin"
-    bypass_mode = "always"
-  }
-
-  bypass_actors {
-    actor_id    = tonumber(github_team.parents[each.value.team_key].id)
-    actor_type  = "Team"
-    bypass_mode = "always"
-  }
-
-  conditions {
-    ref_name {
-      exclude = []
-      include = ["~DEFAULT_BRANCH"]
-    }
-  }
-
-  rules {
-    required_linear_history = true
-    required_signatures     = true
-
-    pull_request {
-      dismiss_stale_reviews_on_push     = true
-      require_code_owner_review         = true
-      required_approving_review_count   = 1
-      required_review_thread_resolution = true
-    }
-  }
-}
-
 # GitHub Issue Labels Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/issue_label
 
@@ -326,31 +818,19 @@ resource "github_issue_label" "this" {
   repository  = github_repository.this[each.value.repository].name
 }
 
-# GitHub Organization Membership Management - Split resources for lifecycle protection
-# Organization owners are protected from deletion to maintain platform access
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/membership
-
-# Regular GitHub Members - Can be destroyed normally
-resource "github_membership" "members" {
-  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
-
-  role     = "member"
-  username = each.value
-}
-
-# GitHub Organization Owners - Conditionally created only in logos-production-main workspace, protected from deletion
-resource "github_membership" "owners" {
-  for_each = local.github_organization_owners_for_each
-
-  # Protect organization owners from accidental deletion
-  lifecycle {
-    ignore_changes  = [role] # Prevent accidental demotion
-    prevent_destroy = true
-  }
-
-  role     = "admin"
-  username = each.value
-}
+# GitHub Organization Projects V2 - Not yet supported in Terraform provider
+# GitHub has deprecated classic Projects (v1) in favor of Projects V2 (beta)
+# The Terraform GitHub provider doesn't yet have full support for Projects V2
+#
+# Manual creation steps for now:
+# 1. Go to https://github.com/orgs/osinfra-io/projects
+# 2. Create new project for each team:
+#    - Name: {team.display_name} (e.g., "Logos")
+#    - Description: "{display_name} is a {team_type} {description}. This project tracks work, features, and initiatives for the {display_name} team."
+# 3. Add team access via project Settings → Manage access
+#
+# TODO: Implement when Terraform provider supports Projects V2
+# Tracking: https://github.com/integrations/terraform-provider-github/issues/1661
 
 # Github Organization Security Manager Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/organization_security_manager
@@ -461,182 +941,57 @@ resource "github_repository_environment" "this" {
   }
 }
 
-# GitHub Repository File Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
+# Github Repository Ruleset Resource
+# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_ruleset
 
-resource "github_repository_file" "release" {
+resource "github_repository_ruleset" "this" {
   depends_on = [
     github_repository.this
   ]
 
-  for_each = local.github_repositories
+  for_each = local.github_repository_rulesets
 
-  branch         = "main"
-  commit_author  = "Open Source Infrastructure as Code Service Account"
-  commit_email   = "github-sa@osinfra.io"
-  commit_message = "Update .github/release.yml"
+  enforcement = "active"
+  name        = "main"
+  repository  = github_repository.this[each.key].name
+  target      = "branch"
 
-  content = file("${path.module}/markdown/release.yml")
-
-  file                = ".github/release.yml"
-  overwrite_on_create = true
-  repository          = each.key
-}
-
-# GitHub Repository File Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_file
-
-resource "github_repository_file" "security_policy" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repositories
-
-  branch         = "main"
-  commit_author  = "Open Source Infrastructure as Code Service Account"
-  commit_email   = "github-sa@osinfra.io"
-  commit_message = "Update SECURITY.md"
-
-  content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
-    repository = each.key
-  })
-
-  file                = "SECURITY.md"
-  overwrite_on_create = true
-  repository          = each.key
-}
-
-# Github Repository Webhook Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
-
-resource "github_repository_webhook" "datadog" {
-  depends_on = [
-    github_repository.this
-  ]
-
-  for_each = local.github_repository_datadog_webhooks
-
-  active = true
-
-  configuration {
-    content_type = "json"
-    insecure_ssl = false
-    url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.github_datadog_webhook_api_key}"
+  bypass_actors {
+    actor_id    = local.pr_approve_and_merge_app_id
+    actor_type  = "Integration"
+    bypass_mode = "pull_request"
   }
 
-  events = [
-    "branch_protection_rule",         # This event occurs when there is activity relating to branch protection rules
-    "commit_comment",                 # This event occurs when there is activity relating to commit comments
-    "create",                         # This event occurs when a Git branch or tag is created
-    "delete",                         # This event occurs when a Git branch or tag is deleted
-    "dependabot_alert",               # This event occurs when there is activity relating to Dependabot alerts
-    "issue_comment",                  # This event occurs when there is activity relating to a comment on an issue or pull request
-    "issues",                         # This event occurs when there is activity relating to an issue
-    "public",                         # This event occurs when repository visibility changes from private to public
-    "pull_request",                   # This event occurs when there is activity on a pull request
-    "pull_request_review_comment",    # This event occurs when there is activity relating to a pull request review comment
-    "push",                           # This event occurs when there is a push to a repository branch
-    "repository",                     # This event occurs when there is activity relating to repositories
-    "repository_vulnerability_alert", # This event occurs when there is activity relating to a security vulnerability alert in a repository
-    "team_add"                        # This event occurs when a team is added to a repository
-  ]
+  bypass_actors {
+    actor_id    = 1
+    actor_type  = "OrganizationAdmin"
+    bypass_mode = "always"
+  }
 
-  repository = each.key
-}
+  bypass_actors {
+    actor_id    = tonumber(github_team.parents[each.value.team_key].id)
+    actor_type  = "Team"
+    bypass_mode = "always"
+  }
 
-# GitHub Team Resource - Child Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
+  conditions {
+    ref_name {
+      exclude = []
+      include = ["~DEFAULT_BRANCH"]
+    }
+  }
 
-resource "github_team" "children" {
-  for_each = local.github_child_teams
+  rules {
+    required_linear_history = true
+    required_signatures     = true
 
-  description    = each.value.description
-  name           = each.value.name
-  parent_team_id = github_team.parents[each.value.parent_team].id
-  privacy        = each.value.privacy
-}
-
-# GitHub Team Resource - Parent Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
-
-# If you need to import a team, you can do so with the following command:
-# tofu import github_team.parents\["team-key"\] <team_id>
-
-# To get the team ids, you can run the following curl command with a token that has the read:org scope against your own organization.
-# curl -H "Authorization: token $GITHUB_READ_ORG_TOKEN" https://api.github.com/orgs/osinfra-io/teams
-
-resource "github_team" "parents" {
-  for_each = local.github_parent_teams
-
-  description = each.value.description
-  name        = each.value.name
-  privacy     = each.value.privacy
-}
-
-# GitHub Team Membership Resource - Child Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
-
-resource "github_team_membership" "child_maintainers" {
-  for_each = local.github_child_team_maintainers
-
-  role     = each.value.role
-  team_id  = github_team.children[each.value.team_key].id
-  username = each.value.username
-}
-
-# GitHub Team Membership Resource - Child Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
-
-resource "github_team_membership" "child_members" {
-  for_each = local.github_child_team_members
-
-  role     = each.value.role
-  team_id  = github_team.children[each.value.team_key].id
-  username = each.value.username
-}
-
-# GitHub Team Membership Resource - Parent Teams
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
-
-resource "github_team_membership" "parents" {
-  for_each = local.github_parent_team_memberships
-
-  role     = each.value.role
-  team_id  = github_team.parents[each.value.team_key].id
-  username = each.value.username
-}
-
-# Github Team Repository Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
-
-resource "github_team_repository" "children" {
-  depends_on = [
-    github_repository.this,
-    github_team.children
-  ]
-
-  for_each = local.github_team_repository_child_permissions
-
-  permission = each.value.permission
-  repository = github_repository.this[each.value.repository].name
-  team_id    = github_team.children[each.value.child_team_key].id
-}
-
-# Github Team Repository Resource
-# https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
-
-resource "github_team_repository" "parents" {
-  depends_on = [
-    github_repository.this,
-    github_team.parents
-  ]
-
-  for_each = local.github_team_repository_parent_permissions
-
-  permission = each.value.permission
-  repository = github_repository.this[each.value.repository].name
-  team_id    = github_team.parents[each.value.team_key].id
+    pull_request {
+      dismiss_stale_reviews_on_push     = true
+      require_code_owner_review         = true
+      required_approving_review_count   = 1
+      required_review_thread_resolution = true
+    }
+  }
 }
 
 # GitHub Team Settings Resource
@@ -652,126 +1007,6 @@ resource "github_team_settings" "this" {
   }
 
   team_id = github_team.parents[each.key].id
-}
-
-# GitHub Organization Projects V2 - Not yet supported in Terraform provider
-# GitHub has deprecated classic Projects (v1) in favor of Projects V2 (beta)
-# The Terraform GitHub provider doesn't yet have full support for Projects V2
-#
-# Manual creation steps for now:
-# 1. Go to https://github.com/orgs/osinfra-io/projects
-# 2. Create new project for each team:
-#    - Name: {team.display_name} (e.g., "Logos")
-#    - Description: "{display_name} is a {team_type} {description}. This project tracks work, features, and initiatives for the {display_name} team."
-# 3. Add team access via project Settings → Manage access
-#
-# TODO: Implement when Terraform provider supports Projects V2
-# Tracking: https://github.com/integrations/terraform-provider-github/issues/1661
-
-# Google Billing Account IAM Member
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_account_iam_member
-
-# Grant billing user role to organization billing users group
-# Single group where all team service accounts are added for billing access
-# Organization-level resource managed only in logos-production-main workspace
-resource "google_billing_account_iam_member" "billing_users" {
-  lifecycle {
-    enabled = local.within_logos && var.google_billing_account != null
-  }
-
-  billing_account_id = var.google_billing_account
-  member             = "group:${google_cloud_identity_group.billing_users.group_key[0].id}"
-  role               = "roles/billing.user"
-}
-
-# Google Billing Budget Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_billing_budget
-
-resource "google_billing_budget" "teams" {
-  for_each = local.google_billing_budget_for_each
-
-  amount {
-    specified_amount {
-      currency_code = "USD"
-      units         = var.google_monthly_budget_amount
-    }
-  }
-
-  billing_account = var.google_billing_account
-
-  budget_filter {
-    resource_ancestors = [google_folder.team[each.key].id]
-  }
-
-  display_name = "${each.value.display_name} Monthly"
-
-  threshold_rules {
-    spend_basis       = "CURRENT_SPEND"
-    threshold_percent = 0.50
-  }
-
-  threshold_rules {
-    spend_basis       = "CURRENT_SPEND"
-    threshold_percent = 0.75
-  }
-
-  threshold_rules {
-    spend_basis       = "CURRENT_SPEND"
-    threshold_percent = 1.0
-  }
-}
-
-# Cloud Identity Group Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group
-
-# Billing users group - single organization-wide group for service accounts with billing access
-# Team repos manage membership via google_cloud_identity_group_membership resources
-# Organization-level resource managed only in logos-production-main workspace
-resource "google_cloud_identity_group" "billing_users" {
-  lifecycle {
-    enabled = local.within_logos
-  }
-
-  description  = local.google_billing_users_group.description
-  display_name = local.google_billing_users_group.display_name
-
-  group_key {
-    id = "${local.google_billing_users_group.group_key}@${var.google_primary_domain}"
-  }
-
-  initial_group_config = "EMPTY"
-
-  labels = {
-    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
-  }
-
-  parent = "customers/${var.google_customer_id}"
-}
-
-# GKE security groups - organization-wide group for Kubernetes RBAC
-# This Google Group is required to enable Kubernetes role-based access control (RBAC) in your GKE clusters
-# Add your groups as nested groups to this group (don't add individual users)
-# Organization-level resource managed only in logos-production-main workspace
-resource "google_cloud_identity_group" "gke_security_groups" {
-  lifecycle {
-    enabled = local.within_logos
-  }
-
-  description  = local.google_gke_security_groups.description
-  display_name = local.google_gke_security_groups.display_name
-
-  group_key {
-    id = "${local.google_gke_security_groups.group_key}@${var.google_primary_domain}"
-  }
-
-  initial_group_config = "EMPTY"
-
-  labels = {
-    "cloudidentity.googleapis.com/groups.discussion_forum" = ""
-    "cloudidentity.googleapis.com/groups.security"         = ""
-  }
-
-  parent = "customers/${var.google_customer_id}"
 }
 
 # Cloud Identity Group Resource
@@ -799,239 +1034,4 @@ resource "google_cloud_identity_group" "this" {
   }
 
   parent = "customers/${var.google_customer_id}"
-}
-
-# Cloud Identity Group Membership Resources
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "gke_security_groups_managers" {
-  for_each = local.google_gke_security_groups_managers_for_each
-
-  group = google_cloud_identity_group.gke_security_groups.id
-
-  preferred_member_key {
-    id = each.value.manager
-  }
-
-  # MEMBER role must be specified. The order of roles should not be changed.
-  roles { name = "MEMBER" }
-  roles { name = "MANAGER" }
-}
-
-# Cloud Identity Group Membership Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "gke_security_groups_members" {
-  for_each = local.google_gke_security_groups_members_for_each
-
-  group = google_cloud_identity_group.gke_security_groups.id
-
-  preferred_member_key {
-    id = each.value.member
-  }
-
-  roles { name = "MEMBER" }
-}
-
-# Cloud Identity Group Membership Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "gke_security_groups_owners" {
-  for_each = local.google_gke_security_groups_owners_for_each
-
-  group = google_cloud_identity_group.gke_security_groups.id
-
-  preferred_member_key {
-    id = each.value.owner
-  }
-
-  # MEMBER role must be specified. The order of roles should not be changed.
-  roles { name = "OWNER" }
-  roles { name = "MEMBER" }
-}
-
-# Cloud Identity Group Membership Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "managers" {
-  # Iterate over local.google_cloud_identity_group_managers to create a resource for each user in the manager list.
-  for_each = local.google_cloud_identity_group_managers
-
-  group = google_cloud_identity_group.this[each.value.group].id
-
-  preferred_member_key {
-    id = each.value.manager
-  }
-
-  # MEMBER role must be specified. The order of roles should not be changed.
-  roles { name = "MEMBER" }
-  roles { name = "MANAGER" }
-}
-
-# Cloud Identity Group Membership Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "members" {
-  # Iterate over local.google_cloud_identity_group_members to create a resource for each user in the member list.
-  for_each = local.google_cloud_identity_group_members
-
-  group = google_cloud_identity_group.this[each.value.group].id
-
-  preferred_member_key {
-    id = each.value.member
-  }
-
-  roles { name = "MEMBER" }
-}
-
-# Cloud Identity Group Membership Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/cloud_identity_group_membership
-
-resource "google_cloud_identity_group_membership" "owners" {
-  # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
-  for_each = local.google_cloud_identity_group_owners
-
-  group = google_cloud_identity_group.this[each.value.group].id
-
-  preferred_member_key {
-    id = each.value.owner
-  }
-
-  # MEMBER role must be specified. The order of roles should not be changed.
-  roles { name = "OWNER" }
-  roles { name = "MEMBER" }
-}
-
-# Google Folder Resources
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
-
-# Folder resources provide grouping mechanism and isolation boundaries between projects.
-# This creates a 2-level hierarchy following Team Topologies methodology:
-#   Teams (Logos, Pneuma, Ethos, etc.) - created under pre-existing team type folders
-#   └── Environments (Sandbox, Non-Production, Production)
-#
-# Team type folders (Platform Teams, Stream-aligned Teams, etc.) are pre-created and referenced via google_team_type_folder_ids variable.
-
-resource "google_folder" "environment" {
-  for_each = local.environments
-
-  deletion_protection = false
-  display_name        = each.value.environment
-  parent              = google_folder.team[each.value.team].name
-}
-
-# Google Folder Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
-
-resource "google_folder" "team" {
-  for_each = var.team
-
-  deletion_protection = false
-  display_name        = each.value.display_name
-  parent              = "folders/${var.google_team_type_folder_ids[each.value.team_type]}"
-}
-
-# Google Folder IAM Member Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
-
-# Grant corpus browser groups access to environment folders for resource discovery
-# Each corpus group (sandbox/non-production/production) has browser role on corresponding environment folders across all teams
-# This allows service accounts to list/discover resources without needing direct access
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_browsers" {
-  depends_on = [
-    google_folder.environment
-  ]
-
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environment[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
-
-  folder = each.value.folder
-  member = "group:${each.value.group_key}"
-  role   = "roles/browser"
-}
-
-# Google Folder IAM Member Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
-
-# Grant corpus project creator groups access to environment folders for centralized project factory
-# Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
-# This allows pt-corpus to create projects in the appropriate environment folders for any team
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_project_creators" {
-  depends_on = [
-    google_folder.environment
-  ]
-
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environment[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
-
-  folder = each.value.folder
-  member = "group:${each.value.group_key}"
-  role   = "roles/resourcemanager.projectCreator"
-}
-
-# Google Folder IAM Member Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
-
-# Grant corpus XPN admin groups access to environment folders for shared VPC administration
-# Each corpus group (sandbox/non-production/production) has compute.xpnAdmin role on corresponding environment folders across all teams
-# This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_xpn_admins" {
-  depends_on = [
-    google_folder.environment
-  ]
-
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environment[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
-
-  folder = each.value.folder
-  member = "group:${each.value.group_key}"
-  role   = "roles/compute.xpnAdmin"
-}
-
-# Google Folder IAM Member Resource
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam
-
-# Assign identity groups to team folders with their specified roles
-# Groups inherit access to all child environment folders
-resource "google_folder_iam_member" "team_access" {
-  depends_on = [
-    google_cloud_identity_group.this,
-    google_folder.team
-  ]
-
-  for_each = local.google_iam_bindings
-
-  folder = google_folder.team[each.value.team_key].name
-  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
-  role   = each.value.role
 }
