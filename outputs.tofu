@@ -29,7 +29,7 @@ output "teams" {
       # Environment folders
       environments = {
         for env_key, env in local.environments :
-        env.environment => google_folder.environment[env_key].id
+        env.environment => google_folder.environments[env_key].id
         if startswith(env_key, "${team_key}-")
       }
 
@@ -74,7 +74,7 @@ output "teams" {
       }
 
       # Folder hierarchy
-      team_folder_id      = google_folder.team[team_key].id
+      team_folder_id      = google_folder.teams[team_key].id
       team_type           = team.team_type
       team_type_folder_id = var.google_team_type_folder_ids[team.team_type]
     }
