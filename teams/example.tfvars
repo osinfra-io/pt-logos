@@ -146,8 +146,6 @@ team = {
       dns_subdomain = "example"
 
       # Enable Datadog integration for this team's Kubernetes project (OPTIONAL, default: false)
-      # Requires datadog_enable = true in the corpus environment tfvars and a valid Datadog API key.
-      # When enabled, corpus will create a Datadog Google Cloud integration for the team's GKE project.
       enable_datadog = true
 
       # Artifact Registry groups (OPTIONAL)
@@ -442,7 +440,6 @@ team = {
       # Project key (used to generate project ID)
       "data-platform" = {
         # Enable Datadog Google Cloud integration for this project (OPTIONAL, default: false)
-        # Requires datadog_enable = true in the corpus environment tfvars and a valid Datadog API key.
         enable_datadog = true
 
         # List of GCP API services to enable in this project (REQUIRED)
