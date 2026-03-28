@@ -25,6 +25,15 @@ locals {
     replace(replace(email, "@", "-at-"), ".", "-") => email
   }
 
+  # Conditionally create admin users only in logos workspace
+  datadog_admin_users_for_each = local.within_logos ? local.datadog_admin_users : tomap({})
+
+  # Lookup admin users only in non-logos workspaces
+  datadog_existing_admins_for_each = local.within_logos ? tomap({}) : {
+    for email in local.datadog_organization_admins :
+    replace(replace(email, "@", "-at-"), ".", "-") => email
+  }
+
   datadog_log_indexes = {
     high-retention = {
       daily_limit                              = 10000
@@ -100,9 +109,18 @@ locals {
     }
   }
 
+  # Conditionally manage log indexes only in logos workspace
+  datadog_log_indexes_for_each = local.within_logos ? local.datadog_log_indexes : {}
+
   # Ordered list of log index names - preserves declaration order from datadog_log_indexes map above
   # Used by datadog_logs_index_order resource to ensure correct processing sequence
   datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
+
+  # Computed index IDs for datadog_logs_index_order resource
+  datadog_logs_index_order_indexes = [
+    for index_name in local.datadog_log_indexes_order :
+    datadog_logs_index.this[index_name].id
+  ]
 
   # Hardcoded Datadog organization admins - users who should have admin role
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
@@ -181,17 +199,6 @@ locals {
     ]
   ]) : "${environment.team}-${lower(environment.environment)}" => environment }
 
-  # Create ruleset configurations for repositories
-  github_repository_rulesets = { for repo in flatten([
-    for team_key, team in var.team : [
-      for repo_key, repo in team.github_repositories : {
-        key      = repo_key
-        team_key = team_key
-      }
-      if repo.enable_ruleset
-    ]
-  ]) : repo.key => repo }
-
   # Flatten GitHub child team maintainer memberships
   github_child_team_maintainers = { for item in flatten([
     for team_key, team in local.github_child_teams : [
@@ -226,6 +233,9 @@ locals {
   # WARNING: These users are protected from deletion via lifecycle rules in main.tofu
   # To remove a user: 1) Remove from this list, 2) Run tofu plan/apply, 3) Manually remove via GitHub UI
   github_organization_owners = ["brettcurtis"]
+
+  # Conditionally create organization owners only in logos workspace
+  github_organization_owners_for_each = local.within_logos ? toset(local.github_organization_owners) : toset([])
 
   # Flatten GitHub parent team memberships (configured members/maintainers plus child team maintainers)
   github_parent_team_memberships = { for item in flatten([
@@ -340,6 +350,17 @@ locals {
       ]
   ]) : "${label.repository}-${label.name}" => label }
 
+  # Create ruleset configurations for repositories
+  github_repository_rulesets = { for repo in flatten([
+    for team_key, team in var.team : [
+      for repo_key, repo in team.github_repositories : {
+        key      = repo_key
+        team_key = team_key
+      }
+      if repo.enable_ruleset
+    ]
+  ]) : repo.key => repo }
+
   # Review request delegations for GitHub teams with sufficient members
   # Requires 3+ total members since PR author can't review their own code
   github_review_request_delegations = {
@@ -385,6 +406,9 @@ locals {
       flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
     )
   ]))
+
+  # Conditionally create billing budgets only when billing account is configured
+  google_billing_budget_for_each = var.google_billing_account != null ? var.team : {}
 
   # Billing users group - single organization-wide group for all service accounts that need billing access
   # All team service accounts are added to this group to enable project creation
@@ -555,6 +579,9 @@ locals {
     ]
   ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { manager = item.user } }
 
+  # Conditionally manage GKE security groups managers only in logos workspace
+  google_gke_security_groups_managers_for_each = local.within_logos ? local.google_gke_security_groups_managers : {}
+
   # Flatten GKE security groups member memberships
   google_gke_security_groups_members = { for item in flatten([
     for user in local.google_gke_security_groups.members : [
@@ -562,12 +589,18 @@ locals {
     ]
   ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { member = item.user } }
 
+  # Conditionally manage GKE security groups members only in logos workspace
+  google_gke_security_groups_members_for_each = local.within_logos ? local.google_gke_security_groups_members : {}
+
   # Flatten GKE security groups owner memberships
   google_gke_security_groups_owners = { for item in flatten([
     for user in local.google_gke_security_groups.owners : [
       { user = user }
     ]
   ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { owner = item.user } }
+
+  # Conditionally manage GKE security groups owners only in logos workspace
+  google_gke_security_groups_owners_for_each = local.within_logos ? local.google_gke_security_groups_owners : {}
 
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
   # Groups get access to entire team folder and all child environments
