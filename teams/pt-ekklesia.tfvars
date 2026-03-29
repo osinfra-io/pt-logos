@@ -1,4 +1,4 @@
-team = {
+teams = {
   pt-ekklesia = {
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]

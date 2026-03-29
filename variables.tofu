@@ -85,7 +85,7 @@ variable "state_prefix" {
   type        = string
 }
 
-variable "team" {
+variable "teams" {
   description = <<-EOT
     A map of teams following Team Topologies methodology, with hardcoded environments (Sandbox/Non-Production/Production),
     hardcoded Google Cloud identity groups (3 standard roles at team level), hierarchical GitHub teams (customizable membership with admin protection),
@@ -232,21 +232,21 @@ variable "team" {
 
   validation {
     condition = alltrue([
-      for team_key, team in var.team : contains(["stream-aligned-team", "platform-team", "complicated-subsystem-team", "enabling-team"], team.team_type)
+      for team_key, team in var.teams : contains(["stream-aligned-team", "platform-team", "complicated-subsystem-team", "enabling-team"], team.team_type)
     ])
     error_message = "Team type must be one of: stream-aligned-team, platform-team, complicated-subsystem-team, enabling-team."
   }
 
   validation {
     condition = alltrue([
-      for team_key, team in var.team : can(regex("^[A-Z][A-Za-z0-9]*( (and|[A-Z][A-Za-z0-9]*) [A-Z][A-Za-z0-9]*| [A-Z][A-Za-z0-9]*)*$", team.display_name))
+      for team_key, team in var.teams : can(regex("^[A-Z][A-Za-z0-9]*( (and|[A-Z][A-Za-z0-9]*) [A-Z][A-Za-z0-9]*| [A-Z][A-Za-z0-9]*)*$", team.display_name))
     ])
     error_message = "Team display_name must be in Title Case with no special characters except spaces. The word 'and' is allowed in lowercase (e.g., 'Platform Team', 'Trust and Safety')."
   }
 
   validation {
     condition = alltrue([
-      for team_key, team in var.team : (
+      for team_key, team in var.teams : (
         (team.team_type == "platform-team" && startswith(team_key, "pt-")) ||
         (team.team_type == "stream-aligned-team" && startswith(team_key, "st-")) ||
         (team.team_type == "complicated-subsystem-team" && startswith(team_key, "ct-")) ||
@@ -258,7 +258,7 @@ variable "team" {
 
   validation {
     condition = alltrue(flatten([
-      for team_key, team in var.team : [
+      for team_key, team in var.teams : [
         for location in keys(team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.locations : {}) :
         can(regex("^(us-east1|us-east4)-[a-z]$", location))
       ]
@@ -268,7 +268,7 @@ variable "team" {
 
   validation {
     condition = alltrue([
-      for team_key, team in var.team :
+      for team_key, team in var.teams :
       team.google_kubernetes_engine_clusters == null ||
       (team.google_kubernetes_engine_clusters.artifact_registry_groups_memberships == null && team.google_kubernetes_engine_clusters.dns_subdomain == null) ||
       (team.google_kubernetes_engine_clusters.locations != null && length(team.google_kubernetes_engine_clusters.locations) > 0)
@@ -278,7 +278,7 @@ variable "team" {
 
   validation {
     condition = alltrue(flatten([
-      for team_key, team in var.team : [
+      for team_key, team in var.teams : [
         for repo in values(team.github_repositories) :
         contains(repo.topics, team_key) &&
         contains(repo.topics, lookup({

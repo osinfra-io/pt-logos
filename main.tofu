@@ -877,7 +877,7 @@ resource "google_folder" "environments" {
 }
 
 resource "google_folder" "teams" {
-  for_each = var.team
+  for_each = var.teams
 
   deletion_protection = false
   display_name        = each.value.display_name
