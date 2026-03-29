@@ -11,7 +11,7 @@
 output "teams" {
   description = "Comprehensive team infrastructure with folders, identity groups, and metadata"
   value = {
-    for team_key, team in var.team : team_key => {
+    for team_key, team in var.teams : team_key => {
       # Billing users group (organization-wide, same for all teams)
       billing_users_group = local.within_logos ? {
         description  = local.google_billing_users_group.description

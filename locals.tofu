@@ -181,7 +181,7 @@ locals {
 
   # Create Datadog teams for each top-level team with hardcoded definitions and customizable membership
   datadog_teams = {
-    for team_key, team in var.team : team_key => {
+    for team_key, team in var.teams : team_key => {
       admins      = team.datadog_team_memberships.admins
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
       handle      = team_key
@@ -207,7 +207,7 @@ locals {
   # Creates keys like "logos-sandbox" for each team-environment combination
   # Structure: team_types → teams → hardcoded environments
   environments = { for environment in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for environment in ["Sandbox", "Non-Production", "Production"] : {
         environment = environment
         team        = team_key
@@ -232,7 +232,7 @@ locals {
   # Flatten GitHub child teams with hardcoded definitions and customizable memberships
   # Team descriptions are generated dynamically from the team key with "team for GitHub Actions" suffix for approvers
   github_child_teams = { for github_team in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for github_team_key in ["sandbox-approvers", "non-production-approvers", "production-approvers", "repository-administrators"] : {
         description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approvers") ? " team for GitHub Actions" : ""}."
         key         = "${team_key}-${github_team_key}"
@@ -255,7 +255,7 @@ locals {
 
   # Flatten GitHub parent team memberships (configured members/maintainers plus child team maintainers)
   github_parent_team_memberships = { for item in flatten([
-    for team_key, team in var.team : concat(
+    for team_key, team in var.teams : concat(
       # Configured parent team maintainers
       [
         for username in team.github_parent_team_memberships.maintainers :
@@ -278,7 +278,7 @@ locals {
 
   # Create parent GitHub teams for each team
   github_parent_teams = {
-    for team_key, team in var.team : team_key => {
+    for team_key, team in var.teams : team_key => {
       description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
       name        = team_key
       privacy     = "closed"
@@ -287,7 +287,7 @@ locals {
 
   # Flatten GitHub repositories from team configurations
   github_repositories = { for repo in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         description                       = repo.description
         enable_datadog_secrets            = repo.enable_datadog_secrets
@@ -302,7 +302,7 @@ locals {
 
   # Filter GitHub repositories that have Datadog secrets enabled
   github_repository_datadog_secrets = { for repo in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         key      = repo_key
         team_key = team_key
@@ -313,7 +313,7 @@ locals {
 
   # Filter GitHub repositories that have Datadog webhooks enabled
   github_repository_datadog_webhooks = { for repo in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         key                    = repo_key
         enable_datadog_webhook = repo.enable_datadog_webhook
@@ -338,7 +338,7 @@ locals {
 
   # Flatten GitHub repository environments for each repository that has environments configured
   github_repository_environments = { for env in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : [
         for env_key, environment in repo.environments : {
           deployment_branch_policies = environment.deployment_branch_policy != null ? [environment.deployment_branch_policy] : []
@@ -354,7 +354,7 @@ locals {
   # Flatten repository labels by applying default labels to all repositories
   github_repository_labels = {
     for label in flatten([
-      for team_key, team in var.team : [
+      for team_key, team in var.teams : [
         for repo_key, repo in team.github_repositories : [
           for label_key, label in local.github_repository_default_labels : {
             name        = label_key
@@ -368,7 +368,7 @@ locals {
 
   # Create ruleset configurations for repositories
   github_repository_rulesets = { for repo in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         key      = repo_key
         team_key = team_key
@@ -380,7 +380,7 @@ locals {
   # Review request delegations for GitHub teams with sufficient members
   # Requires 3+ total members since PR author can't review their own code
   github_review_request_delegations = {
-    for team_key, team in var.team : team_key => {
+    for team_key, team in var.teams : team_key => {
       # Request (total_members - 1) reviewers, max 2, to account for PR author
       member_count  = min(max(length(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members)) - 1, 1), 2)
       team_key      = team_key
@@ -391,7 +391,7 @@ locals {
 
   # Flatten GitHub team repository permissions - repository administrators get admin access
   github_team_repository_child_permissions = { for permission in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         child_team_key = "${team_key}-repository-administrators"
         key            = "${repo_key}-repository-administrators"
@@ -404,7 +404,7 @@ locals {
 
   # Flatten GitHub team repository permissions for parent teams - write access only
   github_team_repository_parent_permissions = { for permission in flatten([
-    for team_key, team in var.team : [
+    for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
         key        = "${repo_key}-parent"
         permission = "push"
@@ -416,7 +416,7 @@ locals {
 
   # Extract all unique GitHub users from team configurations (excluding organization owners)
   github_users = toset(flatten([
-    for team_key, team in var.team : concat(
+    for team_key, team in var.teams : concat(
       team.github_parent_team_memberships.maintainers,
       team.github_parent_team_memberships.members,
       flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
@@ -424,7 +424,7 @@ locals {
   ]))
 
   # Conditionally create billing budgets only when billing account is configured
-  google_billing_budget_for_each = var.google_billing_account != null ? var.team : {}
+  google_billing_budget_for_each = var.google_billing_account != null ? var.teams : {}
 
   # Billing users group - single organization-wide group for all service accounts that need billing access
   # All team service accounts are added to this group to enable project creation
@@ -465,7 +465,7 @@ locals {
     # Automatically adds pt-pneuma GitHub service accounts as managers to readers group (pneuma manages all registries)
     # Automatically adds pt-corpus GitHub service accounts as managers to writers group (corpus manages group membership for registry writers)
     { for identity_group in flatten([
-      for team_key, team in var.team : [
+      for team_key, team in var.teams : [
         for group_key in ["readers", "writers"] : {
           description  = "${team.display_name} service accounts and users authorized to ${group_key == "readers" ? "pull" : "push"} container images ${group_key == "readers" ? "from" : "to"} Artifact Registry"
           display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} Registry ${title(group_key)}"
@@ -498,7 +498,7 @@ locals {
 
     # Standard groups for all teams (administrators, writers, readers)
     { for identity_group in flatten([
-      for team_key, team in var.team : [
+      for team_key, team in var.teams : [
         for group_key in ["admin", "writer", "reader"] : {
           description  = local.google_role_descriptions[group_key]
           display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(local.google_role_plural_names[group_key])}"
@@ -515,28 +515,28 @@ locals {
     # Browser groups for pt-corpus (centralized discovery)
     # Only created when processing pt-corpus team workspace
     # Grants browser role on environment folders so service accounts can list/discover resources
-    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.teams), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to browse ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Browsers"
         key          = "pt-corpus-${environment}-browsers"
-        managers     = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
-        members      = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
-        owners       = lookup(var.team["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
+        managers     = lookup(var.teams["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.teams["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.teams["pt-corpus"].google_browser_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
     ]) : identity_group.key => identity_group } : {},
 
     # Project creator groups for pt-corpus (centralized project factory)
     # Only created when processing pt-corpus team workspace
-    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.teams), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to create projects in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} Project Creators"
         key          = "pt-corpus-${environment}-project-creators"
-        managers     = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
-        members      = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
-        owners       = lookup(var.team["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
+        managers     = lookup(var.teams["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.teams["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.teams["pt-corpus"].google_project_creator_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
     ]) : identity_group.key => identity_group } : {},
@@ -544,14 +544,14 @@ locals {
     # XPN admin groups for pt-corpus (shared VPC administration)
     # Only created when processing pt-corpus team workspace
     # Grants compute.xpnAdmin role on environment folders so service accounts can attach service projects to shared VPC
-    contains(keys(var.team), "pt-corpus") ? { for identity_group in flatten([
+    contains(keys(var.teams), "pt-corpus") ? { for identity_group in flatten([
       for environment in ["sandbox", "non-production", "production"] : {
         description  = "Corpus service accounts authorized to administer shared VPC in ${join("-", [for word in split("-", environment) : title(word)])} environment folders across all teams"
         display_name = "Platform Team: Corpus ${join(" ", [for word in split("-", environment) : title(word)])} XPN Administrators"
         key          = "pt-corpus-${environment}-xpn-administrators"
-        managers     = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
-        members      = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
-        owners       = lookup(var.team["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
+        managers     = lookup(var.teams["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).managers
+        members      = lookup(var.teams["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).members
+        owners       = lookup(var.teams["pt-corpus"].google_xpn_admin_groups_memberships, environment, { managers = [], members = [], owners = [] }).owners
         team         = "pt-corpus"
       }
     ]) : identity_group.key => identity_group } : {},
@@ -559,7 +559,7 @@ locals {
     # State readers group for pt-logos
     # Grants read access to the Logos OpenTofu state bucket so all teams can use pt-arche-core-helpers root module
     # Membership managed by pt-corpus, not pt-logos (service accounts are created in pt-corpus)
-    contains(keys(var.team), "pt-logos") ? {
+    contains(keys(var.teams), "pt-logos") ? {
       "pt-logos-state-readers" = {
         description  = "Service accounts authorized to read Logos OpenTofu state"
         display_name = "Platform Team: Logos State Readers"

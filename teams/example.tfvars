@@ -7,7 +7,7 @@
 # - OPTIONAL fields can be omitted (defaults will be used or features disabled)
 # - Some optional fields are only applicable to specific teams (e.g., pt-corpus)
 
-team = {
+teams = {
   # Team key naming convention (MUST match team_type):
   # - Platform teams: pt-{name} (e.g., pt-pneuma, pt-corpus, pt-logos)
   # - Stream-aligned teams: st-{name} (e.g., st-ethos)

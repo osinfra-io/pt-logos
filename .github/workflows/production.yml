@@ -21,13 +21,13 @@ permissions:
 
 jobs:
   main:
-    name: "Team: ${{ matrix.team }}"
+    name: "Team: ${{ matrix.teams }}"
     uses: osinfra-io/pt-techne-opentofu-workflows/.github/workflows/plan-and-apply.yml@3c6dd71a92e792a616e6565447fb7d063e5d290f # v0.3.2
     if: github.event.head_commit.author.username != 'dependabot[bot]'
     strategy:
       fail-fast: false
       matrix:
-        team:
+        teams:
           - pt-arche
           - pt-corpus
           - pt-ekklesia
@@ -37,15 +37,15 @@ jobs:
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
-      github_environment: "Production: ${{ matrix.team }}"
+      github_environment: "Production: ${{ matrix.teams }}"
 
       # This service account needs to be added to the Groups Admin system role in the the Google Workspace Admin Console
       service_account: pt-logos-github@pt-corpus-tf16-prod.iam.gserviceaccount.com
       opentofu_kms_encryption_key: projects/pt-corpus-tf16-prod/locations/us/keyRings/state-encryption/cryptoKeys/default
-      opentofu_plan_args: -var-file=teams/${{ matrix.team }}.tfvars
+      opentofu_plan_args: -var-file=teams/${{ matrix.teams }}.tfvars
       opentofu_state_bucket: pt-logos-state-prod
       opentofu_version: ${{ vars.OPENTOFU_VERSION }}
-      opentofu_workspace: "${{ matrix.team }}-main-production"
+      opentofu_workspace: "${{ matrix.teams }}-main-production"
       workload_identity_provider: projects/557265520053/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc
 
     secrets:

@@ -1,4 +1,4 @@
-team = {
+teams = {
   st-ethos = {
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]

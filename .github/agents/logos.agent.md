@@ -246,7 +246,7 @@ Before creating any files, show a formatted summary of everything collected. Ask
 
 **PR 2 — Onboard the team** (branch `onboard/{team-key}`):
 1. Create `teams/{team-key}.tfvars`
-2. Insert `{team-key}` into `jobs.main.strategy.matrix.team` in `.github/workflows/production.yml` (alphabetical order)
+2. Insert `{team-key}` into `jobs.main.strategy.matrix.teams` in `.github/workflows/production.yml` (alphabetical order)
 
 Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges.
 
