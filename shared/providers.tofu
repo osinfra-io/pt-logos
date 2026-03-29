@@ -16,13 +16,13 @@ terraform {
     }
 
     plan {
-      method   = method.aes_gcm.default
       enforced = true
+      method   = method.aes_gcm.default
     }
 
     state {
-      method   = method.aes_gcm.default
       enforced = true
+      method   = method.aes_gcm.default
     }
   }
 

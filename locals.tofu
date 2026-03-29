@@ -19,6 +19,9 @@ locals {
     local.github_organization_owners
   ))
 
+  # Enable billing users IAM member only in logos workspace when billing account is configured
+  billing_users_enabled = local.within_logos && var.google_billing_account != null
+
   # Create normalized mappings for Datadog admin users (protected from deletion)
   datadog_admin_users = {
     for email in local.datadog_organization_admins :
@@ -116,6 +119,9 @@ locals {
   # Used by datadog_logs_index_order resource to ensure correct processing sequence
   datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
 
+  # Enable logs index order resource only in logos workspace when log indexes are configured
+  datadog_logs_index_order_enabled = local.within_logos && length(local.datadog_log_indexes) > 0
+
   # Computed index IDs for datadog_logs_index_order resource
   datadog_logs_index_order_indexes = local.within_logos ? [
     for index_name in local.datadog_log_indexes_order :
@@ -144,6 +150,15 @@ locals {
     ]
   }
 
+  # Resolve Datadog team membership user IDs with cross-workspace admin lookup
+  datadog_team_membership_user_ids = {
+    for key, membership in local.datadog_team_memberships : key => (
+      membership.user_id_lookup == "admin" ? (
+        local.within_logos ? datadog_user.admins[local.normalize_email[membership.user_email]].id : data.datadog_user.existing_admins[local.normalize_email[membership.user_email]].id
+      ) : datadog_user.this[local.normalize_email[membership.user_email]].id
+    )
+  }
+
   # Flatten Datadog team memberships with role handling
   # Admin users can be team members in any workspace using data source lookups for cross-workspace references
   # Regular users are managed in current workspace only
@@ -169,15 +184,6 @@ locals {
       ]
     )
   ]) : membership.key => membership }
-
-  # Resolve Datadog team membership user IDs with cross-workspace admin lookup
-  datadog_team_membership_user_ids = {
-    for key, membership in local.datadog_team_memberships : key => (
-      membership.user_id_lookup == "admin" ? (
-        local.within_logos ? datadog_user.admins[local.normalize_email[membership.user_email]].id : data.datadog_user.existing_admins[local.normalize_email[membership.user_email]].id
-      ) : datadog_user.this[local.normalize_email[membership.user_email]].id
-    )
-  }
 
   # Create Datadog teams for each top-level team with hardcoded definitions and customizable membership
   datadog_teams = {
