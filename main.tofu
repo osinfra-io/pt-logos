@@ -57,7 +57,7 @@ resource "datadog_logs_index_order" "this" {
   ]
 
   lifecycle {
-    enabled = local.within_logos && length(local.datadog_log_indexes) > 0
+    enabled = local.datadog_logs_index_order_enabled
   }
 
   indexes = local.datadog_logs_index_order_indexes
@@ -288,7 +288,7 @@ resource "github_membership" "owners" {
   username = each.value
 }
 
-# Github Organization Security Manager Resource
+# GitHub Organization Security Manager Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/organization_security_manager
 
 # resource "github_organization_security_manager" "this" {
@@ -336,7 +336,7 @@ resource "github_organization_settings" "this" {
   web_commit_signoff_required                                  = false
 }
 
-# Github Repository Resource
+# GitHub Repository Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository
 
 resource "github_repository" "this" {
@@ -440,7 +440,7 @@ resource "github_repository_file" "security_policies" {
   repository          = each.key
 }
 
-# Github Repository Ruleset Resource
+# GitHub Repository Ruleset Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_ruleset
 resource "github_repository_ruleset" "this" {
   depends_on = [
@@ -493,7 +493,7 @@ resource "github_repository_ruleset" "this" {
   target = "branch"
 }
 
-# Github Repository Webhook Resource
+# GitHub Repository Webhook Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_webhook
 
 resource "github_repository_webhook" "datadog_webhooks" {
@@ -531,7 +531,7 @@ resource "github_repository_webhook" "datadog_webhooks" {
   repository = each.key
 }
 
-# GitHub Team Resource - Child Teams
+# GitHub Team Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team
 
 resource "github_team" "children" {
@@ -557,7 +557,7 @@ resource "github_team" "parents" {
   privacy     = each.value.privacy
 }
 
-# GitHub Team Membership Resource - Child Teams
+# GitHub Team Membership Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_membership
 
 resource "github_team_membership" "child_maintainers" {
@@ -584,7 +584,7 @@ resource "github_team_membership" "parents" {
   username = each.value.username
 }
 
-# Github Team Repository Resource
+# GitHub Team Repository Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/team_repository
 
 resource "github_team_repository" "children" {
@@ -650,7 +650,7 @@ resource "github_team_settings" "this" {
 # Organization-level resource managed only in logos-production-main workspace
 resource "google_billing_account_iam_member" "billing_users" {
   lifecycle {
-    enabled = local.within_logos && var.google_billing_account != null
+    enabled = local.billing_users_enabled
   }
 
   billing_account_id = var.google_billing_account
