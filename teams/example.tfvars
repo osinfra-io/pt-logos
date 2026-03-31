@@ -166,6 +166,7 @@ teams = {
             spec = {
               enforcementAction = "warn" # or "deny" to hard-block
 
+              # match: which Kubernetes resources this constraint applies to.
               match = {
                 kinds = [
                   {
@@ -175,13 +176,15 @@ teams = {
                 ]
               }
 
+              # parameters: values passed into the Rego policy at evaluation time.
               parameters = {
                 labels = ["foo", "bar"]
               }
             }
           }
 
-          # template: the Rego policy. kind here must match the constraint's kind above.
+          # template: the Rego policy definition. kind must match the constraint's kind above.
+          # metadata.name must be the lowercase version of spec.crd.spec.names.kind.
           template = {
             apiVersion = "templates.gatekeeper.sh/v1"
             kind       = "ConstraintTemplate"
@@ -210,6 +213,8 @@ teams = {
                 }
               }
 
+              # targets: the Rego logic. input.review.object is the resource under admission;
+              # input.parameters comes from the constraint's spec.parameters block above.
               targets = [
                 {
                   rego = <<-REGO
