@@ -150,7 +150,7 @@ teams = {
 
       # OPA Gatekeeper constraints for this team's clusters (OPTIONAL, default: {})
       # Each entry is a ConstraintTemplate (the Rego policy logic) + Constraint (the enforcement config).
-      # Keys must be unique across all teams. Example: require "foo" and "bar" labels on all pods.
+      # Example: require "foo" and "bar" labels on all pods.
       gatekeeper_constraints = {
         "require-pod-labels" = {
 
