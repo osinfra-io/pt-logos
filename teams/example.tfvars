@@ -154,7 +154,7 @@ teams = {
       # Keys must be unique across all teams — merge collisions are not detected at plan time.
       # Each entry must include both a constraint and a template definition.
       #
-      # Example: require "app" and "team" labels on all pods — the most common real-world
+      # Example: require "foo" and "bar" labels on all pods — the most common real-world
       # use case and the canonical example in the official Gatekeeper documentation.
       gatekeeper_constraints = {
         "require-pod-labels" = {
@@ -179,7 +179,7 @@ teams = {
               }
 
               parameters = {
-                labels = ["app", "team"]
+                labels = ["foo", "bar"]
               }
             }
           }
@@ -214,7 +214,18 @@ teams = {
 
               targets = [
                 {
-                  rego   = "package k8srequiredlabels\n\nviolation[{\"msg\": msg, \"details\": {\"missing_labels\": missing}}] {\n  provided := {label | input.review.object.metadata.labels[label]}\n  required := {label | label := input.parameters.labels[_]}\n  missing := required - provided\n  count(missing) > 0\n  msg := sprintf(\"Pod is missing required labels: %v\", [missing])\n}"
+                  rego = <<-REGO
+                    package k8srequiredlabels
+
+                    violation[{"msg": msg, "details": {"missing_labels": missing}}] {
+                      provided := {label | input.review.object.metadata.labels[label]}
+                      required := {label | label := input.parameters.labels[_]}
+                      missing  := required - provided
+                      count(missing) > 0
+                      msg := sprintf("Pod is missing required labels: %v", [missing])
+                    }
+                  REGO
+
                   target = "admission.k8s.gatekeeper.sh"
                 }
               ]
