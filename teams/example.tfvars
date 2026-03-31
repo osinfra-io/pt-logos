@@ -153,21 +153,71 @@ teams = {
       # platform-managed policies enforced by pt-pneuma (e.g., block-ingress).
       # Keys must be unique across all teams — merge collisions are not detected at plan time.
       # Each entry must include both a constraint and a template definition.
+      #
+      # Example: require "app" and "team" labels on all pods — the most common real-world
+      # use case and the canonical example in the official Gatekeeper documentation.
       gatekeeper_constraints = {
-        "example-constraint" = {
+        "require-pod-labels" = {
           constraint = {
             apiVersion = "constraints.gatekeeper.sh/v1beta1"
-            kind       = "ExampleConstraint"
-            metadata   = { name = "example-constraint" }
-            spec       = { enforcementAction = "warn" }
+            kind       = "K8sRequiredLabels"
+
+            metadata = {
+              name = "require-pod-labels"
+            }
+
+            spec = {
+              enforcementAction = "warn"
+
+              match = {
+                kinds = [
+                  {
+                    apiGroups = [""]
+                    kinds     = ["Pod"]
+                  }
+                ]
+              }
+
+              parameters = {
+                labels = ["app", "team"]
+              }
+            }
           }
+
           template = {
             apiVersion = "templates.gatekeeper.sh/v1"
             kind       = "ConstraintTemplate"
-            metadata   = { name = "exampleconstraint" }
+
+            metadata = {
+              name = "k8srequiredlabels"
+            }
+
             spec = {
-              crd     = { spec = { names = { kind = "ExampleConstraint" } } }
-              targets = [{ rego = "package exampleconstraint", target = "admission.k8s.gatekeeper.sh" }]
+              crd = {
+                spec = {
+                  names = {
+                    kind = "K8sRequiredLabels"
+                  }
+
+                  validation = {
+                    openAPIV3Schema = {
+                      properties = {
+                        labels = {
+                          items = { type = "string" }
+                          type  = "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              targets = [
+                {
+                  rego   = "package k8srequiredlabels\n\nviolation[{\"msg\": msg, \"details\": {\"missing_labels\": missing}}] {\n  provided := {label | input.review.object.metadata.labels[label]}\n  required := {label | label := input.parameters.labels[_]}\n  missing := required - provided\n  count(missing) > 0\n  msg := sprintf(\"Pod is missing required labels: %v\", [missing])\n}"
+                  target = "admission.k8s.gatekeeper.sh"
+                }
+              ]
             }
           }
         }
