@@ -148,6 +148,95 @@ teams = {
       # Enable Datadog integration for this team's Kubernetes project (OPTIONAL, default: false)
       enable_datadog = true
 
+      # OPA Gatekeeper constraints for this team's clusters (OPTIONAL, default: {})
+      # Each entry is a ConstraintTemplate (the Rego policy logic) + Constraint (the enforcement config).
+      # Example: require "foo" and "bar" labels on all pods.
+      gatekeeper_constraints = {
+        "require-pod-labels" = {
+
+          # constraint: activates the template below — sets what to match and how to enforce.
+          constraint = {
+            apiVersion = "constraints.gatekeeper.sh/v1beta1"
+            kind       = "K8sRequiredLabels"
+
+            metadata = {
+              name = "require-pod-labels"
+            }
+
+            spec = {
+              enforcementAction = "warn" # or "deny" to hard-block
+
+              # match: which Kubernetes resources this constraint applies to.
+              match = {
+                kinds = [
+                  {
+                    apiGroups = [""]
+                    kinds     = ["Pod"]
+                  }
+                ]
+              }
+
+              # parameters: values passed into the Rego policy at evaluation time.
+              parameters = {
+                labels = ["foo", "bar"]
+              }
+            }
+          }
+
+          # template: the Rego policy definition. kind must match the constraint's kind above.
+          # metadata.name must be the lowercase version of spec.crd.spec.names.kind.
+          template = {
+            apiVersion = "templates.gatekeeper.sh/v1"
+            kind       = "ConstraintTemplate"
+
+            metadata = {
+              name = "k8srequiredlabels"
+            }
+
+            spec = {
+              crd = {
+                spec = {
+                  names = {
+                    kind = "K8sRequiredLabels"
+                  }
+
+                  validation = {
+                    openAPIV3Schema = {
+                      properties = {
+                        labels = {
+                          items = { type = "string" }
+                          type  = "array"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              targets = [
+                {
+                  # Rego policy: input.review.object is the resource under admission;
+                  # input.parameters comes from the constraint's spec.parameters above.
+                  rego = <<-REGO
+                    package k8srequiredlabels
+
+                    violation[{"msg": msg, "details": {"missing_labels": missing}}] {
+                      provided := {label | input.review.object.metadata.labels[label]}
+                      required := {label | label := input.parameters.labels[_]}
+                      missing  := required - provided
+                      count(missing) > 0
+                      msg := sprintf("Pod is missing required labels: %v", [missing])
+                    }
+                  REGO
+
+                  target = "admission.k8s.gatekeeper.sh"
+                }
+              ]
+            }
+          }
+        }
+      }
+
       # Artifact Registry groups (OPTIONAL)
       # Only specify if the team needs container registries
       # Creates two groups for registry access control:
