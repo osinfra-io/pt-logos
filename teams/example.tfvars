@@ -149,70 +149,54 @@ teams = {
       enable_datadog = true
 
       # OPA Gatekeeper constraints for this team's clusters (OPTIONAL, default: {})
-      # Teams may define additional ConstraintTemplates and Constraints beyond the
-      # platform-managed policies enforced by pt-pneuma (e.g., block-ingress).
-      # Keys must be unique across all teams — merge collisions are not detected at plan time.
-      # Each entry must include both a constraint and a template definition.
-      #
-      # How OPA Gatekeeper works:
-      #   ConstraintTemplate — defines the policy logic in Rego (the "what is a violation" rule)
-      #   Constraint         — an instance of a template; sets enforcement and scope (the "enforce it here" config)
-      #
-      # Example: require "foo" and "bar" labels on all pods.
+      # Each entry is a ConstraintTemplate (the Rego policy logic) + Constraint (the enforcement config).
+      # Keys must be unique across all teams. Example: require "foo" and "bar" labels on all pods.
       gatekeeper_constraints = {
-        # Map key is an arbitrary name — must be unique across all teams.
         "require-pod-labels" = {
 
-          # constraint: a Kubernetes resource that activates the policy defined in the template.
-          # One constraint per template. Controls what is matched and how violations are handled.
+          # constraint: activates the template below — sets what to match and how to enforce.
           constraint = {
             apiVersion = "constraints.gatekeeper.sh/v1beta1"
-            kind       = "K8sRequiredLabels" # must match the kind defined in the template below
+            kind       = "K8sRequiredLabels"
 
             metadata = {
               name = "require-pod-labels"
             }
 
             spec = {
-              # "warn" logs violations without blocking admission; use "deny" to hard-block.
-              enforcementAction = "warn"
+              enforcementAction = "warn" # or "deny" to hard-block
 
-              # match: which resources this constraint applies to.
               match = {
                 kinds = [
                   {
-                    apiGroups = [""] # "" is the core API group (Pods, Services, etc.)
+                    apiGroups = [""]
                     kinds     = ["Pod"]
                   }
                 ]
               }
 
-              # parameters: input values passed into the Rego policy at evaluation time.
               parameters = {
                 labels = ["foo", "bar"]
               }
             }
           }
 
-          # template: defines the policy logic in Rego. Deploy once; reuse via multiple constraints.
-          # The kind name here (K8sRequiredLabels) must match the constraint's kind above.
+          # template: the Rego policy. kind here must match the constraint's kind above.
           template = {
             apiVersion = "templates.gatekeeper.sh/v1"
             kind       = "ConstraintTemplate"
 
             metadata = {
-              name = "k8srequiredlabels" # must be the lowercase version of spec.crd.spec.names.kind
+              name = "k8srequiredlabels"
             }
 
             spec = {
-              # crd: registers a new Kubernetes CRD for this constraint type.
               crd = {
                 spec = {
                   names = {
                     kind = "K8sRequiredLabels"
                   }
 
-                  # validation: schema for the parameters block in the constraint above.
                   validation = {
                     openAPIV3Schema = {
                       properties = {
@@ -226,8 +210,6 @@ teams = {
                 }
               }
 
-              # targets: the Rego policy. input.review.object is the resource being admitted.
-              # input.parameters comes from the constraint's spec.parameters block above.
               targets = [
                 {
                   rego = <<-REGO
