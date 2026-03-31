@@ -148,6 +148,31 @@ teams = {
       # Enable Datadog integration for this team's Kubernetes project (OPTIONAL, default: false)
       enable_datadog = true
 
+      # OPA Gatekeeper constraints for this team's clusters (OPTIONAL, default: {})
+      # Teams may define additional ConstraintTemplates and Constraints beyond the
+      # platform-managed policies enforced by pt-pneuma (e.g., block-ingress).
+      # Keys must be unique across all teams — merge collisions are not detected at plan time.
+      # Each entry must include both a constraint and a template definition.
+      gatekeeper_constraints = {
+        "example-constraint" = {
+          constraint = {
+            apiVersion = "constraints.gatekeeper.sh/v1beta1"
+            kind       = "ExampleConstraint"
+            metadata   = { name = "example-constraint" }
+            spec       = { enforcementAction = "warn" }
+          }
+          template = {
+            apiVersion = "templates.gatekeeper.sh/v1"
+            kind       = "ConstraintTemplate"
+            metadata   = { name = "exampleconstraint" }
+            spec = {
+              crd     = { spec = { names = { kind = "ExampleConstraint" } } }
+              targets = [{ rego = "package exampleconstraint", target = "admission.k8s.gatekeeper.sh" }]
+            }
+          }
+        }
+      }
+
       # Artifact Registry groups (OPTIONAL)
       # Only specify if the team needs container registries
       # Creates two groups for registry access control:
