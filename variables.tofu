@@ -180,11 +180,6 @@ variable "teams" {
       dns_subdomain  = optional(string, null)
       enable_datadog = optional(bool, false)
 
-      gatekeeper_constraints = optional(map(object({
-        constraint = any
-        template   = any
-      })), {})
-
       artifact_registry_groups_memberships = optional(object({
         readers = object({
           managers = list(string)
@@ -279,16 +274,6 @@ variable "teams" {
       (team.google_kubernetes_engine_clusters.locations != null && length(team.google_kubernetes_engine_clusters.locations) > 0)
     ])
     error_message = "artifact_registry_groups_memberships and dns_subdomain require locations to also be defined in the google_kubernetes_engine_clusters block."
-  }
-
-  validation {
-    condition = alltrue([
-      for team_key, team in var.teams :
-      team.google_kubernetes_engine_clusters == null ||
-      length(team.google_kubernetes_engine_clusters.gatekeeper_constraints) == 0 ||
-      (team.google_kubernetes_engine_clusters.locations != null && length(team.google_kubernetes_engine_clusters.locations) > 0)
-    ])
-    error_message = "gatekeeper_constraints requires locations to also be defined and non-empty in the google_kubernetes_engine_clusters block."
   }
 
   validation {

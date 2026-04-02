@@ -47,8 +47,7 @@ output "teams" {
 
       # Google Kubernetes Engine clusters for this team
       google_kubernetes_engine_clusters = {
-        gatekeeper_constraints = try(team.google_kubernetes_engine_clusters.gatekeeper_constraints, {})
-        locations              = try(team.google_kubernetes_engine_clusters.locations, {})
+        locations = try(team.google_kubernetes_engine_clusters.locations, {})
       }
 
       # Google projects for this team (generic project creation via corpus)
