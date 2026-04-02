@@ -350,6 +350,78 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
+          non-production-opa-gatekeeper-constraints-us-east1-b = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-constraints-us-east1-c = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-constraints-us-east1-d = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-constraints-us-east4-a = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-constraints-us-east4-b = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-constraints-us-east4-c = {
+            name = "Non-Production OPA Gatekeeper Constraints: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east1-b = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east1-c = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east1-d = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east4-a = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east4-b = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-opa-gatekeeper-templates-us-east4-c = {
+            name = "Non-Production OPA Gatekeeper Templates: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
           non-production-opa-gatekeeper-us-east1-b = {
             name = "Non-Production OPA Gatekeeper: us-east1-b"
             reviewers = {
@@ -716,6 +788,78 @@ teams = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
+          production-opa-gatekeeper-constraints-us-east1-b = {
+            name = "Production OPA Gatekeeper Constraints: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-constraints-us-east1-c = {
+            name = "Production OPA Gatekeeper Constraints: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-constraints-us-east1-d = {
+            name = "Production OPA Gatekeeper Constraints: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-constraints-us-east4-a = {
+            name = "Production OPA Gatekeeper Constraints: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-constraints-us-east4-b = {
+            name = "Production OPA Gatekeeper Constraints: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-constraints-us-east4-c = {
+            name = "Production OPA Gatekeeper Constraints: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east1-b = {
+            name = "Production OPA Gatekeeper Templates: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east1-c = {
+            name = "Production OPA Gatekeeper Templates: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east1-d = {
+            name = "Production OPA Gatekeeper Templates: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east4-a = {
+            name = "Production OPA Gatekeeper Templates: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east4-b = {
+            name = "Production OPA Gatekeeper Templates: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-opa-gatekeeper-templates-us-east4-c = {
+            name = "Production OPA Gatekeeper Templates: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
           production-opa-gatekeeper-us-east1-b = {
             name = "Production OPA Gatekeeper: us-east1-b"
             reviewers = {
@@ -1078,6 +1222,78 @@ teams = {
           }
           sandbox-onboarding-us-east4-c = {
             name = "Sandbox Onboarding: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east1-b = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east1-c = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east1-d = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east4-a = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east4-b = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-constraints-us-east4-c = {
+            name = "Sandbox OPA Gatekeeper Constraints: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east1-b = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east1-c = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east1-d = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east4-a = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east4-b = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-opa-gatekeeper-templates-us-east4-c = {
+            name = "Sandbox OPA Gatekeeper Templates: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
