@@ -1216,85 +1216,85 @@ teams = {
           }
         }
 
-        "us-east1-c" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.8.0/21"
-            master_ipv4_cidr_block = "10.63.240.16/28"
-            pod_ip_cidr_range      = "10.2.0.0/15"
-            services_ip_cidr_range = "10.63.8.0/21"
-          }
-        }
+        #   "us-east1-c" = {
+        #     node_pools = {
+        #       default-pool = {
+        #         machine_type   = "e2-standard-2"
+        #         max_node_count = 1
+        #         min_node_count = 0
+        #       }
+        #     }
+        #     subnet = {
+        #       ip_cidr_range          = "10.62.8.0/21"
+        #       master_ipv4_cidr_block = "10.63.240.16/28"
+        #       pod_ip_cidr_range      = "10.2.0.0/15"
+        #       services_ip_cidr_range = "10.63.8.0/21"
+        #     }
+        #   }
 
-        "us-east1-d" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.16.0/21"
-            master_ipv4_cidr_block = "10.63.240.32/28"
-            pod_ip_cidr_range      = "10.4.0.0/15"
-            services_ip_cidr_range = "10.63.40.0/21"
-          }
-        }
+        #   "us-east1-d" = {
+        #     node_pools = {
+        #       default-pool = {
+        #         machine_type   = "e2-standard-2"
+        #         max_node_count = 1
+        #         min_node_count = 0
+        #       }
+        #     }
+        #     subnet = {
+        #       ip_cidr_range          = "10.62.16.0/21"
+        #       master_ipv4_cidr_block = "10.63.240.32/28"
+        #       pod_ip_cidr_range      = "10.4.0.0/15"
+        #       services_ip_cidr_range = "10.63.40.0/21"
+        #     }
+        #   }
 
-        "us-east4-a" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.24.0/21"
-            master_ipv4_cidr_block = "10.63.240.48/28"
-            pod_ip_cidr_range      = "10.6.0.0/15"
-            services_ip_cidr_range = "10.63.16.0/21"
-          }
-        }
+        #   "us-east4-a" = {
+        #     node_pools = {
+        #       default-pool = {
+        #         machine_type   = "e2-standard-2"
+        #         max_node_count = 1
+        #         min_node_count = 0
+        #       }
+        #     }
+        #     subnet = {
+        #       ip_cidr_range          = "10.62.24.0/21"
+        #       master_ipv4_cidr_block = "10.63.240.48/28"
+        #       pod_ip_cidr_range      = "10.6.0.0/15"
+        #       services_ip_cidr_range = "10.63.16.0/21"
+        #     }
+        #   }
 
-        "us-east4-b" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.32.0/21"
-            master_ipv4_cidr_block = "10.63.240.64/28"
-            pod_ip_cidr_range      = "10.8.0.0/15"
-            services_ip_cidr_range = "10.63.24.0/21"
-          }
-        }
+        #   "us-east4-b" = {
+        #     node_pools = {
+        #       default-pool = {
+        #         machine_type   = "e2-standard-2"
+        #         max_node_count = 1
+        #         min_node_count = 0
+        #       }
+        #     }
+        #     subnet = {
+        #       ip_cidr_range          = "10.62.32.0/21"
+        #       master_ipv4_cidr_block = "10.63.240.64/28"
+        #       pod_ip_cidr_range      = "10.8.0.0/15"
+        #       services_ip_cidr_range = "10.63.24.0/21"
+        #     }
+        #   }
 
-        "us-east4-c" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 1
-              min_node_count = 0
-            }
-          }
-          subnet = {
-            ip_cidr_range          = "10.62.40.0/21"
-            master_ipv4_cidr_block = "10.63.240.80/28"
-            pod_ip_cidr_range      = "10.10.0.0/15"
-            services_ip_cidr_range = "10.63.32.0/21"
-          }
-        }
+        #   "us-east4-c" = {
+        #     node_pools = {
+        #       default-pool = {
+        #         machine_type   = "e2-standard-2"
+        #         max_node_count = 1
+        #         min_node_count = 0
+        #       }
+        #     }
+        #     subnet = {
+        #       ip_cidr_range          = "10.62.40.0/21"
+        #       master_ipv4_cidr_block = "10.63.240.80/28"
+        #       pod_ip_cidr_range      = "10.10.0.0/15"
+        #       services_ip_cidr_range = "10.63.32.0/21"
+        #     }
+        #   }
       }
 
       dns_subdomain = "pneuma"
