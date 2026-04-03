@@ -28,3 +28,56 @@ Links to documentation and other resources required to develop and iterate in th
 - [google cloud platform iam](https://cloud.google.com/iam/docs/overview)
 - [google cloud platform resource landing-zone](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-landing-zone)
 - [team topologies](https://teamtopologies.com/)
+
+## 🚀 Onboarding a New Team
+
+Adding a new team to the platform requires three sequential pull requests across three repositories. The order is strict — each layer depends on the outputs of the one before it.
+
+### Prerequisites
+
+- Decide the team type and key prefix:
+  - `pt-` — platform team
+  - `st-` — stream-aligned team
+  - `ct-` — complicated-subsystem team
+  - `et-` — enabling team
+- Have GCP billing access to assign projects to the correct billing account
+- Have a GitHub organization admin available if the new team needs repositories created
+
+### Step 1 — Logos: define the team
+
+Add a new `.tfvars` file under `teams/` following the pattern of an existing team (e.g. `teams/pt-corpus.tfvars`). At minimum, set:
+
+```hcl
+teams = {
+  <team-key> = {
+    display_name  = "<Title Case Name>"
+    team_type     = "<platform-team|stream-aligned-team|...>"
+
+    github_repositories = { ... }
+    github_teams        = { ... }
+    gke_locations       = [...]
+  }
+}
+```
+
+Open a PR, merge it, and wait for the **sandbox → non-production → production** deployment pipeline to complete. This creates the GCP folders, Google Identity groups, GitHub teams, and Datadog team that all downstream layers consume.
+
+### Step 2 — Corpus: provision projects and networking
+
+In [`pt-corpus`](https://github.com/osinfra-io/pt-corpus), add the team's project and networking configuration. The new team key from Step 1 will now be available via `module.helpers.teams`.
+
+Open a PR, merge, and wait for the full deployment pipeline.
+
+### Step 3 — Pneuma: add namespaces and RBAC
+
+In [`pt-pneuma`](https://github.com/osinfra-io/pt-pneuma), add the team's namespace configuration to `variables.tofu` (or the relevant onboarding tfvars) so GKE namespaces and RBAC are created for the team.
+
+Open a PR, merge, and wait for the full deployment pipeline.
+
+### Estimated effort
+
+| Step | Repo | Typical time |
+|---|---|---|
+| 1 | pt-logos | 30–60 min (write tfvars + PR review + ~15 min pipeline) |
+| 2 | pt-corpus | 30–45 min (config + ~20 min pipeline) |
+| 3 | pt-pneuma | 15–30 min (namespace config + ~30 min pipeline) |
