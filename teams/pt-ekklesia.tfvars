@@ -7,23 +7,8 @@ teams = {
 
     display_name = "Ekklesia" # The assembly of the called-out — where distinct capabilities are gathered into a unified body, deliberating and acting in concert toward shared platform purpose.
 
-    enable_opentofu_state_management = true
-    enable_workflows                 = true
-
     github_child_teams_memberships = {
-      non-production-approvers = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-      production-approvers = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
       repository-administrators = {
-        maintainers = ["brettcurtis"]
-        members     = []
-      }
-      sandbox-approvers = {
         maintainers = ["brettcurtis"]
         members     = []
       }
@@ -48,38 +33,6 @@ teams = {
         ]
       }
 
-      "pt-ekklesia" = {
-        description = "Backstage developer portal running on Google Kubernetes Engine, providing a centralized platform service catalog and developer tooling."
-
-        enable_datadog_secrets            = true
-        enable_datadog_webhook            = true
-        enable_google_wif_service_account = true
-
-        environments = {
-          sandbox = {
-            name = "Sandbox: Main"
-            reviewers = {
-              teams = ["pt-ekklesia-sandbox-approvers"]
-            }
-          }
-          sandbox-regional-us-east1-b = {
-            name = "Sandbox: Regional - us-east1-b"
-            reviewers = {
-              teams = ["pt-ekklesia-sandbox-approvers"]
-            }
-          }
-        }
-
-
-        topics = [
-          "backstage",
-          "google-cloud-platform",
-          "opentofu",
-          "platform-team",
-          "pt-ekklesia"
-        ]
-      }
-
       "pt-ekklesia-docs" = {
         description            = "Platform documentation for the pt-ekklesia team powered by GitBook."
         enable_datadog_webhook = true
@@ -90,18 +43,6 @@ teams = {
           "documentation",
           "platform-team",
           "pt-ekklesia"
-        ]
-      }
-
-      "pt-ekklesia-repository-templates" = {
-        description            = "Repository templates providing standardized skeletons for creating new platform repositories."
-        enable_datadog_webhook = true
-
-
-        topics = [
-          "backstage",
-          "platform-team",
-          "pt-ekklesia",
         ]
       }
     }
