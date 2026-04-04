@@ -31,7 +31,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🚀 Onboarding a New Team
 
-Adding a new team to the platform requires three sequential pull requests across three repositories. The order is strict — each layer depends on the outputs of the one before it.
+Adding a new team to the platform requires a single pull request in this repository. Corpus and Pneuma consume team data automatically via `module.helpers.teams` — no changes are needed in those repos.
 
 ### Prerequisites
 
@@ -40,10 +40,8 @@ Adding a new team to the platform requires three sequential pull requests across
   - `st-` — stream-aligned team
   - `ct-` — complicated-subsystem team
   - `et-` — enabling team
-- Have GCP billing access to assign projects to the correct billing account
-- Have a GitHub organization admin available if the new team needs repositories created
 
-### Step 1 — Logos: define the team
+### Step 1 — Add a team tfvars file
 
 Add a new `.tfvars` file under `teams/` following the pattern of an existing team (e.g. `teams/pt-corpus.tfvars`). At minimum, set:
 
@@ -62,22 +60,4 @@ teams = {
 
 Open a PR, merge it, and wait for the **sandbox → non-production → production** deployment pipeline to complete. This creates the GCP folders, Google Identity groups, GitHub teams, and Datadog team that all downstream layers consume.
 
-### Step 2 — Corpus: provision projects and networking
-
-In [`pt-corpus`](https://github.com/osinfra-io/pt-corpus), add the team's project and networking configuration. The new team key from Step 1 will now be available via `module.helpers.teams`.
-
-Open a PR, merge, and wait for the full deployment pipeline.
-
-### Step 3 — Pneuma: add namespaces and RBAC
-
-In [`pt-pneuma`](https://github.com/osinfra-io/pt-pneuma), add the team's namespace configuration to `variables.tofu` (or the relevant onboarding tfvars) so GKE namespaces and RBAC are created for the team.
-
-Open a PR, merge, and wait for the full deployment pipeline.
-
-### Estimated effort
-
-| Step | Repo | Typical time |
-|---|---|---|
-| 1 | pt-logos | 30–60 min (write tfvars + PR review + ~15 min pipeline) |
-| 2 | pt-corpus | 30–45 min (config + ~20 min pipeline) |
-| 3 | pt-pneuma | 15–30 min (namespace config + ~30 min pipeline) |
+> **Note:** Corpus and Pneuma workflows must run after Logos production completes for the new team's infrastructure and namespaces to be provisioned. These are currently triggered manually — a future improvement is to have Logos production automatically trigger the downstream sandbox pipelines.
