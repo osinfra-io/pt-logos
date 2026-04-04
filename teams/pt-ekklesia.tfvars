@@ -8,8 +8,20 @@ teams = {
     display_name = "Ekklesia" # The assembly of the called-out — where distinct capabilities are gathered into a unified body, deliberating and acting in concert toward shared platform purpose.
 
     github_child_teams_memberships = {
+      non-production-approvers = {
+        maintainers = []
+        members     = []
+      }
+      production-approvers = {
+        maintainers = []
+        members     = []
+      }
       repository-administrators = {
         maintainers = ["brettcurtis"]
+        members     = []
+      }
+      sandbox-approvers = {
+        maintainers = []
         members     = []
       }
     }
