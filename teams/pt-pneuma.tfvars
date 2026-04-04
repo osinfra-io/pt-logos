@@ -68,32 +68,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-cert-manager-istio-csr-us-east1-c = {
-            name = "Non-Production cert-manager Istio CSR: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-istio-csr-us-east1-d = {
-            name = "Non-Production cert-manager Istio CSR: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-cert-manager-istio-csr-us-east4-a = {
             name = "Non-Production cert-manager Istio CSR: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-istio-csr-us-east4-b = {
-            name = "Non-Production cert-manager Istio CSR: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-istio-csr-us-east4-c = {
-            name = "Non-Production cert-manager Istio CSR: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -104,32 +80,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-cert-manager-us-east1-c = {
-            name = "Non-Production cert-manager: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-us-east1-d = {
-            name = "Non-Production cert-manager: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-cert-manager-us-east4-a = {
             name = "Non-Production cert-manager: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-us-east4-b = {
-            name = "Non-Production cert-manager: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-cert-manager-us-east4-c = {
-            name = "Non-Production cert-manager: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -140,32 +92,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-datadog-manifests-us-east1-c = {
-            name = "Non-Production Datadog Manifests: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-manifests-us-east1-d = {
-            name = "Non-Production Datadog Manifests: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-datadog-manifests-us-east4-a = {
             name = "Non-Production Datadog Manifests: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-manifests-us-east4-b = {
-            name = "Non-Production Datadog Manifests: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-manifests-us-east4-c = {
-            name = "Non-Production Datadog Manifests: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -176,32 +104,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-datadog-us-east1-c = {
-            name = "Non-Production Datadog: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-us-east1-d = {
-            name = "Non-Production Datadog: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-datadog-us-east4-a = {
             name = "Non-Production Datadog: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-us-east4-b = {
-            name = "Non-Production Datadog: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-datadog-us-east4-c = {
-            name = "Non-Production Datadog: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -212,32 +116,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-istio-manifests-us-east1-c = {
-            name = "Non-Production Istio Manifests: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-manifests-us-east1-d = {
-            name = "Non-Production Istio Manifests: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-istio-manifests-us-east4-a = {
             name = "Non-Production Istio Manifests: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-manifests-us-east4-b = {
-            name = "Non-Production Istio Manifests: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-manifests-us-east4-c = {
-            name = "Non-Production Istio Manifests: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -248,32 +128,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-istio-test-us-east1-c = {
-            name = "Non-Production Istio Test: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-test-us-east1-d = {
-            name = "Non-Production Istio Test: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-istio-test-us-east4-a = {
             name = "Non-Production Istio Test: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-test-us-east4-b = {
-            name = "Non-Production Istio Test: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-test-us-east4-c = {
-            name = "Non-Production Istio Test: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -284,32 +140,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-istio-us-east1-c = {
-            name = "Non-Production Istio: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-us-east1-d = {
-            name = "Non-Production Istio: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-istio-us-east4-a = {
             name = "Non-Production Istio: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-us-east4-b = {
-            name = "Non-Production Istio: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-istio-us-east4-c = {
-            name = "Non-Production Istio: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -320,32 +152,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-onboarding-us-east1-c = {
-            name = "Non-Production Onboarding: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-onboarding-us-east1-d = {
-            name = "Non-Production Onboarding: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-onboarding-us-east4-a = {
             name = "Non-Production Onboarding: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-onboarding-us-east4-b = {
-            name = "Non-Production Onboarding: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-onboarding-us-east4-c = {
-            name = "Non-Production Onboarding: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -356,32 +164,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-opa-gatekeeper-constraints-us-east1-c = {
-            name = "Non-Production OPA Gatekeeper Constraints: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-constraints-us-east1-d = {
-            name = "Non-Production OPA Gatekeeper Constraints: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-opa-gatekeeper-constraints-us-east4-a = {
             name = "Non-Production OPA Gatekeeper Constraints: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-constraints-us-east4-b = {
-            name = "Non-Production OPA Gatekeeper Constraints: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-constraints-us-east4-c = {
-            name = "Non-Production OPA Gatekeeper Constraints: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -392,32 +176,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-opa-gatekeeper-templates-us-east1-c = {
-            name = "Non-Production OPA Gatekeeper Templates: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-templates-us-east1-d = {
-            name = "Non-Production OPA Gatekeeper Templates: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-opa-gatekeeper-templates-us-east4-a = {
             name = "Non-Production OPA Gatekeeper Templates: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-templates-us-east4-b = {
-            name = "Non-Production OPA Gatekeeper Templates: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-templates-us-east4-c = {
-            name = "Non-Production OPA Gatekeeper Templates: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -428,32 +188,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-opa-gatekeeper-us-east1-c = {
-            name = "Non-Production OPA Gatekeeper: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-us-east1-d = {
-            name = "Non-Production OPA Gatekeeper: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-opa-gatekeeper-us-east4-a = {
             name = "Non-Production OPA Gatekeeper: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-us-east4-b = {
-            name = "Non-Production OPA Gatekeeper: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-opa-gatekeeper-us-east4-c = {
-            name = "Non-Production OPA Gatekeeper: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -464,32 +200,8 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
-          non-production-regional-us-east1-c = {
-            name = "Non-Production: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-regional-us-east1-d = {
-            name = "Non-Production: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
           non-production-regional-us-east4-a = {
             name = "Non-Production: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-regional-us-east4-b = {
-            name = "Non-Production: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-non-production-approvers"]
-            }
-          }
-          non-production-regional-us-east4-c = {
-            name = "Non-Production: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -944,32 +656,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-cert-manager-istio-csr-us-east1-c = {
-            name = "Sandbox cert-manager Istio CSR: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-istio-csr-us-east1-d = {
-            name = "Sandbox cert-manager Istio CSR: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-cert-manager-istio-csr-us-east4-a = {
             name = "Sandbox cert-manager Istio CSR: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-istio-csr-us-east4-b = {
-            name = "Sandbox cert-manager Istio CSR: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-istio-csr-us-east4-c = {
-            name = "Sandbox cert-manager Istio CSR: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -980,32 +668,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-cert-manager-us-east1-c = {
-            name = "Sandbox cert-manager: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-us-east1-d = {
-            name = "Sandbox cert-manager: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-cert-manager-us-east4-a = {
             name = "Sandbox cert-manager: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-us-east4-b = {
-            name = "Sandbox cert-manager: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-cert-manager-us-east4-c = {
-            name = "Sandbox cert-manager: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1016,32 +680,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-datadog-manifests-us-east1-c = {
-            name = "Sandbox Datadog Manifests: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-manifests-us-east1-d = {
-            name = "Sandbox Datadog Manifests: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-datadog-manifests-us-east4-a = {
             name = "Sandbox Datadog Manifests: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-manifests-us-east4-b = {
-            name = "Sandbox Datadog Manifests: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-manifests-us-east4-c = {
-            name = "Sandbox Datadog Manifests: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1052,32 +692,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-datadog-us-east1-c = {
-            name = "Sandbox Datadog: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-us-east1-d = {
-            name = "Sandbox Datadog: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-datadog-us-east4-a = {
             name = "Sandbox Datadog: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-us-east4-b = {
-            name = "Sandbox Datadog: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-datadog-us-east4-c = {
-            name = "Sandbox Datadog: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1088,32 +704,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-istio-manifests-us-east1-c = {
-            name = "Sandbox Istio Manifests: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-manifests-us-east1-d = {
-            name = "Sandbox Istio Manifests: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-istio-manifests-us-east4-a = {
             name = "Sandbox Istio Manifests: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-manifests-us-east4-b = {
-            name = "Sandbox Istio Manifests: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-manifests-us-east4-c = {
-            name = "Sandbox Istio Manifests: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1124,32 +716,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-istio-test-us-east1-c = {
-            name = "Sandbox Istio Test: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-test-us-east1-d = {
-            name = "Sandbox Istio Test: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-istio-test-us-east4-a = {
             name = "Sandbox Istio Test: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-test-us-east4-b = {
-            name = "Sandbox Istio Test: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-test-us-east4-c = {
-            name = "Sandbox Istio Test: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1160,32 +728,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-istio-us-east1-c = {
-            name = "Sandbox Istio: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-us-east1-d = {
-            name = "Sandbox Istio: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-istio-us-east4-a = {
             name = "Sandbox Istio: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-us-east4-b = {
-            name = "Sandbox Istio: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-istio-us-east4-c = {
-            name = "Sandbox Istio: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1196,32 +740,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-onboarding-us-east1-c = {
-            name = "Sandbox Onboarding: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-onboarding-us-east1-d = {
-            name = "Sandbox Onboarding: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-onboarding-us-east4-a = {
             name = "Sandbox Onboarding: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-onboarding-us-east4-b = {
-            name = "Sandbox Onboarding: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-onboarding-us-east4-c = {
-            name = "Sandbox Onboarding: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1232,32 +752,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-opa-gatekeeper-constraints-us-east1-c = {
-            name = "Sandbox OPA Gatekeeper Constraints: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-constraints-us-east1-d = {
-            name = "Sandbox OPA Gatekeeper Constraints: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-opa-gatekeeper-constraints-us-east4-a = {
             name = "Sandbox OPA Gatekeeper Constraints: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-constraints-us-east4-b = {
-            name = "Sandbox OPA Gatekeeper Constraints: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-constraints-us-east4-c = {
-            name = "Sandbox OPA Gatekeeper Constraints: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1268,32 +764,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-opa-gatekeeper-templates-us-east1-c = {
-            name = "Sandbox OPA Gatekeeper Templates: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-templates-us-east1-d = {
-            name = "Sandbox OPA Gatekeeper Templates: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-opa-gatekeeper-templates-us-east4-a = {
             name = "Sandbox OPA Gatekeeper Templates: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-templates-us-east4-b = {
-            name = "Sandbox OPA Gatekeeper Templates: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-templates-us-east4-c = {
-            name = "Sandbox OPA Gatekeeper Templates: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1304,32 +776,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-opa-gatekeeper-us-east1-c = {
-            name = "Sandbox OPA Gatekeeper: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-us-east1-d = {
-            name = "Sandbox OPA Gatekeeper: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-opa-gatekeeper-us-east4-a = {
             name = "Sandbox OPA Gatekeeper: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-us-east4-b = {
-            name = "Sandbox OPA Gatekeeper: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-opa-gatekeeper-us-east4-c = {
-            name = "Sandbox OPA Gatekeeper: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1340,32 +788,8 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
-          sandbox-regional-us-east1-c = {
-            name = "Sandbox: us-east1-c"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-regional-us-east1-d = {
-            name = "Sandbox: us-east1-d"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
           sandbox-regional-us-east4-a = {
             name = "Sandbox: us-east4-a"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-regional-us-east4-b = {
-            name = "Sandbox: us-east4-b"
-            reviewers = {
-              teams = ["pt-pneuma-sandbox-approvers"]
-            }
-          }
-          sandbox-regional-us-east4-c = {
-            name = "Sandbox: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1432,85 +856,85 @@ teams = {
           }
         }
 
-        #   "us-east1-c" = {
-        #     node_pools = {
-        #       default-pool = {
-        #         machine_type   = "e2-standard-2"
-        #         max_node_count = 1
-        #         min_node_count = 0
-        #       }
-        #     }
-        #     subnet = {
-        #       ip_cidr_range          = "10.62.8.0/21"
-        #       master_ipv4_cidr_block = "10.63.240.16/28"
-        #       pod_ip_cidr_range      = "10.2.0.0/15"
-        #       services_ip_cidr_range = "10.63.8.0/21"
-        #     }
-        #   }
+        "us-east1-c" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.8.0/21"
+            master_ipv4_cidr_block = "10.63.240.16/28"
+            pod_ip_cidr_range      = "10.2.0.0/15"
+            services_ip_cidr_range = "10.63.8.0/21"
+          }
+        }
 
-        #   "us-east1-d" = {
-        #     node_pools = {
-        #       default-pool = {
-        #         machine_type   = "e2-standard-2"
-        #         max_node_count = 1
-        #         min_node_count = 0
-        #       }
-        #     }
-        #     subnet = {
-        #       ip_cidr_range          = "10.62.16.0/21"
-        #       master_ipv4_cidr_block = "10.63.240.32/28"
-        #       pod_ip_cidr_range      = "10.4.0.0/15"
-        #       services_ip_cidr_range = "10.63.40.0/21"
-        #     }
-        #   }
+        "us-east1-d" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.16.0/21"
+            master_ipv4_cidr_block = "10.63.240.32/28"
+            pod_ip_cidr_range      = "10.4.0.0/15"
+            services_ip_cidr_range = "10.63.40.0/21"
+          }
+        }
 
-        #   "us-east4-a" = {
-        #     node_pools = {
-        #       default-pool = {
-        #         machine_type   = "e2-standard-2"
-        #         max_node_count = 1
-        #         min_node_count = 0
-        #       }
-        #     }
-        #     subnet = {
-        #       ip_cidr_range          = "10.62.24.0/21"
-        #       master_ipv4_cidr_block = "10.63.240.48/28"
-        #       pod_ip_cidr_range      = "10.6.0.0/15"
-        #       services_ip_cidr_range = "10.63.16.0/21"
-        #     }
-        #   }
+        "us-east4-a" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.24.0/21"
+            master_ipv4_cidr_block = "10.63.240.48/28"
+            pod_ip_cidr_range      = "10.6.0.0/15"
+            services_ip_cidr_range = "10.63.16.0/21"
+          }
+        }
 
-        #   "us-east4-b" = {
-        #     node_pools = {
-        #       default-pool = {
-        #         machine_type   = "e2-standard-2"
-        #         max_node_count = 1
-        #         min_node_count = 0
-        #       }
-        #     }
-        #     subnet = {
-        #       ip_cidr_range          = "10.62.32.0/21"
-        #       master_ipv4_cidr_block = "10.63.240.64/28"
-        #       pod_ip_cidr_range      = "10.8.0.0/15"
-        #       services_ip_cidr_range = "10.63.24.0/21"
-        #     }
-        #   }
+        "us-east4-b" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.32.0/21"
+            master_ipv4_cidr_block = "10.63.240.64/28"
+            pod_ip_cidr_range      = "10.8.0.0/15"
+            services_ip_cidr_range = "10.63.24.0/21"
+          }
+        }
 
-        #   "us-east4-c" = {
-        #     node_pools = {
-        #       default-pool = {
-        #         machine_type   = "e2-standard-2"
-        #         max_node_count = 1
-        #         min_node_count = 0
-        #       }
-        #     }
-        #     subnet = {
-        #       ip_cidr_range          = "10.62.40.0/21"
-        #       master_ipv4_cidr_block = "10.63.240.80/28"
-        #       pod_ip_cidr_range      = "10.10.0.0/15"
-        #       services_ip_cidr_range = "10.63.32.0/21"
-        #     }
-        #   }
+        "us-east4-c" = {
+          node_pools = {
+            default-pool = {
+              machine_type   = "e2-standard-2"
+              max_node_count = 1
+              min_node_count = 0
+            }
+          }
+          subnet = {
+            ip_cidr_range          = "10.62.40.0/21"
+            master_ipv4_cidr_block = "10.63.240.80/28"
+            pod_ip_cidr_range      = "10.10.0.0/15"
+            services_ip_cidr_range = "10.63.32.0/21"
+          }
+        }
       }
 
       dns_subdomain = "pneuma"
