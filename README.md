@@ -98,6 +98,8 @@ flowchart LR
     logos_pneuma -.-> corpus_main
     logos_techne -.-> corpus_main
     logos_ethos -.-> corpus_main
+    corpus_us_east1 -.-> pneuma_main
+    corpus_us_east4 -.-> pneuma_main
 
     style logos fill:none,stroke:#888,stroke-dasharray: 5 5
     style corpus fill:none,stroke:#888,stroke-dasharray: 5 5
