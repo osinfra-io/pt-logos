@@ -31,7 +31,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🔄 Platform Deployment Dependency Graph
 
-The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo state dependencies consumed via `opentofu-core-helpers` — Corpus reads Logos team outputs. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy 2 zones (us-east1-b, us-east4-a); production deploys all 6 zones (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain.
+The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain.
 
 ```mermaid
 flowchart LR
