@@ -46,9 +46,9 @@ teams = {
       }
 
       "pt-ekklesia-docs" = {
-        description            = "Platform documentation for the pt-ekklesia team powered by GitBook."
+        description            = "Platform documentation for the pt-ekklesia team powered by Docusaurus and deployed via GitHub Pages."
         enable_datadog_webhook = true
-        enable_ruleset         = false
+        enable_ruleset         = true
 
 
         topics = [
