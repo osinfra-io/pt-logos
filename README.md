@@ -28,3 +28,62 @@ Links to documentation and other resources required to develop and iterate in th
 - [google cloud platform iam](https://cloud.google.com/iam/docs/overview)
 - [google cloud platform resource landing-zone](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-landing-zone)
 - [team topologies](https://teamtopologies.com/)
+
+## 🔄 Platform Deployment Dependency Graph
+
+The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys organizational structure directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Dashed arrows represent cross-repo state dependencies consumed via `opentofu-core-helpers`. The Pneuma section shows the dependency chain for one zone — the same pattern repeats for each active zone in the environment.
+
+```mermaid
+flowchart TD
+    classDef logos fill:#F9AB00,stroke:#F9AB00,color:#000
+    classDef corpus fill:#34A853,stroke:#34A853,color:#fff
+    classDef gke fill:#4285F4,stroke:#4285F4,color:#fff
+    classDef certmanager fill:#0195D8,stroke:#0195D8,color:#fff
+    classDef istio fill:#466BB0,stroke:#466BB0,color:#fff
+    classDef datadog fill:#632CA6,stroke:#632CA6,color:#fff
+    classDef opa fill:#23263B,stroke:#23263B,color:#fff
+
+    subgraph logos ["pt-logos"]
+        logos_main["Main (per team)"]:::logos
+    end
+
+    subgraph corpus ["pt-corpus"]
+        corpus_main["Main"]:::corpus
+        corpus_us_east1["Regional: us-east1"]:::corpus
+        corpus_us_east4["Regional: us-east4"]:::corpus
+        corpus_main --> corpus_us_east1
+        corpus_main --> corpus_us_east4
+    end
+
+    subgraph pneuma ["pt-pneuma (per zone)"]
+        pneuma_main["Main"]:::gke
+        pneuma_zone["Regional"]:::gke
+        pneuma_onboarding["Onboarding"]:::gke
+        pneuma_cert_manager["cert-manager"]:::certmanager
+        pneuma_cert_manager_istio_csr["cert-manager Istio CSR"]:::certmanager
+        pneuma_istio["Istio"]:::istio
+        pneuma_istio_manifests["Istio Manifests"]:::istio
+        pneuma_istio_test["Istio Test"]:::istio
+        pneuma_datadog["Datadog"]:::datadog
+        pneuma_datadog_manifests["Datadog Manifests"]:::datadog
+        pneuma_opa_gatekeeper["OPA Gatekeeper"]:::opa
+        pneuma_opa_templates["OPA Gatekeeper Templates"]:::opa
+        pneuma_opa_constraints["OPA Gatekeeper Constraints"]:::opa
+
+        pneuma_main --> pneuma_zone
+        pneuma_zone --> pneuma_onboarding
+        pneuma_onboarding --> pneuma_cert_manager
+        pneuma_onboarding --> pneuma_datadog
+        pneuma_cert_manager --> pneuma_cert_manager_istio_csr
+        pneuma_cert_manager --> pneuma_opa_gatekeeper
+        pneuma_cert_manager_istio_csr --> pneuma_istio
+        pneuma_istio --> pneuma_istio_manifests
+        pneuma_istio_manifests --> pneuma_istio_test
+        pneuma_datadog --> pneuma_datadog_manifests
+        pneuma_opa_gatekeeper --> pneuma_opa_templates
+        pneuma_opa_templates --> pneuma_opa_constraints
+    end
+
+    logos_main -.->|"state dependency"| corpus_main
+    corpus_main -.->|"state dependency"| pneuma_main
+```
