@@ -116,15 +116,6 @@ flowchart TD
         z2_opa_gatekeeper --> z2_opa_templates
         z2_opa_templates --> z2_opa_constraints
 
-        pneuma_us_east1_c["us-east1-c"]:::gke
-        pneuma_us_east1_d["us-east1-d"]:::gke
-        pneuma_us_east4_b["us-east4-b"]:::gke
-        pneuma_us_east4_c["us-east4-c"]:::gke
-
-        pneuma_main --> pneuma_us_east1_c
-        pneuma_main --> pneuma_us_east1_d
-        pneuma_main --> pneuma_us_east4_b
-        pneuma_main --> pneuma_us_east4_c
     end
 
     logos_arche -.-> corpus_main
