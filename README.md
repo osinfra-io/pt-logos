@@ -28,3 +28,80 @@ Links to documentation and other resources required to develop and iterate in th
 - [google cloud platform iam](https://cloud.google.com/iam/docs/overview)
 - [google cloud platform resource landing-zone](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-landing-zone)
 - [team topologies](https://teamtopologies.com/)
+
+## 🔄 Platform Deployment Dependency Graph
+
+The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain.
+
+```mermaid
+flowchart LR
+    classDef logos fill:#F9AB00,stroke:#F9AB00,color:#000
+    classDef corpus fill:#34A853,stroke:#34A853,color:#fff
+    classDef gke fill:#4285F4,stroke:#4285F4,color:#fff
+    classDef certmanager fill:#0195D8,stroke:#0195D8,color:#fff
+    classDef istio fill:#466BB0,stroke:#466BB0,color:#fff
+    classDef datadog fill:#632CA6,stroke:#632CA6,color:#fff
+    classDef opa fill:#23263B,stroke:#23263B,color:#fff
+
+    subgraph logos ["pt-logos"]
+        logos_arche["Team: pt-arche"]:::logos
+        logos_corpus["Team: pt-corpus"]:::logos
+        logos_ekklesia["Team: pt-ekklesia"]:::logos
+        logos_logos["Team: pt-logos"]:::logos
+        logos_pneuma["Team: pt-pneuma"]:::logos
+        logos_techne["Team: pt-techne"]:::logos
+        logos_ethos["Team: st-ethos"]:::logos
+    end
+
+    subgraph corpus ["pt-corpus"]
+        corpus_main["Main"]:::corpus
+        corpus_us_east1["Regional: us-east1"]:::corpus
+        corpus_us_east4["Regional: us-east4"]:::corpus
+        corpus_main --> corpus_us_east1
+        corpus_main --> corpus_us_east4
+    end
+
+    subgraph pneuma ["pt-pneuma"]
+        pneuma_main["Main"]:::gke
+
+        pneuma_main --> z1_regional["Regional: us-east1-b"]:::gke
+        z1_regional --> z1_onboarding["Onboarding: us-east1-b"]:::gke
+        z1_onboarding --> z1_cert_manager["cert-manager: us-east1-b"]:::certmanager
+        z1_onboarding --> z1_datadog["Datadog: us-east1-b"]:::datadog
+        z1_cert_manager --> z1_cert_manager_istio_csr["cert-manager Istio CSR: us-east1-b"]:::certmanager
+        z1_cert_manager --> z1_opa_gatekeeper["OPA Gatekeeper: us-east1-b"]:::opa
+        z1_cert_manager_istio_csr --> z1_istio["Istio: us-east1-b"]:::istio
+        z1_istio --> z1_istio_manifests["Istio Manifests: us-east1-b"]:::istio
+        z1_istio_manifests --> z1_istio_test["Istio Test: us-east1-b"]:::istio
+        z1_datadog --> z1_datadog_manifests["Datadog Manifests: us-east1-b"]:::datadog
+        z1_opa_gatekeeper --> z1_opa_templates["OPA Gatekeeper Templates: us-east1-b"]:::opa
+        z1_opa_templates --> z1_opa_constraints["OPA Gatekeeper Constraints: us-east1-b"]:::opa
+
+        pneuma_main --> z2_regional["Regional: us-east4-a"]:::gke
+        z2_regional --> z2_onboarding["Onboarding: us-east4-a"]:::gke
+        z2_onboarding --> z2_cert_manager["cert-manager: us-east4-a"]:::certmanager
+        z2_onboarding --> z2_datadog["Datadog: us-east4-a"]:::datadog
+        z2_cert_manager --> z2_cert_manager_istio_csr["cert-manager Istio CSR: us-east4-a"]:::certmanager
+        z2_cert_manager --> z2_opa_gatekeeper["OPA Gatekeeper: us-east4-a"]:::opa
+        z2_cert_manager_istio_csr --> z2_istio["Istio: us-east4-a"]:::istio
+        z2_istio --> z2_istio_manifests["Istio Manifests: us-east4-a"]:::istio
+        z2_istio_manifests --> z2_istio_test["Istio Test: us-east4-a"]:::istio
+        z2_datadog --> z2_datadog_manifests["Datadog Manifests: us-east4-a"]:::datadog
+        z2_opa_gatekeeper --> z2_opa_templates["OPA Gatekeeper Templates: us-east4-a"]:::opa
+        z2_opa_templates --> z2_opa_constraints["OPA Gatekeeper Constraints: us-east4-a"]:::opa
+    end
+
+    logos_arche -.-> corpus_main
+    logos_corpus -.-> corpus_main
+    logos_ekklesia -.-> corpus_main
+    logos_logos -.-> corpus_main
+    logos_pneuma -.-> corpus_main
+    logos_techne -.-> corpus_main
+    logos_ethos -.-> corpus_main
+    corpus_us_east1 -.-> pneuma_main
+    corpus_us_east4 -.-> pneuma_main
+
+    style logos fill:none,stroke:#888,stroke-dasharray: 5 5
+    style corpus fill:none,stroke:#888,stroke-dasharray: 5 5
+    style pneuma fill:none,stroke:#888,stroke-dasharray: 5 5
+```
