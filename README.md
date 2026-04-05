@@ -31,7 +31,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🔄 Platform Deployment Dependency Graph
 
-The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys organizational structure directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Dashed arrows represent cross-repo state dependencies consumed via `opentofu-core-helpers`. The Pneuma section shows the dependency chain for one zone — the same pattern repeats for each active zone in the environment.
+The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo state dependencies consumed via `opentofu-core-helpers` — Corpus reads Logos team outputs, and Pneuma reads both Corpus main (projects, service accounts) and regional (networking, subnets) outputs. The Pneuma section shows the dependency chain for one zone — the same pattern repeats for each active zone in the environment.
 
 ```mermaid
 flowchart TD
@@ -44,7 +44,13 @@ flowchart TD
     classDef opa fill:#23263B,stroke:#23263B,color:#fff
 
     subgraph logos ["pt-logos"]
-        logos_main["Main (per team)"]:::logos
+        logos_arche["pt-arche"]:::logos
+        logos_corpus["pt-corpus"]:::logos
+        logos_ekklesia["pt-ekklesia"]:::logos
+        logos_logos["pt-logos"]:::logos
+        logos_pneuma["pt-pneuma"]:::logos
+        logos_techne["pt-techne"]:::logos
+        logos_ethos["st-ethos"]:::logos
     end
 
     subgraph corpus ["pt-corpus"]
@@ -84,6 +90,14 @@ flowchart TD
         pneuma_opa_templates --> pneuma_opa_constraints
     end
 
-    logos_main -.->|"state dependency"| corpus_main
-    corpus_main -.->|"state dependency"| pneuma_main
+    logos_arche -.-> corpus_main
+    logos_corpus -.-> corpus_main
+    logos_ekklesia -.-> corpus_main
+    logos_logos -.-> corpus_main
+    logos_pneuma -.-> corpus_main
+    logos_techne -.-> corpus_main
+    logos_ethos -.-> corpus_main
+    corpus_main -.-> pneuma_main
+    corpus_us_east1 -.-> pneuma_main
+    corpus_us_east4 -.-> pneuma_main
 ```
