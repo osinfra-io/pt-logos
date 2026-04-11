@@ -7,25 +7,6 @@ teams = {
 
     display_name = "Ethos" # The guiding philosophy that shapes platform principles
 
-    github_child_teams_memberships = {
-      non-production-approvers = {
-        maintainers = []
-        members     = []
-      }
-      production-approvers = {
-        maintainers = []
-        members     = []
-      }
-      repository-administrators = {
-        maintainers = []
-        members     = []
-      }
-      sandbox-approvers = {
-        maintainers = []
-        members     = []
-      }
-    }
-
     github_parent_team_memberships = {
       maintainers = []
       members     = []

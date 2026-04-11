@@ -235,15 +235,23 @@ locals {
     ]
   ]) : "${item.team_key}-${item.username}" => item }
 
-  # Flatten GitHub child teams with hardcoded definitions and customizable memberships
-  # Team descriptions are generated dynamically from the team key with "team for GitHub Actions" suffix for approvers
+  # Flatten GitHub child teams — four standard teams are always created; merge with any
+  # team-provided memberships or extra custom child teams
   github_child_teams = { for github_team in flatten([
     for team_key, team in var.teams : [
-      for github_team_key in ["sandbox-approvers", "non-production-approvers", "production-approvers", "repository-administrators"] : {
+      for github_team_key, membership in merge(
+        {
+          "non-production-approvers"  = { maintainers = [], members = [] }
+          "production-approvers"      = { maintainers = [], members = [] }
+          "repository-administrators" = { maintainers = [], members = [] }
+          "sandbox-approvers"         = { maintainers = [], members = [] }
+        },
+        team.github_child_teams_memberships
+        ) : {
         description = "${title(replace(github_team_key, "-", " "))}${endswith(github_team_key, "-approvers") ? " team for GitHub Actions" : ""}."
         key         = "${team_key}-${github_team_key}"
-        maintainers = team.github_child_teams_memberships[github_team_key].maintainers
-        members     = team.github_child_teams_memberships[github_team_key].members
+        maintainers = membership.maintainers
+        members     = membership.members
         name        = "${team_key}-${github_team_key}"
         parent_team = team_key
         privacy     = "closed"
@@ -275,7 +283,15 @@ locals {
       # Auto-add child team maintainers as members (deduplicated)
       [
         for username in distinct(flatten([
-          for github_team_key, github_team in team.github_child_teams_memberships : github_team.maintainers
+          for github_team_key, membership in merge(
+            {
+              "non-production-approvers"  = { maintainers = [], members = [] }
+              "production-approvers"      = { maintainers = [], members = [] }
+              "repository-administrators" = { maintainers = [], members = [] }
+              "sandbox-approvers"         = { maintainers = [], members = [] }
+            },
+            team.github_child_teams_memberships
+          ) : membership.maintainers
         ])) : { role = "member", team_key = team_key, username = username }
         if !contains(concat(team.github_parent_team_memberships.maintainers, team.github_parent_team_memberships.members), username)
       ]
@@ -425,7 +441,7 @@ locals {
     for team_key, team in var.teams : concat(
       team.github_parent_team_memberships.maintainers,
       team.github_parent_team_memberships.members,
-      flatten([for child_team in values(team.github_child_teams_memberships) : concat(child_team.maintainers, child_team.members)])
+      flatten([for membership in values(team.github_child_teams_memberships) : concat(membership.maintainers, membership.members)])
     )
   ]))
 

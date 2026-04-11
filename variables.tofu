@@ -93,7 +93,7 @@ variable "teams" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
-    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{hardcoded}, google_identity_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_identity_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
   type = map(object({
     datadog_team_memberships = object({
@@ -106,25 +106,15 @@ variable "teams" {
     enable_opentofu_state_management = optional(bool, false)
     enable_workflows                 = optional(bool, false)
 
-    # GitHub child teams (hardcoded teams - only add members to predefined teams)
-    github_child_teams_memberships = object({
-      non-production-approvers = object({
-        maintainers = list(string)
-        members     = list(string)
-      })
-      production-approvers = object({
-        maintainers = list(string)
-        members     = list(string)
-      })
-      repository-administrators = object({
-        maintainers = list(string)
-        members     = list(string)
-      })
-      sandbox-approvers = object({
-        maintainers = list(string)
-        members     = list(string)
-      })
-    })
+    # GitHub child teams memberships — four standard teams (sandbox-approvers,
+    # non-production-approvers, production-approvers, repository-administrators) are
+    # always created. Provide entries here only for teams that need non-empty memberships
+    # or to add extra custom child teams beyond the four standards. Omit entirely if all
+    # memberships are empty.
+    github_child_teams_memberships = optional(map(object({
+      maintainers = optional(list(string), [])
+      members     = optional(list(string), [])
+    })), {})
 
     github_parent_team_memberships = object({
       maintainers = list(string)

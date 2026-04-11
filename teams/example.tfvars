@@ -49,39 +49,43 @@ teams = {
     # - Group memberships (browser, billing, registry writers)
     # enable_workflows = true
 
-    # GitHub child teams (REQUIRED - hardcoded structure)
-    # Four predefined teams with customizable memberships
-    # Control deployment approvals and repository administration
+    # GitHub child teams (OPTIONAL)
+    # Four standard teams are always created automatically:
+    #   {team-key}-sandbox-approvers, {team-key}-non-production-approvers,
+    #   {team-key}-production-approvers, {team-key}-repository-administrators
+    # Only include this block if you need to set memberships for any of the four standard
+    # teams or to add extra custom child teams. Omit entirely if all memberships are empty.
     # IMPORTANT: Use GitHub usernames (NOT email addresses)
-    # Team naming: {team-key}-{child-team-name} (e.g., pt-pneuma-sandbox-approvers)
     github_child_teams_memberships = {
-      # Sandbox environment approvers (lowest privilege level)
-      # Must approve deployments to sandbox environments
+      # Sandbox environment approvers — must approve deployments to sandbox environments
       sandbox-approvers = {
         maintainers = ["github-username"]
         members     = []
       }
 
-      # Non-production environment approvers (mid-level privilege)
-      # Must approve deployments to non-production environments
+      # Non-production environment approvers — must approve deployments to non-production environments
       non-production-approvers = {
         maintainers = ["github-username"]
         members     = []
       }
 
-      # Production environment approvers (highest privilege level)
-      # Must approve deployments to production environments
+      # Production environment approvers — must approve deployments to production environments
       production-approvers = {
         maintainers = ["github-username"]
         members     = []
       }
 
-      # Repository administrators (administrative privileges)
-      # Can manage repository settings and configurations
+      # Repository administrators — can manage repository settings and configurations
       repository-administrators = {
         maintainers = ["github-username"]
         members     = []
       }
+
+      # Optional: add extra custom child teams beyond the four standards
+      # custom-team-name = {
+      #   maintainers = ["github-username"]
+      #   members     = []
+      # }
     }
 
     # GitHub parent team memberships (REQUIRED)
