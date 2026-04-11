@@ -360,14 +360,14 @@ resource "github_repository" "this" {
   name                   = each.key
 
   dynamic "pages" {
-    for_each = each.value.pages != null ? [each.value.pages] : []
+    for_each = each.value.pages_list
 
     content {
       build_type = pages.value.build_type
       cname      = pages.value.cname
 
       dynamic "source" {
-        for_each = pages.value.source != null ? [pages.value.source] : []
+        for_each = each.value.pages_source_list
 
         content {
           branch = source.value.branch
