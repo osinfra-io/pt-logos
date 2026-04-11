@@ -410,6 +410,24 @@ teams = {
         # Push allowances (REQUIRED) - Teams/users allowed to push to protected branches
         # Typically includes the team's parent GitHub team
 
+        # GitHub Pages configuration (OPTIONAL, default: null — Pages disabled)
+        # Omit entirely if this repository does not publish a GitHub Pages site.
+        # pages = {
+        #   # build_type — how Pages is built and deployed (OPTIONAL, default: "workflow")
+        #   #   "workflow" — GitHub Actions controls deployment via actions/deploy-pages
+        #   #   "legacy"   — Pages is built from a source branch (requires source block below)
+        #   build_type = "workflow"
+        #
+        #   # cname — custom domain for the Pages site (OPTIONAL, default: null)
+        #   cname = "docs.example.com"
+        #
+        #   # source — branch/path to publish from; only used when build_type = "legacy"
+        #   # source = {
+        #   #   branch = "main"  # branch to publish from (REQUIRED when source block is set)
+        #   #   path   = "/"     # folder to publish from (OPTIONAL, default: "/")
+        #   # }
+        # }
+
         # Repository topics (REQUIRED) - Tags for categorization and discovery
         # Used for searching and filtering in GitHub organization
         # MUST always include the team key and team type as the first two topics:
