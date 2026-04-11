@@ -93,7 +93,7 @@ variable "teams" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
-    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_identity_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
   type = map(object({
     datadog_team_memberships = object({
