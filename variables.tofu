@@ -139,6 +139,16 @@ variable "teams" {
         })
       })), {})
 
+      pages = optional(object({
+        build_type = optional(string, "workflow")
+        cname      = optional(string, null)
+
+        source = optional(object({
+          branch = string
+          path   = optional(string, "/")
+        }), null)
+      }), null)
+
       topics = list(string)
     })), {})
 
@@ -280,6 +290,26 @@ variable "teams" {
       ]
     ]))
     error_message = "Every repository's topics must include the team key (e.g. \"pt-logos\") and team type (\"complicated-subsystem-team\", \"enabling-team\", \"platform-team\", or \"stream-aligned-team\")."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for repo in values(team.github_repositories) :
+        repo.pages == null || contains(["legacy", "workflow"], repo.pages.build_type)
+      ]
+    ]))
+    error_message = "pages.build_type must be \"legacy\" or \"workflow\"."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for repo in values(team.github_repositories) :
+        repo.pages == null || repo.pages.build_type != "legacy" || repo.pages.source != null
+      ]
+    ]))
+    error_message = "pages.source is required when pages.build_type is \"legacy\"."
   }
 
 }

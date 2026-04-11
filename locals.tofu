@@ -316,6 +316,9 @@ locals {
         enable_datadog_webhook            = repo.enable_datadog_webhook
         enable_google_wif_service_account = repo.enable_google_wif_service_account
         key                               = repo_key
+        pages                             = repo.pages
+        pages_list                        = repo.pages != null ? [repo.pages] : []
+        pages_source_list                 = repo.pages != null && repo.pages.source != null ? [repo.pages.source] : []
         team_key                          = team_key
         topics                            = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
       }
