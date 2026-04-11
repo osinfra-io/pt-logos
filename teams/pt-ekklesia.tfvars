@@ -38,6 +38,10 @@ teams = {
         enable_datadog_webhook = true
         enable_ruleset         = true
 
+        pages = {
+          build_type = "workflow"
+          cname      = "docs.osinfra.io"
+        }
 
         topics = [
           "documentation",

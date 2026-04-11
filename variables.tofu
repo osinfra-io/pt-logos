@@ -139,6 +139,16 @@ variable "teams" {
         })
       })), {})
 
+      pages = optional(object({
+        build_type = optional(string, "workflow")
+        cname      = optional(string, null)
+
+        source = optional(object({
+          branch = string
+          path   = optional(string, "/")
+        }), null)
+      }), null)
+
       topics = list(string)
     })), {})
 

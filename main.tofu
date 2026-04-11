@@ -342,22 +342,41 @@ resource "github_organization_settings" "this" {
 resource "github_repository" "this" {
   for_each = local.github_repositories
 
-  allow_auto_merge            = true
-  allow_merge_commit          = false
-  allow_rebase_merge          = false
-  allow_squash_merge          = true
-  allow_update_branch         = true
-  archive_on_destroy          = true
-  delete_branch_on_merge      = true
-  description                 = each.value.description
-  has_discussions             = false
-  has_issues                  = true
-  has_projects                = true
-  has_wiki                    = false
-  homepage_url                = "https://www.osinfra.io"
-  is_template                 = false
-  license_template            = "gpl-2.0"
-  name                        = each.key
+  allow_auto_merge       = true
+  allow_merge_commit     = false
+  allow_rebase_merge     = false
+  allow_squash_merge     = true
+  allow_update_branch    = true
+  archive_on_destroy     = true
+  delete_branch_on_merge = true
+  description            = each.value.description
+  has_discussions        = false
+  has_issues             = true
+  has_projects           = true
+  has_wiki               = false
+  homepage_url           = "https://www.osinfra.io"
+  is_template            = false
+  license_template       = "gpl-2.0"
+  name                   = each.key
+
+  dynamic "pages" {
+    for_each = each.value.pages != null ? [each.value.pages] : []
+
+    content {
+      build_type = pages.value.build_type
+      cname      = pages.value.cname
+
+      dynamic "source" {
+        for_each = pages.value.source != null ? [pages.value.source] : []
+
+        content {
+          branch = source.value.branch
+          path   = source.value.path
+        }
+      }
+    }
+  }
+
   squash_merge_commit_message = "BLANK"
   squash_merge_commit_title   = "PR_TITLE"
 
