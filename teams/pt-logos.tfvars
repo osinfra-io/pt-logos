@@ -91,6 +91,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          ekklesia-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-ekklesia"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           ethos-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
