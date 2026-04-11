@@ -413,17 +413,17 @@ teams = {
         # GitHub Pages configuration (OPTIONAL, default: null — Pages disabled)
         # Omit entirely if this repository does not publish a GitHub Pages site.
         # pages = {
-        #   # build_type — how Pages is built and deployed (OPTIONAL, default: "workflow")
-        #   #   "workflow" — GitHub Actions controls deployment via actions/deploy-pages
-        #   #   "legacy"   — Pages is built from a source branch (requires source block below)
+        #   # build_type — deployment mode; must be "legacy" or "workflow" (OPTIONAL, default: "workflow")
+        #   #   "workflow" — GitHub Actions controls deployment via actions/deploy-pages; source is optional
+        #   #   "legacy"   — Pages is built from a branch source; source block is REQUIRED
         #   build_type = "workflow"
         #
         #   # cname — custom domain for the Pages site (OPTIONAL, default: null)
         #   cname = "docs.example.com"
         #
-        #   # source — branch/path to publish from; only used when build_type = "legacy"
+        #   # source — REQUIRED when build_type = "legacy"; optional (and ignored) when build_type = "workflow"
         #   # source = {
-        #   #   branch = "main"  # branch to publish from (REQUIRED when source block is set)
+        #   #   branch = "main"  # branch to publish from (REQUIRED)
         #   #   path   = "/"     # folder to publish from (OPTIONAL, default: "/")
         #   # }
         # }
