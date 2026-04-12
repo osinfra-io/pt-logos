@@ -39,7 +39,7 @@ When onboarding a team, the agent opens **two pull requests in sequence** — th
 
 1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.team` in alphabetical order.
+2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.teams` in alphabetical order.
 
 PR 1 must be merged first so the `{team-key-without-prefix}-production` GitHub environment exists to gate the workflow that fires when PR 2 merges.
 

@@ -242,7 +242,7 @@ If they need Google Cloud Platform projects beyond the standard ones Corpus crea
 
 Before creating any files, show a formatted summary of everything collected. Ask for confirmation.
 
-**New team onboarding opens two pull requests in sequence.**
+**New team onboarding opens two pull requests in sequence, plus a third if GKE clusters are configured.**
 
 **PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
 - Add `{team-key-without-prefix}-production` environment to `github_repositories["pt-logos"].environments` in `teams/pt-logos.tfvars`
@@ -251,16 +251,24 @@ Before creating any files, show a formatted summary of everything collected. Ask
 1. Create `teams/{team-key}.tfvars`
 2. Insert `{team-key}` into `jobs.main.strategy.matrix.teams` in `.github/workflows/production.yml` (alphabetical order)
 
-Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges.
+**PR 3 — Docs (only when GKE clusters are configured)** (`osinfra-io/pt-ekklesia-docs`): update `docs/platform-teams/corpus/networking.md` to record all claimed CIDR slots:
+1. Read the file from `osinfra-io/pt-ekklesia-docs`
+2. For each cluster location being onboarded, in the Active Clusters tab: insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the correct position to preserve slot number ascending order
+3. For each cluster location, in the Available Slots tab: remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR
+4. Update both tab label counts: increment Active Clusters by the number of clusters, decrement Available Slots by the same amount
+5. Branch: `onboard/{team-key}-cidr`, title: `"Claim CIDR slots for {team-key}"`
 
-**After both PRs are open:**
+Open PR 1 first, then immediately open PR 2 (and PR 3 if applicable). Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges. PR 3 (docs) is independent and can be merged in any order.
 
-> *"🎉 Both PRs are open! Here's what happens next:*
+**After all PRs are open:**
+
+> *"🎉 PRs are open! Here's what happens next:*
 >
 > *1. **Merge PR 1 first** — creates the `{team-key-without-prefix}-production` GitHub environment gating the production workflow*
 > *2. **Then merge PR 2** — triggers automatic platform deployment of your team configuration*
-> *3. **Corpus provisions** — GCP projects, VPC subnets, service accounts, state buckets*
-> *4. **Pneuma animates** — GKE clusters, Istio, cert-manager, Datadog (if applicable)*"
+> *3. **Merge PR 3 (docs) any time** — records your CIDR slots in the networking docs*
+> *4. **Corpus provisions** — GCP projects, VPC subnets, service accounts, state buckets*
+> *5. **Pneuma animates** — GKE clusters, Istio, cert-manager, Datadog (if applicable)*"
 
 ---
 
@@ -420,17 +428,26 @@ Open PR 1 first, then immediately open PR 2. Make clear to the user that **PR 1 
 **Auto-populate subnet ranges** — do not ask the user for CIDRs:
 1. Use the CIDR data already collected during startup Step 4 — **do not re-read the team files**. If for any reason that data is unavailable, read all `teams/*.tfvars` files now.
 2. Use the IPAM sequence to find the lowest unallocated slot:
-   - **Primary** (`ip_cidr_range`): `10.62.0.0/21`, `10.62.8.0/21`, `10.62.16.0/21` … (increment by /21)
+   - **Primary** (`ip_cidr_range`): `10.60.0.0/20`, `10.60.16.0/20`, `10.60.32.0/20` … (increment by /20)
    - **Pods** (`pod_ip_cidr_range`): `10.0.0.0/15`, `10.2.0.0/15`, `10.4.0.0/15` … (increment by /15)
-   - **Services** (`services_ip_cidr_range`): `10.62.248.0/21`, `10.63.0.0/21`, `10.63.8.0/21` … (increment by /21)
-   - **Master** (`master_ipv4_cidr_block`): `10.63.240.0/28`, `10.63.240.16/28`, `10.63.240.32/28` … (increment by /28)
+   - **Services** (`services_ip_cidr_range`): `10.61.224.0/20`, `10.61.240.0/20`, `10.62.0.0/20` … (increment by /20)
+   - **Master** (`master_ipv4_cidr_block`): `10.63.192.0/28`, `10.63.192.16/28`, `10.63.192.32/28` … (increment by /28)
 3. Present the suggested ranges to the user for confirmation before including in the HCL
 
 **`enable_gke_hub_host`** — always `false`; only the `pt-pneuma` team manages the fleet host cluster
 
 **`enable_datadog`** — preserve the existing value; default is `false`
 
-**PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Kubernetes Engine cluster location {location}"`
+**Open two PRs concurrently:**
+
+**PR 1 — Logos** (`osinfra-io/pt-logos`): branch `update/{team-key}`, title `"Update {team-key}: add Google Kubernetes Engine cluster location {location}"`
+
+**PR 2 — Docs** (`osinfra-io/pt-ekklesia-docs`): update `docs/platform-teams/corpus/networking.md` to record the claimed CIDR slot:
+1. Read the file from `osinfra-io/pt-ekklesia-docs`
+2. In the Active Clusters tab: insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the position required to preserve the existing sort order (by slot number ascending); do not always append
+3. In the Available Slots tab: remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR
+4. Update both tab label counts: increment Active Clusters by 1, decrement Available Slots by 1
+5. Branch: `update/{team-key}-{location}-cidr`, title: `"Claim CIDR slot for {team-key}-{location}"`
 
 ---
 

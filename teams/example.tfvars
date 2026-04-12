@@ -209,20 +209,20 @@ teams = {
           # These IP ranges are created in the shared VPC by pt-corpus
           # All ranges must be non-overlapping across all teams and environments
           subnet = {
-            # Primary IP range for cluster nodes (must be /21 or larger)
-            ip_cidr_range = "10.62.8.0/21"
+            # Primary IP range for cluster nodes (must be /20 or larger)
+            ip_cidr_range = "10.60.96.0/20"
 
             # Control plane (master) IP range (MUST be /28)
             # Used for the GKE control plane private endpoint
-            master_ipv4_cidr_block = "10.63.240.16/28"
+            master_ipv4_cidr_block = "10.63.192.96/28"
 
-            # Secondary IP range for pods (must be /14 or larger for large clusters)
+            # Secondary IP range for pods (must be /15 or larger for large clusters)
             # Each node allocates a /24 from this range for its pods
-            pod_ip_cidr_range = "10.2.0.0/15"
+            pod_ip_cidr_range = "10.12.0.0/15"
 
             # Secondary IP range for services (must be large enough for all services)
             # Each Kubernetes Service gets one IP from this range
-            services_ip_cidr_range = "10.63.8.0/21"
+            services_ip_cidr_range = "10.62.64.0/20"
           }
         }
 
@@ -238,10 +238,10 @@ teams = {
             }
           }
           subnet = {
-            ip_cidr_range          = "10.62.16.0/21"
-            master_ipv4_cidr_block = "10.63.240.32/28"
-            pod_ip_cidr_range      = "10.4.0.0/15"
-            services_ip_cidr_range = "10.63.40.0/21"
+            ip_cidr_range          = "10.60.112.0/20"
+            master_ipv4_cidr_block = "10.63.192.112/28"
+            pod_ip_cidr_range      = "10.14.0.0/15"
+            services_ip_cidr_range = "10.62.80.0/20"
           }
         }
 
@@ -254,10 +254,10 @@ teams = {
             }
           }
           subnet = {
-            ip_cidr_range          = "10.62.24.0/21"
-            master_ipv4_cidr_block = "10.63.240.48/28"
-            pod_ip_cidr_range      = "10.6.0.0/15"
-            services_ip_cidr_range = "10.63.16.0/21"
+            ip_cidr_range          = "10.60.128.0/20"
+            master_ipv4_cidr_block = "10.63.192.128/28"
+            pod_ip_cidr_range      = "10.16.0.0/15"
+            services_ip_cidr_range = "10.62.96.0/20"
           }
         }
       }
