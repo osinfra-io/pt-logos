@@ -444,7 +444,7 @@ Open PR 1 first, then immediately open PR 2 (and PR 3 if applicable). Make clear
 
 **PR 2 — Docs** (`osinfra-io/pt-ekklesia-docs`): update `docs/platform-teams/corpus/networking.md` to record the claimed CIDR slot:
 1. Read the file from `osinfra-io/pt-ekklesia-docs`
-2. In the Active Clusters tab: append a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values — maintaining the existing sort order (by slot number ascending)
+2. In the Active Clusters tab: insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the position required to preserve the existing sort order (by slot number ascending); do not always append
 3. In the Available Slots tab: remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR
 4. Update both tab label counts: increment Active Clusters by 1, decrement Available Slots by 1
 5. Branch: `update/{team-key}-{location}-cidr`, title: `"Claim CIDR slot for {team-key}-{location}"`
