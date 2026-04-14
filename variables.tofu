@@ -19,12 +19,6 @@ variable "datadog_app_key" {
   type        = string
 }
 
-variable "github_datadog_webhook_api_key" {
-  description = "The Datadog API key used for creating GitHub webhooks"
-  sensitive   = true
-  type        = string
-}
-
 variable "github_token" {
   description = "The GitHub token to authenticate with the GitHub provider"
   sensitive   = true
