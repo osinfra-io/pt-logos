@@ -242,7 +242,7 @@ If they need Google Cloud Platform projects beyond the standard ones Corpus crea
 
 Before creating any files, show a formatted summary of everything collected. Ask for confirmation.
 
-**New team onboarding opens two pull requests in sequence, plus a third docs PR.**
+**New team onboarding opens two pull requests in sequence on `pt-logos`, plus additional PRs on other repos.**
 
 **PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
 - Add `{team-key-without-prefix}-production` environment to `github_repositories["pt-logos"].environments` in `teams/pt-logos.tfvars`
@@ -279,7 +279,16 @@ Before creating any files, show a formatted summary of everything collected. Ask
 
 Push all changes — team page creation, sidebar or index card update, and any networking update — in a single commit using `push_files`.
 
-Open PR 1 first, then immediately open PR 2 and PR 3. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges. PR 3 (docs) is independent and can be merged in any order.
+**Corpus PR** (`osinfra-io/pt-corpus`): branch `onboard/{team-key}-corpus`, title `"Update pt-corpus: add {team-key} logos workspace"` — open only if **GKE clusters are configured OR additional Google Cloud Platform projects are being created**:
+1. Read `helpers.tofu` from `osinfra-io/pt-corpus`
+2. Insert `"{team-key}-main-production"` into `logos_workspaces` in alphabetical order
+
+**Pneuma PR** (`osinfra-io/pt-pneuma`): branch `onboard/{team-key}-pneuma`, title `"Update pt-pneuma: add {team-key} logos workspace"` — open only if **GKE clusters are configured**:
+1. Read all `helpers.tofu` files in `osinfra-io/pt-pneuma` that currently list `"st-ethos-main-production"` in `logos_workspaces` — these are: `helpers.tofu` (root), `regional/cert-manager/istio-csr/helpers.tofu`, `regional/datadog/helpers.tofu`, `regional/datadog/manifests/helpers.tofu`, `regional/istio/helpers.tofu`, `regional/opa-gatekeeper/constraints/helpers.tofu`, `regional/opa-gatekeeper/helpers.tofu`, `regional/opa-gatekeeper/shared/helpers.tofu`, `regional/opa-gatekeeper/templates/helpers.tofu`
+2. In each file, insert `"{team-key}-main-production"` into `logos_workspaces` in alphabetical order
+3. Push all files in a single commit using `push_files`
+
+Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Corpus/Pneuma PRs in parallel. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges. All other PRs are independent and can be merged in any order, but the Corpus and Pneuma PRs should be merged after the logos deployment completes (after PR 2 merges and the workflow finishes).
 
 **After all PRs are open:**
 
@@ -287,9 +296,9 @@ Open PR 1 first, then immediately open PR 2 and PR 3. Make clear to the user tha
 >
 > *1. **Merge PR 1 first** — creates the `{team-key-without-prefix}-production` GitHub environment gating the production workflow*
 > *2. **Then merge PR 2** — triggers automatic platform deployment of your team configuration*
-> *3. **Merge PR 3 (docs) any time** — adds your team to the docs site and records any CIDR slots*
-> *4. **Corpus provisions** — GCP projects, VPC subnets, service accounts, state buckets*
-> *5. **Pneuma animates** — GKE clusters, Istio, cert-manager, Datadog (if applicable)*"
+> *3. **Merge the docs PR any time** — adds your team to the docs site and records any CIDR slots*
+> *4. **After logos deploys, merge the Corpus PR** (if open) — registers your workspace so Corpus can provision GCP projects, VPC subnets, service accounts, and state buckets*
+> *5. **After logos deploys, merge the Pneuma PR** (if open) — registers your workspace so Pneuma can animate GKE clusters, Istio, cert-manager, and Datadog*"
 
 ---
 
