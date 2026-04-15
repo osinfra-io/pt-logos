@@ -430,7 +430,19 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 
 **Read** `teams/{team-key}.tfvars`. Check that `enable_google_project` is not already `true`.
 
-Set `enable_google_project = true`, and if provided, `google_project_services` and `google_project_enable_datadog`.
+Emit the following fields inside the team block, in alphabetical order, omitting optional fields when they equal their default:
+
+```hcl
+    enable_google_project = true
+
+    # Only include if enable_datadog = true:
+    google_project_enable_datadog = true
+
+    # Only include if services were provided:
+    google_project_services = [
+      "example.googleapis.com",
+    ]
+```
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Cloud Platform project"`
 
