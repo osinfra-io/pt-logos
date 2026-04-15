@@ -252,14 +252,32 @@ Before creating any files, show a formatted summary of everything collected. Ask
 2. Insert `{team-key}` into `jobs.main.strategy.matrix.teams` in `.github/workflows/production.yml` (alphabetical order)
 
 **PR 3 — Docs** (`osinfra-io/pt-ekklesia-docs`): branch `onboard/{team-key}-docs`, title `"Add {display-name} to the docs site"`:
+
+**If the team type is `pt-` (platform team):**
+1. Read `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
+2. Create `docs/platform-teams/{team-key-without-prefix}/index.md` with:
+   - Front matter: `sidebar_label: {display-name}` and `description: {generate a one-sentence description based on the team name and type}`
+   - A `# {display-name}` heading followed by the description as an intro paragraph
+3. Update `sidebars.js` — inside the `items` array of the `'Platform Teams'` category, insert a new category entry in alphabetical order by `label`:
+   ```js
+   {
+     type: 'category',
+     label: '{display-name}',
+     link: { type: 'doc', id: 'platform-teams/{team-key-without-prefix}/index' },
+     items: [],
+   },
+   ```
+
+**If the team type is `st-`, `ct-`, or `et-` (stream-aligned, complicated-subsystem, or enabling team):**
 1. Read `docs/stream-aligned-teams/index.md` from `osinfra-io/pt-ekklesia-docs`
 2. Insert a `<Card>` into the `<CardGrid>` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/stream-aligned-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
 3. Create `docs/stream-aligned-teams/{team-key-without-prefix}/index.md` with:
    - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
    - A `# {display-name}` heading followed by the description as an intro paragraph
-4. **If GKE clusters are configured**: also update `docs/platform-teams/corpus/networking.md` — read the file, then for each cluster location: in the Active Clusters tab insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the correct position to preserve slot number ascending order; in the Available Slots tab remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR; update both tab label counts (increment Active Clusters by the number of clusters, decrement Available Slots by the same amount)
 
-Push all changes — team page creation, index card, and any networking update — in a single commit using `push_files`.
+**For all team types — if GKE clusters are configured**: also update `docs/platform-teams/corpus/networking.md` — read the file, then for each cluster location: in the Active Clusters tab insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the correct position to preserve slot number ascending order; in the Available Slots tab remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR; update both tab label counts (increment Active Clusters by the number of clusters, decrement Available Slots by the same amount)
+
+Push all changes — team page creation, sidebar or index card update, and any networking update — in a single commit using `push_files`.
 
 Open PR 1 first, then immediately open PR 2 and PR 3. Make clear to the user that **PR 1 must be reviewed and merged before PR 2** — the GitHub environment it creates gates the production deployment that fires when PR 2 merges. PR 3 (docs) is independent and can be merged in any order.
 
