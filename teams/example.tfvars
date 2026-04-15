@@ -456,28 +456,20 @@ teams = {
     }
 
     # Google Cloud projects (OPTIONAL)
-    # Additional GCP projects created by pt-corpus in the team's environment folder
-    # Key is the project description, value contains optional services to enable
-    google_projects = {
-      # Project key (used to generate project ID)
-      "data-platform" = {
-        # Enable Datadog Google Cloud integration for this project (OPTIONAL, default: false)
-        enable_datadog = true
+    # Additional GCP projects created by pt-corpus in the team's environment folder.
+    # The map key is an internal label to distinguish multiple projects in OpenTofu state —
+    # it is NOT used for the GCP project ID. Project names are derived from the team key.
+    # Enable a Google Cloud project for this team (OPTIONAL, default: false)
+    enable_google_project = true
 
-        # List of GCP API services to enable in this project (REQUIRED)
-        services = [
-          "bigquery.googleapis.com",
-          "dataflow.googleapis.com",
-          "storage.googleapis.com"
-        ]
-      }
+    # Enable Datadog Google Cloud integration for the team project (OPTIONAL, default: false)
+    google_project_enable_datadog = true
 
-      "ml-training" = {
-        services = [
-          "aiplatform.googleapis.com",
-          "compute.googleapis.com"
-        ]
-      }
-    }
+    # List of additional GCP API services to enable in the team project (OPTIONAL, default: [])
+    google_project_services = [
+      "bigquery.googleapis.com",
+      "dataflow.googleapis.com",
+      "storage.googleapis.com"
+    ]
   }
 }

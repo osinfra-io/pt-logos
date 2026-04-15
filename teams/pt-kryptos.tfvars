@@ -173,12 +173,8 @@ teams = {
       }
     }
 
-    google_projects = {
-      openbao = {
-        enable_datadog = true
-        services       = []
-      }
-    }
+    enable_google_project         = true
+    google_project_enable_datadog = true
 
     team_type = "platform-team"
   }

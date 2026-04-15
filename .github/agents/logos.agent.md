@@ -236,7 +236,7 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 ##### Group 9 — Additional Google Cloud Platform Projects
 
-If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each. Also ask if they want Datadog Google Cloud integration enabled for each project (`enable_datadog`, default: `false`).
+If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect the Google Cloud Platform API services to enable. Also ask if they want Datadog Google Cloud integration enabled (`google_project_enable_datadog`, default: `false`). The GCP project ID is derived from the team key by Corpus — teams do not choose a project name.
 
 #### Summary and PR
 
@@ -401,7 +401,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 2. Which **flag**? Present a menu of applicable flags:
    - **Team-level:** `enable_workflows`, `enable_opentofu_state_management`
    - **Kubernetes-level:** `enable_datadog` on `google_kubernetes_engine_clusters` (only shown if the team has GKE clusters configured)
-   - **Google project-level:** `enable_datadog` on a specific `google_projects` entry — ask which project key (only shown if the team has `google_projects` configured)
+   - **Google project-level:** `google_project_enable_datadog` (only shown if the team has `enable_google_project = true`)
    - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`
 3. **Enable or disable?**
 
@@ -415,7 +415,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 
 **HCL placement rules for `enable_datadog`:**
 - **Kubernetes-level:** emit `enable_datadog = true/false` inside the `google_kubernetes_engine_clusters` block, alphabetically between `dns_subdomain` and `artifact_registry_groups_memberships` (or before `locations` if those fields are absent). See `teams/example.tfvars` for the canonical form.
-- **Google project-level:** emit `enable_datadog = true/false` as the first key inside the named `google_projects` entry (alphabetically before `services`). See `teams/example.tfvars` for the canonical form.
+- **Google project-level:** emit `google_project_enable_datadog = true/false` at the team level (alphabetically with other `google_project_*` fields). See `teams/example.tfvars` for the canonical form.
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: {enable/disable} {flag-name}"`
 
@@ -425,12 +425,26 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 
 **Ask:**
 1. Which **team key**?
-2. **Project key** (e.g. `data-platform`) — used to generate the project ID
-3. **Google Cloud Platform API services** to enable (comma-separated, e.g. `bigquery.googleapis.com`)
+2. **Google Cloud Platform API services** to enable (comma-separated, e.g. `bigquery.googleapis.com`) — optional, leave empty for none
+3. Enable **Datadog Google Cloud integration** for this project? (default: no)
 
-**Read** `teams/{team-key}.tfvars`. Check the project key doesn't already exist.
+**Read** `teams/{team-key}.tfvars`. Check that `enable_google_project` is not already `true`.
 
-**PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Cloud Platform project {project-key}"`
+Emit the following fields inside the team block, in alphabetical order, omitting optional fields when they equal their default:
+
+```hcl
+    enable_google_project = true
+
+    # Only include if enable_datadog = true:
+    google_project_enable_datadog = true
+
+    # Only include if services were provided:
+    google_project_services = [
+      "example.googleapis.com",
+    ]
+```
+
+**PR:** branch `update/{team-key}`, title `"Update {team-key}: add Google Cloud Platform project"`
 
 ---
 
@@ -438,11 +452,12 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 
 **Ask:**
 1. Which **team key**?
-2. Which **project key**?
 
-**Read** `teams/{team-key}.tfvars`. Show the project config (including services) and ask for explicit confirmation. Warn that Corpus will destroy the Google Cloud Platform project on the next apply.
+**Read** `teams/{team-key}.tfvars`. Show the current project config (`enable_google_project`, `google_project_services`, `google_project_enable_datadog`) and ask for explicit confirmation. Warn that Corpus will destroy the Google Cloud Platform project on the next apply.
 
-**PR:** branch `update/{team-key}`, title `"Update {team-key}: remove Google Cloud Platform project {project-key}"`
+Set `enable_google_project = false`. Remove `google_project_services` and `google_project_enable_datadog` if present (they default to `false`/`[]`).
+
+**PR:** branch `update/{team-key}`, title `"Update {team-key}: remove Google Cloud Platform project"`
 
 ---
 

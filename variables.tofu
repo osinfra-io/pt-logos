@@ -216,10 +216,9 @@ variable "teams" {
       owners   = list(string)
     })), {})
 
-    google_projects = optional(map(object({
-      enable_datadog = optional(bool, false)
-      services       = optional(list(string), [])
-    })), {})
+    enable_google_project         = optional(bool, false)
+    google_project_enable_datadog = optional(bool, false)
+    google_project_services       = optional(list(string), [])
 
     team_type = string
   }))

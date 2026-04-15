@@ -163,11 +163,7 @@ teams = {
       }
     }
 
-    google_projects = {
-      "testing" = {
-        services = []
-      }
-    }
+    enable_google_project = true
 
     team_type = "platform-team"
   }
