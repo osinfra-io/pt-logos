@@ -236,7 +236,7 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 ##### Group 9 — Additional Google Cloud Platform Projects
 
-If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect project names and the Google Cloud Platform API services to enable in each. Also ask if they want Datadog Google Cloud integration enabled for each project (`enable_datadog`, default: `false`).
+If they need Google Cloud Platform projects beyond the standard ones Corpus creates, collect the Google Cloud Platform API services to enable. Also ask if they want Datadog Google Cloud integration enabled (`enable_datadog`, default: `false`). Use `"default"` as the map key for the first project — the GCP project ID is derived from the team key by Corpus, not from this key.
 
 #### Summary and PR
 
@@ -425,7 +425,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 
 **Ask:**
 1. Which **team key**?
-2. **Project key** (e.g. `data-platform`) — used to generate the project ID
+2. **Project key** — an internal label used to distinguish multiple projects in OpenTofu state (e.g. `default`, `secondary`). This does **not** affect the GCP project ID — the project is named from the team key by Corpus.
 3. **Google Cloud Platform API services** to enable (comma-separated, e.g. `bigquery.googleapis.com`)
 
 **Read** `teams/{team-key}.tfvars`. Check the project key doesn't already exist.

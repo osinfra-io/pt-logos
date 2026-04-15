@@ -220,6 +220,8 @@ variable "teams" {
       enable_datadog = optional(bool, false)
       services       = optional(list(string), [])
     })), {})
+    # The map key above is an internal label used only to distinguish multiple projects in OpenTofu
+    # state — it does NOT affect the GCP project ID. Project names are derived from the team key.
 
     team_type = string
   }))
