@@ -141,6 +141,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          soteria-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: et-soteria"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           techne-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
