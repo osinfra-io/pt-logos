@@ -67,7 +67,7 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
 
 **Step 4 — Search all team files for their identity:**
 
-Scan every `teams/*.tfvars` file (excluding `example.tfvars`) and build a list of every team where the user appears, noting exactly where they appear in each. **Include `teams/pt-logos.tfvars` in this scan even though it was already read in Step 2** — it must be checked for identity matches too. Also **collect all CIDR values** (`ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, `master_ipv4_cidr_block`) from every file — cached for GKE CIDR allocation so the files need not be re-read later.
+Scan every `teams/*.tfvars` file (excluding `example.tfvars`) and build a list of every team where the user appears, noting exactly where they appear in each. **Include `teams/pt-logos.tfvars` in this scan even though it was already read in Step 2** — it must be checked for identity matches too.
 
 - **Email matches** — check `datadog_team_memberships.admins`, `datadog_team_memberships.members`, `google_basic_groups_memberships.*.owners`, `google_basic_groups_memberships.*.managers`, `google_basic_groups_memberships.*.members`, and artifact registry groups
 - **GitHub username matches** — check `github_parent_team_memberships.maintainers`, `github_parent_team_memberships.members`, and any `github_child_teams_memberships` entries present
@@ -139,7 +139,7 @@ Examples: `pt-logos` → "Logos", `pt-corpus` → "Corpus", `st-ethos` → "Etho
 - Key must start with the correct prefix for the chosen type
 - Key must be lowercase letters, numbers, and hyphens only
 - Display name must match: `^[A-Z][A-Za-z0-9]*( (and|[A-Z][A-Za-z0-9]*) [A-Z][A-Za-z0-9]*| [A-Z][A-Za-z0-9]*)*$`
-- Check that no existing `teams/{team-key}.tfvars` file already exists
+- Check that the team key is not already listed in `jobs.main.strategy.matrix.teams` in `production.yml` (already read at startup) — do not attempt to fetch the tfvars file to check existence, as a missing file produces a noisy error
 - Reject immediately if validation fails
 
 ##### Group 2 — Datadog
@@ -226,7 +226,7 @@ Only if the team runs Kubernetes workloads.
 
 Do **not** repeat these questions if the user corrects a zone or other value — retain all already-answered fields and only re-validate what changed.
 
-**Step 2 — Auto-populate subnet ranges** — follow the CIDR/IPAM procedure defined in **Operation 10** (use the data already collected during startup Step 4; do not re-read team files). Present the suggested ranges for confirmation before including in the HCL.
+**Step 2 — Auto-populate subnet ranges** — follow the CIDR/IPAM procedure defined in **Operation 10**. Present the suggested ranges for confirmation before including in the HCL.
 
 **`enable_gke_hub_host`** — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
 
@@ -268,12 +268,53 @@ Before creating any files, show a formatted summary of everything collected. Ask
    },
    ```
 
-**If the team type is `st-`, `ct-`, or `et-` (stream-aligned, complicated-subsystem, or enabling team):**
-1. Read `docs/stream-aligned-teams/index.md` from `osinfra-io/pt-ekklesia-docs`
-2. Insert a `<Card>` into the `<CardGrid>` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/stream-aligned-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
+**If the team type is `st-` (stream-aligned team):**
+1. Read `docs/stream-aligned-teams/index.md` and `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
+2. Insert a `<Card>` into the `<CardGrid>` in `index.md` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/stream-aligned-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
 3. Create `docs/stream-aligned-teams/{team-key-without-prefix}/index.md` with:
    - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
    - A `# {display-name}` heading followed by the description as an intro paragraph
+4. Update `sidebars.js` — inside the `items` array of the `'Stream-Aligned Teams'` category, insert a new category entry in alphabetical order by `label`:
+   ```js
+   {
+     type: 'category',
+     label: '{display-name}',
+     link: { type: 'doc', id: 'stream-aligned-teams/{team-key-without-prefix}/index' },
+     items: [],
+   },
+   ```
+
+**If the team type is `ct-` (complicated-subsystem team):**
+1. Read `docs/complicated-subsystem-teams/index.md` and `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
+2. Insert a `<Card>` into the `<CardGrid>` in `index.md` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/complicated-subsystem-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
+3. Create `docs/complicated-subsystem-teams/{team-key-without-prefix}/index.md` with:
+   - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
+   - A `# {display-name}` heading followed by the description as an intro paragraph
+4. Update `sidebars.js` — inside the `items` array of the `'Complicated-Subsystem Teams'` category, insert a new category entry in alphabetical order by `label`:
+   ```js
+   {
+     type: 'category',
+     label: '{display-name}',
+     link: { type: 'doc', id: 'complicated-subsystem-teams/{team-key-without-prefix}/index' },
+     items: [],
+   },
+   ```
+
+**If the team type is `et-` (enabling team):**
+1. Read `docs/enabling-teams/index.md` and `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
+2. Insert a `<Card>` into the `<CardGrid>` in `index.md` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/enabling-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
+3. Create `docs/enabling-teams/{team-key-without-prefix}/index.md` with:
+   - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
+   - A `# {display-name}` heading followed by the description as an intro paragraph
+4. Update `sidebars.js` — inside the `items` array of the `'Enabling Teams'` category, insert a new category entry in alphabetical order by `label`:
+   ```js
+   {
+     type: 'category',
+     label: '{display-name}',
+     link: { type: 'doc', id: 'enabling-teams/{team-key-without-prefix}/index' },
+     items: [],
+   },
+   ```
 
 **For all team types — if GKE clusters are configured**: also update `docs/platform-teams/corpus/networking.md` — read the file, then for each cluster location: in the Active Clusters tab insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`, `pods`, `services`, `master` values at the correct position to preserve slot number ascending order; in the Available Slots tab remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR; update both tab label counts (increment Active Clusters by the number of clusters, decrement Available Slots by the same amount)
 
@@ -471,7 +512,7 @@ Set `enable_google_project = false`. Remove `google_project_services` and `googl
 **Read** `teams/{team-key}.tfvars`. Check the location doesn't already exist.
 
 **Auto-populate subnet ranges** — do not ask the user for CIDRs:
-1. Use the CIDR data already collected during startup Step 4 — **do not re-read the team files**. If for any reason that data is unavailable, read all `teams/*.tfvars` files now.
+1. Read all `teams/*.tfvars` files and collect all CIDR values (`ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, `master_ipv4_cidr_block`) to determine which slots are already allocated.
 2. Use the IPAM sequence to find the lowest unallocated slot:
    - **Primary** (`ip_cidr_range`): `10.60.0.0/20`, `10.60.16.0/20`, `10.60.32.0/20` … (increment by /20)
    - **Pods** (`pod_ip_cidr_range`): `10.0.0.0/15`, `10.2.0.0/15`, `10.4.0.0/15` … (increment by /15)
