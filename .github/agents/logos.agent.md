@@ -254,11 +254,12 @@ Before creating any files, show a formatted summary of everything collected. Ask
 **PR 3 — Docs** (`osinfra-io/pt-ekklesia-docs`): branch `onboard/{team-key}-docs`, title `"Add {display-name} to the docs site"`:
 
 **If the team type is `pt-` (platform team):**
-1. Read `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
-2. Create `docs/platform-teams/{team-key-without-prefix}/index.md` with:
-   - Front matter: `sidebar_label: {display-name}` and `description: {generate a one-sentence description based on the team name and type}`
+1. Read `docs/platform-teams/index.md` and `sidebars.js` from `osinfra-io/pt-ekklesia-docs`
+2. Insert a `<Card>` into the `<CardGrid>` in `index.md` in alphabetical order by title: `icon` (pick a fitting emoji based on the team name), `title` set to the display name, `note` (generate a one-sentence description based on the team name and type), `link: '/platform-teams/{team-key-without-prefix}'`, `linkText: 'Learn more →'`
+3. Create `docs/platform-teams/{team-key-without-prefix}/index.md` with:
+   - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
    - A `# {display-name}` heading followed by the description as an intro paragraph
-3. Update `sidebars.js` — inside the `items` array of the `'Platform Teams'` category, insert a new category entry in alphabetical order by `label`:
+4. Update `sidebars.js` — inside the `items` array of the `'Platform Teams'` category, insert a new category entry in alphabetical order by `label`:
    ```js
    {
      type: 'category',
