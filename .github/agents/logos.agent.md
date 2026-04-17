@@ -290,7 +290,7 @@ Before creating any files, show a formatted summary of everything collected. Ask
 3. Create `docs/complicated-subsystem-teams/{team-key-without-prefix}/index.md` with:
    - Front matter: `sidebar_label: {display-name}` and `description: {same one-sentence description}`
    - A `# {display-name}` heading followed by the description as an intro paragraph
-4. Update `sidebars.js` — inside the `items` array of the `'Complicated-Subsystem Teams'` category, insert a new category entry in alphabetical order by `label`:
+4. Update `sidebars.js` — inside the `items` array of the `'Complicated Subsystem Teams'` category, insert a new category entry in alphabetical order by `label`:
    ```js
    {
      type: 'category',
