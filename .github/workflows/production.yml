@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         teams:
+          - et-foo
           - pt-arche
           - pt-corpus
           - pt-ekklesia
