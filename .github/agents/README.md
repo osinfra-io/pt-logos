@@ -1,5 +1,17 @@
 # Agents
 
+## Prerequisites
+
+The agents in this directory use the [GitHub MCP server](https://github.com/github/github-mcp-server) for all file and pull request operations. Configure it with a **fine-grained Personal Access Token** scoped to the `osinfra-io` organization with the following permissions:
+
+| Permission | Access |
+|---|---|
+| Contents | Read and write |
+| Pull requests | Read and write |
+| Workflows | Read and write |
+
+Fine-grained PATs must be created at [github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new).
+
 ## logos.agent.md
 
 Manages all logos-owned resources — onboard teams, add or remove members, manage repositories, GitHub environments, Google Cloud Platform projects, and Google Kubernetes Engine cluster configuration. Reads the current state and opens a pull request with every change.
