@@ -139,8 +139,10 @@ teams = {
     # OPTIONAL FIELDS
     # ============================================================================
 
-    # Kubernetes configuration (OPTIONAL)
-    # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry
+    # Platform-managed project configuration (OPTIONAL)
+    # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry.
+    # Presence of this block drives creation of the team's platform-managed project in pt-corpus,
+    # which hosts GKE clusters as well as managed data services (Cloud SQL, Redis, etc.).
     google_kubernetes_engine_clusters = {
 
       # DNS subdomain for team services (OPTIONAL)
@@ -149,7 +151,7 @@ teams = {
       # Typically only set when you want a subdomain different from the team key
       dns_subdomain = "example"
 
-      # Enable Datadog integration for this team's Kubernetes project (OPTIONAL, default: false)
+      # Enable Datadog integration for this team's platform-managed project (OPTIONAL, default: false)
       enable_datadog = true
 
       # Artifact Registry groups (OPTIONAL)
