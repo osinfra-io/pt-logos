@@ -140,7 +140,7 @@ teams = {
     # ============================================================================
 
     # Platform-managed project configuration (OPTIONAL)
-    # Only specify if the team needs GKE clusters, managed data services, DNS zones, or Artifact Registry.
+    # Only specify if the team needs GKE clusters or managed data services (Cloud SQL, Redis, etc.).
     # Presence of this block drives creation of the team's platform-managed project in pt-corpus,
     # which hosts GKE clusters as well as managed data services (Cloud SQL, Redis, etc.).
     platform_managed_project = {
