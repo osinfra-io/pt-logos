@@ -142,11 +142,11 @@ teams = {
     # Platform-managed project configuration (OPTIONAL)
     # Only specify if the team needs GKE clusters or managed data services (Cloud SQL, Redis, etc.).
     # Presence of this block drives creation of the team's platform-managed project in pt-corpus,
-    # which hosts GKE clusters as well as managed data services (Cloud SQL, Redis, etc.).
+    # which hosts GKE clusters or managed data services (Cloud SQL, Redis, etc.).
     platform_managed_project = {
 
       # Enable Datadog integration for this team's platform-managed project (OPTIONAL, default: false)
-      # Applies to the whole project — GKE clusters, data services, and other workloads
+      # Applies to the whole project — GKE clusters and managed data services
       enable_datadog = true
 
       # GKE cluster configuration (OPTIONAL)
