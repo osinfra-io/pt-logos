@@ -23,7 +23,7 @@ output "teams" {
       # Team metadata
       display_name                     = team.display_name
       enable_google_project            = team.enable_google_project
-      enable_kubernetes_datadog        = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.enable_datadog : false
+      enable_platform_managed_datadog  = try(team.platform_managed_project.enable_datadog, false)
       enable_opentofu_state_management = team.enable_opentofu_state_management
       enable_workflows                 = team.enable_workflows
 
@@ -46,9 +46,10 @@ output "teams" {
         if repo.team_key == team_key
       }
 
-      # Google Kubernetes Engine clusters for this team
-      google_kubernetes_engine_clusters = {
-        locations = try(team.google_kubernetes_engine_clusters.locations, {})
+      # Platform-managed project config for this team
+      has_platform_managed_project = team.platform_managed_project != null
+      platform_managed_project = {
+        kubernetes_engine_locations = try(team.platform_managed_project.kubernetes_engine.locations, {})
       }
 
       # Google Cloud project flags for this team (consumed by corpus)
@@ -56,7 +57,7 @@ output "teams" {
       google_project_services       = team.google_project_services
 
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
-      dns_subdomain = team.google_kubernetes_engine_clusters != null ? team.google_kubernetes_engine_clusters.dns_subdomain : null
+      dns_subdomain = try(team.platform_managed_project.kubernetes_engine.dns_subdomain, null)
 
       # Identity groups for this team
       identity_groups = {

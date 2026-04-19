@@ -143,123 +143,129 @@ teams = {
     # Only specify if the team needs GKE clusters, DNS zones, or Artifact Registry.
     # Presence of this block drives creation of the team's platform-managed project in pt-corpus,
     # which hosts GKE clusters as well as managed data services (Cloud SQL, Redis, etc.).
-    google_kubernetes_engine_clusters = {
-
-      # DNS subdomain for team services (OPTIONAL)
-      # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
-      # Creates DNS zones: {subdomain}.osinfra.io (production), {subdomain}.nonprod.osinfra.io (non-production), {subdomain}.sb.osinfra.io (sandbox)
-      # Typically only set when you want a subdomain different from the team key
-      dns_subdomain = "example"
+    platform_managed_project = {
 
       # Enable Datadog integration for this team's platform-managed project (OPTIONAL, default: false)
+      # Applies to the whole project — GKE clusters, data services, and other workloads
       enable_datadog = true
 
-      # Artifact Registry groups (OPTIONAL)
-      # Only specify if the team needs container registries
-      # Creates two groups for registry access control:
-      # - readers: Can pull container images (roles/artifactregistry.reader)
-      # - writers: Can push container images (roles/artifactregistry.writer)
-      # NOTE: pt-pneuma service accounts are automatically added as managers to readers
-      # NOTE: pt-corpus service accounts are automatically added as managers to writers
-      artifact_registry_groups_memberships = {
-        readers = {
-          managers = []
-          members  = []
-          owners   = ["registry-reader@example.com"]
+      # GKE cluster configuration (OPTIONAL)
+      # Omit this block entirely if the team needs only managed data services (Cloud SQL, Redis, etc.)
+      kubernetes_engine = {
+
+        # DNS subdomain for team services (OPTIONAL)
+        # If omitted, defaults to team key with prefix removed (e.g., pt-pneuma → pneuma)
+        # Creates DNS zones: {subdomain}.osinfra.io (production), {subdomain}.nonprod.osinfra.io (non-production), {subdomain}.sb.osinfra.io (sandbox)
+        # Typically only set when you want a subdomain different from the team key
+        dns_subdomain = "example"
+
+        # Artifact Registry groups (OPTIONAL)
+        # Only specify if the team needs container registries
+        # Creates two groups for registry access control:
+        # - readers: Can pull container images (roles/artifactregistry.reader)
+        # - writers: Can push container images (roles/artifactregistry.writer)
+        # NOTE: pt-pneuma service accounts are automatically added as managers to readers
+        # NOTE: pt-corpus service accounts are automatically added as managers to writers
+        artifact_registry_groups_memberships = {
+          readers = {
+            managers = []
+            members  = []
+            owners   = ["registry-reader@example.com"]
+          }
+          writers = {
+            managers = []
+            members  = []
+            owners   = ["registry-writer@example.com"]
+          }
         }
-        writers = {
-          managers = []
-          members  = []
-          owners   = ["registry-writer@example.com"]
-        }
-      }
 
-      # GKE cluster locations (REQUIRED when block is set)
-      # Keyed by GCP location: a zone (us-east1-b) pins node pools to that zone
-      # while the control plane is always regional. Use zone locations to avoid
-      # Istio hotspots by keeping nodes and sidecars co-located.
-      # Cluster name is derived automatically: {team-key}-{location}
-      # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
-      # Only us-east1 and us-east4 zones are supported.
-      locations = {
-        "us-east1-b" = {
+        # GKE cluster locations (REQUIRED when kubernetes_engine block is set)
+        # Keyed by GCP location: a zone (us-east1-b) pins node pools to that zone
+        # while the control plane is always regional. Use zone locations to avoid
+        # Istio hotspots by keeping nodes and sidecars co-located.
+        # Cluster name is derived automatically: {team-key}-{location}
+        # Example: pt-pneuma-us-east1-b, example-team-us-east4-a
+        # Only us-east1 and us-east4 zones are supported.
+        locations = {
+          "us-east1-b" = {
 
-          # Enable GKE Hub Host (OPTIONAL, default: false)
-          # Set true for ONE cluster ONLY (across all teams) to act as the fleet host
-          # The fleet host cluster manages:
-          # - Multi-cluster service discovery (MCS)
-          # - Cross-cluster ingress and egress
-          # - Fleet-wide policies
-          # All other clusters (across all teams) register to this host
-          # Example: pt-pneuma-us-east1-b is configured as the fleet host
-          enable_gke_hub_host = true
+            # Enable GKE Hub Host (OPTIONAL, default: false)
+            # Set true for ONE cluster ONLY (across all teams) to act as the fleet host
+            # The fleet host cluster manages:
+            # - Multi-cluster service discovery (MCS)
+            # - Cross-cluster ingress and egress
+            # - Fleet-wide policies
+            # All other clusters (across all teams) register to this host
+            # Example: pt-pneuma-us-east1-b is configured as the fleet host
+            enable_gke_hub_host = true
 
-          # Node pools configuration (REQUIRED)
-          # At least one pool (typically "default-pool") must be defined
-          # Each pool supports autoscaling within min/max bounds
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2" # GCE machine type
-              max_node_count = 3               # Maximum nodes for autoscaling
-              min_node_count = 1               # Minimum nodes (can be 0 for cost savings)
+            # Node pools configuration (REQUIRED)
+            # At least one pool (typically "default-pool") must be defined
+            # Each pool supports autoscaling within min/max bounds
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2" # GCE machine type
+                max_node_count = 3               # Maximum nodes for autoscaling
+                min_node_count = 1               # Minimum nodes (can be 0 for cost savings)
+              }
+              # Additional node pools can be added for specialized workloads
+              # Example: high-memory pool, GPU pool, preemptible pool
             }
-            # Additional node pools can be added for specialized workloads
-            # Example: high-memory pool, GPU pool, preemptible pool
-          }
 
-          # Subnet configuration (REQUIRED) - Defines all networking for this cluster
-          # These IP ranges are created in the shared VPC by pt-corpus
-          # All ranges must be non-overlapping across all teams and environments
-          subnet = {
-            # Primary IP range for cluster nodes (must be /20 or larger)
-            ip_cidr_range = "10.60.96.0/20"
+            # Subnet configuration (REQUIRED) - Defines all networking for this cluster
+            # These IP ranges are created in the shared VPC by pt-corpus
+            # All ranges must be non-overlapping across all teams and environments
+            subnet = {
+              # Primary IP range for cluster nodes (must be /20 or larger)
+              ip_cidr_range = "10.60.96.0/20"
 
-            # Control plane (master) IP range (MUST be /28)
-            # Used for the GKE control plane private endpoint
-            master_ipv4_cidr_block = "10.63.192.96/28"
+              # Control plane (master) IP range (MUST be /28)
+              # Used for the GKE control plane private endpoint
+              master_ipv4_cidr_block = "10.63.192.96/28"
 
-            # Secondary IP range for pods (must be /15 or larger for large clusters)
-            # Each node allocates a /24 from this range for its pods
-            pod_ip_cidr_range = "10.12.0.0/15"
+              # Secondary IP range for pods (must be /15 or larger for large clusters)
+              # Each node allocates a /24 from this range for its pods
+              pod_ip_cidr_range = "10.12.0.0/15"
 
-            # Secondary IP range for services (must be large enough for all services)
-            # Each Kubernetes Service gets one IP from this range
-            services_ip_cidr_range = "10.62.64.0/20"
-          }
-        }
-
-        # Additional clusters in other zones or regions
-        "us-east1-c" = {
-          # Non-host clusters should omit enable_gke_hub_host or set to false
-          # These clusters register to the fleet host for multi-cluster services
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
+              # Secondary IP range for services (must be large enough for all services)
+              # Each Kubernetes Service gets one IP from this range
+              services_ip_cidr_range = "10.62.64.0/20"
             }
           }
-          subnet = {
-            ip_cidr_range          = "10.60.112.0/20"
-            master_ipv4_cidr_block = "10.63.192.112/28"
-            pod_ip_cidr_range      = "10.14.0.0/15"
-            services_ip_cidr_range = "10.62.80.0/20"
-          }
-        }
 
-        "us-east4-a" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
+          # Additional clusters in other zones or regions
+          "us-east1-c" = {
+            # Non-host clusters should omit enable_gke_hub_host or set to false
+            # These clusters register to the fleet host for multi-cluster services
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.60.112.0/20"
+              master_ipv4_cidr_block = "10.63.192.112/28"
+              pod_ip_cidr_range      = "10.14.0.0/15"
+              services_ip_cidr_range = "10.62.80.0/20"
             }
           }
-          subnet = {
-            ip_cidr_range          = "10.60.128.0/20"
-            master_ipv4_cidr_block = "10.63.192.128/28"
-            pod_ip_cidr_range      = "10.16.0.0/15"
-            services_ip_cidr_range = "10.62.96.0/20"
+
+          "us-east4-a" = {
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.60.128.0/20"
+              master_ipv4_cidr_block = "10.63.192.128/28"
+              pod_ip_cidr_range      = "10.16.0.0/15"
+              services_ip_cidr_range = "10.62.96.0/20"
+            }
           }
         }
       }
