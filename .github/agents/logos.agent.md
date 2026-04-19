@@ -30,8 +30,8 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
   - **Team-level flags** (set on the team, not a repository):
     - `enable_workflows` — creates a GitHub Actions service account for Google Cloud Platform authentication, Workload Identity Federation bindings, and group memberships (browser, billing, artifact registry writers)
     - `enable_opentofu_state_management` — requires `enable_workflows`; creates an OpenTofu state storage bucket, Storage IAM for the GitHub Actions service account, and KMS crypto key IAM for state encryption
-  - **Kubernetes-level flags** (set on `google_kubernetes_engine_clusters`, not a repository):
-    - `enable_datadog` — opts the team's GKE project into Datadog Google Cloud integration (default: false)
+  - **Platform-managed project flags** (set on `platform_managed_project`, not a repository):
+    - `enable_datadog` — opts the team's platform-managed project into Datadog Google Cloud integration (applies to GKE clusters, data services, and all other workloads in the project; default: false)
   - **Google project-level flags** (set per `google_projects` entry):
     - `enable_datadog` — opts that specific additional GCP project into Datadog Google Cloud integration (default: false)
   - **Repository-level flags** (set per repository):
@@ -230,7 +230,7 @@ Do **not** repeat these questions if the user corrects a zone or other value —
 
 **`enable_gke_hub_host`** — always `false` for new teams; only the `pt-pneuma` team manages the fleet host cluster
 
-**`enable_datadog`** — ask if the team wants Datadog monitoring for their GKE project (default: `false`)
+**`enable_datadog`** — ask if the team wants Datadog monitoring for their platform-managed project (covers GKE clusters, data services, and all other workloads; default: `false`)
 
 **Proactively suggest `enable_workflows`** — if the user configures Artifact Registry groups or any repository with `enable_google_wif_service_account`, prompt: *"You'll want `enable_workflows` enabled — it creates the GitHub Actions service account, wires it into Artifact Registry, and enables OIDC Workload Identity Federation. Want to enable it now (and optionally `enable_opentofu_state_management` too)?"* Ask this before the summary, not after.
 
@@ -355,7 +355,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
    - A GitHub child team — any of the four standard teams (sandbox-approvers, non-production-approvers, production-approvers, repository-administrators) or a custom child team if one exists
    - Datadog team (admins or members)
    - Google Cloud Platform basic group: admin, reader, or writer (and which role within: owners, managers, or members)
-   - Google Cloud Platform artifact registry group: readers or writers (and which role within: owners, managers, or members) — only present if the team has `google_kubernetes_engine_clusters` configured
+   - Google Cloud Platform artifact registry group: readers or writers (and which role within: owners, managers, or members) — only present if the team has `platform_managed_project.kubernetes_engine` configured
 3. **Add or remove?**
 4. **Username(s) or email(s)?** — skip if adding themselves (already known)
 
@@ -442,7 +442,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 1. Which **team key**?
 2. Which **flag**? Present a menu of applicable flags:
    - **Team-level:** `enable_workflows`, `enable_opentofu_state_management`
-   - **Kubernetes-level:** `enable_datadog` on `google_kubernetes_engine_clusters` (only shown if the team has GKE clusters configured)
+   - **Platform-managed project:** `enable_datadog` on `platform_managed_project` (only shown if the team has a `platform_managed_project` block)
    - **Google project-level:** `google_project_enable_datadog` (only shown if the team has `enable_google_project = true`)
    - **Repository-level:** which repo, then `enable_datadog_webhook`, `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset`
 3. **Enable or disable?**
@@ -456,7 +456,7 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 - For `enable_datadog` (Kubernetes-level or Google project-level): Datadog integration is managed by the platform and may not be active in all environments
 
 **HCL placement rules for `enable_datadog`:**
-- **Kubernetes-level:** emit `enable_datadog = true/false` inside the `google_kubernetes_engine_clusters` block, alphabetically between `dns_subdomain` and `artifact_registry_groups_memberships` (or before `locations` if those fields are absent). See `teams/example.tfvars` for the canonical form.
+- **Platform-managed project:** emit `enable_datadog = true/false` at the top of the `platform_managed_project` block (before `kubernetes_engine`). See `teams/example.tfvars` for the canonical form.
 - **Google project-level:** emit `google_project_enable_datadog = true/false` at the team level (alphabetically with other `google_project_*` fields). See `teams/example.tfvars` for the canonical form.
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: {enable/disable} {flag-name}"`

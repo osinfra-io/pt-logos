@@ -120,54 +120,56 @@ teams = {
       }
     }
 
-    google_kubernetes_engine_clusters = {
-      artifact_registry_groups_memberships = {
-        readers = {
-          managers = []
-          members  = []
-          owners   = ["brett@osinfra.io"]
-        }
-        writers = {
-          managers = []
-          members  = []
-          owners   = ["brett@osinfra.io"]
-        }
-      }
-
-      dns_subdomain = "kryptos"
-
+    platform_managed_project = {
       enable_datadog = true
 
-      locations = {
-        "us-east1-b" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
-            }
+      kubernetes_engine = {
+        artifact_registry_groups_memberships = {
+          readers = {
+            managers = []
+            members  = []
+            owners   = ["brett@osinfra.io"]
           }
-          subnet = {
-            ip_cidr_range          = "10.60.96.0/20"
-            master_ipv4_cidr_block = "10.63.192.96/28"
-            pod_ip_cidr_range      = "10.12.0.0/15"
-            services_ip_cidr_range = "10.62.64.0/20"
+          writers = {
+            managers = []
+            members  = []
+            owners   = ["brett@osinfra.io"]
           }
         }
 
-        "us-east4-a" = {
-          node_pools = {
-            default-pool = {
-              machine_type   = "e2-standard-2"
-              max_node_count = 3
-              min_node_count = 1
+        dns_subdomain = "kryptos"
+
+        locations = {
+          "us-east1-b" = {
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.60.96.0/20"
+              master_ipv4_cidr_block = "10.63.192.96/28"
+              pod_ip_cidr_range      = "10.12.0.0/15"
+              services_ip_cidr_range = "10.62.64.0/20"
             }
           }
-          subnet = {
-            ip_cidr_range          = "10.60.112.0/20"
-            master_ipv4_cidr_block = "10.63.192.112/28"
-            pod_ip_cidr_range      = "10.14.0.0/15"
-            services_ip_cidr_range = "10.62.80.0/20"
+
+          "us-east4-a" = {
+            node_pools = {
+              default-pool = {
+                machine_type   = "e2-standard-2"
+                max_node_count = 3
+                min_node_count = 1
+              }
+            }
+            subnet = {
+              ip_cidr_range          = "10.60.112.0/20"
+              master_ipv4_cidr_block = "10.63.192.112/28"
+              pod_ip_cidr_range      = "10.14.0.0/15"
+              services_ip_cidr_range = "10.62.80.0/20"
+            }
           }
         }
       }
