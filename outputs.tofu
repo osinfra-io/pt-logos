@@ -22,6 +22,7 @@ output "teams" {
 
       # Team metadata
       display_name                     = team.display_name
+      enable_datadog_apm               = try(team.platform_managed_project.enable_datadog_apm, false)
       enable_google_project            = team.enable_google_project
       enable_platform_managed_datadog  = try(team.platform_managed_project.enable_datadog, false)
       enable_opentofu_state_management = team.enable_opentofu_state_management

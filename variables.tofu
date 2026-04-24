@@ -171,7 +171,8 @@ variable "teams" {
     })), {})
 
     platform_managed_project = optional(object({
-      enable_datadog = optional(bool, false)
+      enable_datadog     = optional(bool, false)
+      enable_datadog_apm = optional(bool, false)
 
       kubernetes_engine = optional(object({
         dns_subdomain = optional(string, null)

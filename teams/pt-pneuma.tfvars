@@ -823,7 +823,8 @@ teams = {
     }
 
     platform_managed_project = {
-      enable_datadog = true
+      enable_datadog     = true
+      enable_datadog_apm = true
 
       kubernetes_engine = {
         artifact_registry_groups_memberships = {
