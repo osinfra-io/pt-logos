@@ -174,7 +174,8 @@ variable "teams" {
       enable_datadog = optional(bool, false)
 
       kubernetes_engine = optional(object({
-        dns_subdomain = optional(string, null)
+        dns_subdomain      = optional(string, null)
+        enable_datadog_apm = optional(bool, false)
 
         artifact_registry_groups_memberships = optional(object({
           readers = object({

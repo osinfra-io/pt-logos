@@ -159,6 +159,12 @@ teams = {
         # Typically only set when you want a subdomain different from the team key
         dns_subdomain = "example"
 
+        # Enable Datadog APM (Application Performance Monitoring) and Universal Service Monitoring
+        # for this team's GKE cluster (OPTIONAL, default: false). USM is included at no extra cost
+        # when APM is enabled. Cost: $31/host/month (annual) with Infrastructure Monitoring.
+        # Only meaningful when enable_datadog = true on the platform_managed_project block.
+        enable_datadog_apm = false
+
         # Artifact Registry groups (OPTIONAL)
         # Only specify if the team needs container registries
         # Creates two groups for registry access control:

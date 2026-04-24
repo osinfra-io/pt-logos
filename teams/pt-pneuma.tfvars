@@ -839,7 +839,8 @@ teams = {
           }
         }
 
-        dns_subdomain = "pneuma"
+        dns_subdomain      = "pneuma"
+        enable_datadog_apm = true
 
         locations = {
           "us-east1-b" = {
