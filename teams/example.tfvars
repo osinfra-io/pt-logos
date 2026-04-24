@@ -149,12 +149,6 @@ teams = {
       # Applies to the whole project — GKE clusters and managed data services
       enable_datadog = true
 
-      # Enable Datadog APM (Application Performance Monitoring) and Universal Service Monitoring for
-      # this team's GKE cluster (OPTIONAL, default: false). USM is included at no extra cost when APM
-      # is enabled. Cost: $31/host/month (annual) with Infrastructure Monitoring.
-      # Only meaningful when enable_datadog = true and the team has kubernetes_engine configured.
-      enable_datadog_apm = false
-
       # GKE cluster configuration (OPTIONAL)
       # Omit this block entirely if the team needs only managed data services (Cloud SQL, Redis, etc.)
       kubernetes_engine = {
@@ -164,6 +158,12 @@ teams = {
         # Creates DNS zones: {subdomain}.osinfra.io (production), {subdomain}.nonprod.osinfra.io (non-production), {subdomain}.sb.osinfra.io (sandbox)
         # Typically only set when you want a subdomain different from the team key
         dns_subdomain = "example"
+
+        # Enable Datadog APM (Application Performance Monitoring) and Universal Service Monitoring
+        # for this team's GKE cluster (OPTIONAL, default: false). USM is included at no extra cost
+        # when APM is enabled. Cost: $31/host/month (annual) with Infrastructure Monitoring.
+        # Only meaningful when enable_datadog = true on the platform_managed_project block.
+        enable_datadog_apm = false
 
         # Artifact Registry groups (OPTIONAL)
         # Only specify if the team needs container registries

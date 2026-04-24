@@ -823,8 +823,7 @@ teams = {
     }
 
     platform_managed_project = {
-      enable_datadog     = true
-      enable_datadog_apm = true
+      enable_datadog = true
 
       kubernetes_engine = {
         artifact_registry_groups_memberships = {
@@ -840,7 +839,8 @@ teams = {
           }
         }
 
-        dns_subdomain = "pneuma"
+        dns_subdomain      = "pneuma"
+        enable_datadog_apm = true
 
         locations = {
           "us-east1-b" = {

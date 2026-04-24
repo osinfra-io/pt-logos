@@ -32,7 +32,7 @@ You are the **Logos Agent**. You manage everything logos controls — teams, mem
     - `enable_opentofu_state_management` — requires `enable_workflows`; creates an OpenTofu state storage bucket, Storage IAM for the GitHub Actions service account, and KMS crypto key IAM for state encryption
   - **Platform-managed project flags** (set on `platform_managed_project`, not a repository):
     - `enable_datadog` — opts the team's platform-managed project into Datadog Google Cloud integration (applies to GKE clusters, data services, and all other workloads in the project; default: false)
-    - `enable_datadog_apm` — enables Datadog APM and Universal Service Monitoring (USM, free with APM) on the team's GKE cluster; only meaningful when `enable_datadog = true` and `kubernetes_engine` is configured (default: false; cost: $31/host/month annual with Infrastructure Monitoring)
+    - `enable_datadog_apm` — enables Datadog APM and Universal Service Monitoring (USM, free with APM) on the team's GKE cluster; only meaningful when `enable_datadog = true` and `kubernetes_engine` is configured (default: false; cost: $31/host/month annual with Infrastructure Monitoring); lives inside the `kubernetes_engine` block
   - **Google project-level flags** (set per `google_projects` entry):
     - `enable_datadog` — opts that specific additional GCP project into Datadog Google Cloud integration (default: false)
   - **Repository-level flags** (set per repository):
@@ -460,7 +460,8 @@ Open PR 1 first, then immediately open PR 2, PR 3 (docs), and any applicable Cor
 - For `enable_datadog_apm`: APM also enables Universal Service Monitoring (USM) for free; warn that disabling it will remove trace instrumentation and USM for the team's cluster
 
 **HCL placement rules for `enable_datadog` and `enable_datadog_apm`:**
-- **Platform-managed project:** emit `enable_datadog = true/false` then `enable_datadog_apm = true/false` (alphabetical) at the top of the `platform_managed_project` block (before `kubernetes_engine`). See `teams/example.tfvars` for the canonical form.
+- **`enable_datadog`:** emit at the top of the `platform_managed_project` block (before `kubernetes_engine`), alphabetically with other `enable_*` fields.
+- **`enable_datadog_apm`:** emit inside the `kubernetes_engine` block, alphabetically (after `dns_subdomain`, before `locations`). See `teams/example.tfvars` for the canonical form.
 - **Google project-level:** emit `google_project_enable_datadog = true/false` at the team level (alphabetically with other `google_project_*` fields). See `teams/example.tfvars` for the canonical form.
 
 **PR:** branch `update/{team-key}`, title `"Update {team-key}: {enable/disable} {flag-name}"`
