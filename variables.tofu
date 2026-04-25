@@ -172,8 +172,8 @@ variable "teams" {
 
     platform_managed_project = optional(object({
       cloud_sql = optional(object({
-        database_version = string
-        machine_tier     = string
+        database_version = optional(string, "POSTGRES_16")
+        machine_tier     = optional(string, "db-f1-micro")
         regions          = set(string)
       }))
 

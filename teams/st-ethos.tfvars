@@ -32,9 +32,7 @@ teams = {
 
     platform_managed_project = {
       cloud_sql = {
-        database_version = "POSTGRES_16"
-        machine_tier     = "db-f1-micro"
-        regions          = ["us-east1"]
+        regions = ["us-east1"]
       }
     }
 
