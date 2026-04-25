@@ -270,13 +270,15 @@ variable "teams" {
   }
 
   validation {
-    condition = alltrue(flatten([
-      for team_key, team in var.teams : [
-        for region in try(tolist(team.platform_managed_project.cloud_sql.regions), []) :
-        contains(["us-east1", "us-east4"], region)
-      ]
-    ]))
-    error_message = "Only us-east1 and us-east4 regions are supported for Cloud SQL instances."
+    condition = alltrue([
+      for team_key, team in var.teams :
+      try(team.platform_managed_project.cloud_sql, null) == null ||
+      (
+        length(tolist(team.platform_managed_project.cloud_sql.regions)) > 0 &&
+        alltrue([for region in tolist(team.platform_managed_project.cloud_sql.regions) : contains(["us-east1", "us-east4"], region)])
+      )
+    ])
+    error_message = "cloud_sql.regions must be non-empty and contain only us-east1 and us-east4."
   }
 
   validation {
