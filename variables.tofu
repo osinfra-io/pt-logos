@@ -171,6 +171,12 @@ variable "teams" {
     })), {})
 
     platform_managed_project = optional(object({
+      cloud_sql = optional(object({
+        database_version = string
+        machine_tier     = string
+        regions          = set(string)
+      }))
+
       enable_datadog = optional(bool, false)
 
       kubernetes_engine = optional(object({
@@ -261,6 +267,16 @@ variable "teams" {
       ]
     ]))
     error_message = "Only us-east1 and us-east4 locations are supported for GKE clusters (e.g., us-east1-b, us-east4-b)."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for region in try(tolist(team.platform_managed_project.cloud_sql.regions), []) :
+        contains(["us-east1", "us-east4"], region)
+      ]
+    ]))
+    error_message = "Only us-east1 and us-east4 regions are supported for Cloud SQL instances."
   }
 
   validation {

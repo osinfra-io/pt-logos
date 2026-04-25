@@ -145,6 +145,27 @@ teams = {
     # which hosts GKE clusters or managed data services (Cloud SQL, Redis, etc.).
     platform_managed_project = {
 
+      # Cloud SQL instance configuration (OPTIONAL)
+      # Omit this block entirely if the team needs only GKE clusters.
+      # Corpus provisions a Cloud SQL instance per declared region in the team's platform-managed project
+      # using the Arche module (pt-arche-google-cloud-sql). The instance gets a private IP through the
+      # Shared VPC peering connection Corpus already owns.
+      cloud_sql = {
+
+        # PostgreSQL engine version (OPTIONAL, default: "POSTGRES_16")
+        database_version = "POSTGRES_16"
+
+        # Machine tier (OPTIONAL, default: "db-f1-micro")
+        # Shared-core options: db-f1-micro, db-g1-small
+        # Dedicated-core example: db-custom-2-13312 (2 vCPU, 13 GB RAM)
+        machine_tier = "db-f1-micro"
+
+        # Regions where a Cloud SQL instance is provisioned (REQUIRED when cloud_sql block is set)
+        # Only us-east1 and us-east4 are supported.
+        # One instance is created per listed region.
+        regions = ["us-east1"]
+      }
+
       # Enable Datadog integration for this team's platform-managed project (OPTIONAL, default: false)
       # Applies to the whole project — GKE clusters and managed data services
       enable_datadog = true
