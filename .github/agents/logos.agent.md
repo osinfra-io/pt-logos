@@ -259,7 +259,7 @@ Emit inside the `platform_managed_project` block, alphabetically before `kuberne
       }
 ```
 
-Omit `database_version` and `machine_tier` if they match their defaults (`POSTGRES_16` and `db-f1-micro`).
+Both `database_version` and `machine_tier` are required when `cloud_sql` is present.
 
 ##### Group 10 — Additional Google Cloud Platform Projects
 
