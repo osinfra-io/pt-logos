@@ -50,7 +50,11 @@ output "teams" {
       # Platform-managed project config for this team
       has_platform_managed_project = team.platform_managed_project != null
       platform_managed_project = {
-        cloud_sql                   = try(team.platform_managed_project.cloud_sql, null)
+        cloud_sql = {
+          database_version = try(team.platform_managed_project.cloud_sql.database_version, null)
+          machine_tier     = try(team.platform_managed_project.cloud_sql.machine_tier, null)
+          regions          = try(toset(team.platform_managed_project.cloud_sql.regions), toset([]))
+        }
         kubernetes_engine_locations = try(team.platform_managed_project.kubernetes_engine.locations, {})
       }
 
