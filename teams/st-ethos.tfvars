@@ -34,7 +34,7 @@ teams = {
       cloud_sql = {
         database_version = "POSTGRES_16"
         machine_tier     = "db-f1-micro"
-        regions          = ["us-east1", "us-east4"]
+        regions          = ["us-east1"]
       }
     }
 
