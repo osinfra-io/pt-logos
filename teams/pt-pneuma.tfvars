@@ -35,22 +35,8 @@ teams = {
     }
 
     github_repositories = {
-      "pt-pneuma-ai-context" = {
-        description = "Centralized AI context and GitHub Copilot instructions for the pt-pneuma team."
-
-
-        topics = [
-          "copilot",
-          "github",
-          "osinfra",
-          "platform-team",
-          "pt-pneuma"
-        ]
-      }
-
       "pt-pneuma" = {
-        description = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation." # This can be inferred from the team description (NOTE: need a description in the variable).
-
+        description                       = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation."
         enable_datadog_secrets            = true
         enable_datadog_webhook            = true
         enable_google_wif_service_account = true
@@ -796,7 +782,6 @@ teams = {
           }
         }
 
-
         topics = [
           "google-cloud-platform",
           "kubernetes",
@@ -806,10 +791,21 @@ teams = {
         ]
       }
 
+      "pt-pneuma-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-pneuma team."
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-team",
+          "pt-pneuma"
+        ]
+      }
+
       "pt-pneuma-istio-test" = {
         description                       = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
         enable_google_wif_service_account = true
-
 
         topics = [
           "golang",
@@ -819,6 +815,24 @@ teams = {
           "platform-team",
           "pt-pneuma"
         ]
+      }
+    }
+
+    google_basic_groups_memberships = {
+      admin = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      reader = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
+      }
+      writer = {
+        managers = []
+        members  = []
+        owners   = ["brett@osinfra.io"]
       }
     }
 
@@ -940,24 +954,6 @@ teams = {
             }
           }
         }
-      }
-    }
-
-    google_basic_groups_memberships = {
-      admin = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      reader = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
-      }
-      writer = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
       }
     }
 

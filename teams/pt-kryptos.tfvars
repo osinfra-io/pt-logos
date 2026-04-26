@@ -7,6 +7,7 @@ teams = {
 
     display_name = "Kryptos" # The hidden foundation of platform security — managing cryptographic primitives, secrets infrastructure, and security controls that underpin all teams on the platform.
 
+    enable_google_project            = true
     enable_opentofu_state_management = true
     enable_workflows                 = true
 
@@ -36,8 +37,7 @@ teams = {
 
     github_repositories = {
       "pt-kryptos" = {
-        description = "The hidden foundation of platform security — managing cryptographic primitives, secrets infrastructure, and security controls that underpin all teams on the platform."
-
+        description                       = "The hidden foundation of platform security — managing cryptographic primitives, secrets infrastructure, and security controls that underpin all teams on the platform."
         enable_datadog_secrets            = true
         enable_datadog_webhook            = true
         enable_google_wif_service_account = true
@@ -48,9 +48,7 @@ teams = {
               custom_branch_policies = false
               protected_branches     = true
             }
-
             name = "Non-Production"
-
             reviewers = {
               teams = ["pt-kryptos-non-production-approvers"]
             }
@@ -60,9 +58,7 @@ teams = {
               custom_branch_policies = false
               protected_branches     = true
             }
-
             name = "Production"
-
             reviewers = {
               teams = ["pt-kryptos-production-approvers"]
             }
@@ -72,9 +68,7 @@ teams = {
               custom_branch_policies = false
               protected_branches     = true
             }
-
             name = "Sandbox"
-
             reviewers = {
               teams = ["pt-kryptos-sandbox-approvers"]
             }
@@ -119,6 +113,8 @@ teams = {
         owners   = ["brett@osinfra.io"]
       }
     }
+
+    google_project_enable_datadog = true
 
     platform_managed_project = {
       enable_datadog = true
@@ -174,9 +170,6 @@ teams = {
         }
       }
     }
-
-    enable_google_project         = true
-    google_project_enable_datadog = true
 
     team_type = "platform-team"
   }
