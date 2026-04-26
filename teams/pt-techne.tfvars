@@ -62,6 +62,21 @@ teams = {
         ]
       }
 
+      "pt-techne-mcp-server" = {
+        description            = "Model Context Protocol (MCP) server providing platform context and tools to AI assistants."
+        enable_datadog_webhook = true
+
+
+        topics = [
+          "ai",
+          "github-copilot",
+          "mcp",
+          "model-context-protocol",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-misc-workflows" = {
         description            = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
         enable_datadog_webhook = true
