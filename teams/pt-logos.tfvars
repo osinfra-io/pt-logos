@@ -35,24 +35,8 @@ teams = {
     }
 
     github_repositories = {
-      # pt-logos owns this repository as the foundational governance team responsible for
-      # org-wide standards and shared tooling.
       "pt-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
-
-
-        topics = [
-          "copilot",
-          "github",
-          "osinfra",
-          "platform-team",
-          "pt-logos"
-        ]
-      }
-
-      "pt-logos-ai-context" = {
-        description = "Centralized AI context and GitHub Copilot instructions for the pt-logos team."
-
 
         topics = [
           "copilot",
@@ -64,8 +48,7 @@ teams = {
       }
 
       "pt-logos" = {
-        description = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously." # This can be inferred from the team description (NOTE: need a description in the variable).
-
+        description                       = "The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously."
         enable_datadog_secrets            = true
         enable_datadog_webhook            = true
         enable_google_wif_service_account = true
@@ -153,9 +136,20 @@ teams = {
           }
         }
 
-
         topics = [
           "opentofu",
+          "platform-team",
+          "pt-logos"
+        ]
+      }
+
+      "pt-logos-ai-context" = {
+        description = "Centralized AI context and GitHub Copilot instructions for the pt-logos team."
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
           "platform-team",
           "pt-logos"
         ]

@@ -23,7 +23,6 @@ teams = {
       "pt-ekklesia-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-ekklesia team."
 
-
         topics = [
           "copilot",
           "github",
