@@ -25,6 +25,8 @@ You never hand-write HCL for `teams/*.tfvars`. For every change that touches a t
 2. **Call `platform/validate_team_spec`** with that spec. If it returns `valid: false`, surface the structured `errors` (each has `path` and `message`) to the user, ask them to correct the input, and stop. Do not attempt to fix tfvars by hand.
 3. **Call `platform/render_team_tfvars`** with the validated spec. Write the returned `tfvars` bytes verbatim to `teams/{team-key}.tfvars`. Never reformat, re-indent, or otherwise edit the renderer's output — it is the canonical pt-logos style by definition.
 
+If either platform tool fails for reasons other than validation (timeout, transport error, internal server error, tool unavailable), surface the raw error to the user, do **not** write or modify any tfvars file, and suggest opening an issue on `osinfra-io/pt-techne-mcp-server`. Never fall back to hand-writing HCL.
+
 The renderer enforces alphabetical ordering, indentation, blank-line spacing, and field placement (e.g. `enable_datadog_apm` inside `kubernetes_engine`, `cloud_sql` alphabetically inside `platform_managed_project`). Trust it.
 
 ## Startup
@@ -49,7 +51,7 @@ The renderer enforces alphabetical ordering, indentation, blank-line spacing, an
 
 **Step 4 — Search all team files for their identity:**
 
-Scan every `teams/*.tfvars` file and build a list of every team where the user appears, noting exactly where they appear in each. **Include `teams/pt-logos.tfvars` in this scan even though it was already read in Step 2** — it must be checked for identity matches too.
+Scan every real team file in `teams/` and build a list of every team where the user appears, noting exactly where they appear in each. **Exclude `teams/example.tfvars`** (it's a schema reference, not a real team, and would produce false-positive identity matches). **Include `teams/pt-logos.tfvars` in this scan even though it was already read in Step 2** — it must be checked for identity matches too.
 
 - **Email matches** — check Datadog admins/members and every Google basic and artifact-registry group (owners/managers/members)
 - **GitHub username matches** — check the parent team and all child teams (maintainers/members)
@@ -201,7 +203,7 @@ Read `teams/{team-key}.tfvars` to show the current list before proceeding. When 
 **Ask:**
 1. Which **team key**?
 2. **Repository name** — must equal team key or `{team-key}-{suffix}`.
-3. **Description** — suggest based on the repo name pattern (see Group 7), then confirm.
+3. **Description** — suggest based on the repo name pattern (same rules as the GitHub repositories step under Operation 1), then confirm.
 4. **Topics** — auto-include team key and team-type topic; ask for additional technology topics.
 5. **Push allowances** — default `osinfra-io/{team-key}`.
 6. **Feature flags** — `enable_datadog_webhook` (default true), `enable_datadog_secrets`, `enable_google_wif_service_account`, `enable_ruleset` (default true).
@@ -283,7 +285,7 @@ Read `teams/{team-key}.tfvars`. Check the location doesn't already exist.
 
 **Auto-populate subnet ranges** — do not ask the user for CIDRs:
 
-1. Read all `teams/*.tfvars` files and collect every CIDR (`ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, `master_ipv4_cidr_block`) to determine which slots are already allocated.
+1. Read all real team files in `teams/` (**exclude `teams/example.tfvars`** — its placeholder CIDRs would falsely mark slots as allocated) and collect every CIDR (`ip_cidr_range`, `pod_ip_cidr_range`, `services_ip_cidr_range`, `master_ipv4_cidr_block`) to determine which slots are already allocated.
 2. Use the IPAM sequence to find the lowest unallocated slot:
    - **Primary** (`ip_cidr_range`): `10.60.0.0/20`, `10.60.16.0/20`, `10.60.32.0/20`, … (increment by /20)
    - **Pods** (`pod_ip_cidr_range`): `10.0.0.0/15`, `10.2.0.0/15`, `10.4.0.0/15`, … (increment by /15)
