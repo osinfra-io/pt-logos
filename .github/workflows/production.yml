@@ -35,6 +35,7 @@ jobs:
           - pt-logos
           - pt-pneuma
           - pt-techne
+          - st-data
           - st-ethos
     with:
       checkout_ref: ${{ github.ref }}
