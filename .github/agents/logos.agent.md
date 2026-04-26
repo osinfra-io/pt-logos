@@ -326,12 +326,13 @@ Ask for: title, type (bug/enhancement/question), and description. Create on `osi
 Use the GitHub MCP tools for all file and PR operations — never use shell commands, `gh` CLI, or ask the user to run anything locally.
 
 For every change:
-1. `search_pull_requests` to check whether an open PR already targets the intended branch (e.g. `head:update/{team-key} is:open`). If one exists, tell the user *"There's already an open PR for `{team-key}` at {url}. I'll add this change to that branch rather than opening a new one."* and skip `create_branch`. Otherwise `create_branch` off `main`.
-2. `get_file_contents` to fetch each file to be modified (gives the SHA needed for updates).
+1. `search_pull_requests` to check whether an open PR already targets the intended branch (e.g. `head:update/{team-key} is:open`).
+   - **If an open PR exists:** tell the user *"There's already an open PR for `{team-key}` at {url}. I'll add this change to that branch rather than opening a new one."* Use the existing branch name from that PR for all subsequent file operations. **Do not** call `create_branch`, `create_pull_request`, or `request_copilot_review`.
+   - **If no open PR exists:** `create_branch` off `main` using the branch name from the **Branch naming** section below.
+2. `get_file_contents` (against the target branch — existing PR branch or newly created branch) to fetch each file to be modified (gives the SHA needed for updates).
 3. For any tfvars file: build the spec → `platform/validate_team_spec` → `platform/render_team_tfvars` → take the returned bytes verbatim. **Do not reformat the renderer's output.**
-4. `push_files` to commit all changed files in a single commit.
-5. `create_pull_request` from the feature branch → `main`.
-6. `request_copilot_review` on the new PR.
+4. `push_files` to commit all changed files in a single commit on the target branch.
+5. **Only on the new-PR path:** `create_pull_request` from the feature branch → `main`, then `request_copilot_review` on it. On the existing-PR path, skip both — the new commit will appear on the open PR automatically.
 
 **Branch naming:** `onboard/{team-key}-environment` (new team env PR), `onboard/{team-key}` (new team onboarding PR), `update/{team-key}` (everything else).
 
