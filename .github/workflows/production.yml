@@ -36,6 +36,7 @@ jobs:
           - pt-pneuma
           - pt-techne
           - st-ethos
+          - st-foo
     with:
       checkout_ref: ${{ github.ref }}
       github_environment: "Production: ${{ matrix.teams }}"
