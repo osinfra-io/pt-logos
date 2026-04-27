@@ -15,7 +15,7 @@ The full field reference — every required and optional field, type, default, a
 - Schema (source of truth): [`schema/team.schema.json`](https://github.com/osinfra-io/pt-techne-mcp-server/blob/main/schema/team.schema.json) in `osinfra-io/pt-techne-mcp-server`
 - Human reference: [`docs/schema.md`](https://github.com/osinfra-io/pt-techne-mcp-server/blob/main/docs/schema.md) in the same repo
 
-Do not duplicate the schema in this prompt. Read it from the source.
+Do not duplicate the schema in this prompt. Read it from the source **during the conversation flow** if you need to understand field options or validation rules — not at PR execution time, by which point the spec is already fully built.
 
 ## Writing tfvars — always via the renderer
 
@@ -147,7 +147,7 @@ Before creating any files, show a formatted summary of everything collected and 
 **New team onboarding opens two PRs in sequence on `pt-logos`, plus additional PRs on other repos.**
 
 **PR 1 — Create the GitHub environment**:
-- Read `teams/pt-logos.tfvars` and construct the **complete** pt-logos team spec from it, adding `{team-key-without-prefix}-production` to `github_repositories["pt-logos"].environments`. The spec must satisfy the full schema — do not pass a partial or delta object. Then call `pt-techne-mcp-server/open_team_pr` with that spec. Note the `action` and branch name it returns.
+- Use the `teams/pt-logos.tfvars` content already read during startup — do not re-read it. From it, construct the **complete** pt-logos team spec, adding `{team-key-without-prefix}-production` to `github_repositories["pt-logos"].environments`. The spec must satisfy the full schema — do not pass a partial or delta object. Then call `pt-techne-mcp-server/open_team_pr` with that spec. Note the `action` and branch name it returns.
 
 **PR 2 — Onboard the team**:
 1. Build the spec for the new team, then call `pt-techne-mcp-server/open_team_pr` with that spec. Note the branch name it returns.
@@ -316,7 +316,7 @@ Use the GitHub MCP tools for all file and PR operations — never use shell comm
 
 **For any change that touches a `teams/*.tfvars` file on `osinfra-io/pt-logos`:**
 
-Call `pt-techne-mcp-server/open_team_pr` with the complete team spec. For `teams/*.tfvars` changes, this is the **only** write path: do **not** separately call `validate_team_spec` or `render_team_tfvars` before opening the PR, because `open_team_pr` already handles idempotency, branch creation, spec validation, rendering, pushing the tfvars file, opening the PR, and requesting Copilot review.
+Do **not** call `search_pull_requests` before `open_team_pr` — it handles idempotency internally. Call `pt-techne-mcp-server/open_team_pr` with the complete team spec. For `teams/*.tfvars` changes, this is the **only** write path: do **not** separately call `validate_team_spec` or `render_team_tfvars` before opening the PR, because `open_team_pr` already handles idempotency, branch creation, spec validation, rendering, pushing the tfvars file, opening the PR, and requesting Copilot review.
 
 Inspect the full response before pushing additional files:
 - If `action` is **not** `noop` — a feature branch was created or updated. Use the returned branch name to push any additional files (e.g. `production.yml` for PR 2) with `push_files`.
@@ -324,7 +324,7 @@ Inspect the full response before pushing additional files:
 
 **For changes to `osinfra-io/pt-ekklesia-docs` (team index + sidebar):**
 
-Call `pt-techne-mcp-server/open_team_docs_pr` with the team spec. Inspect the full response before pushing additional docs files:
+Do **not** call `search_pull_requests` before `open_team_docs_pr` — it handles idempotency internally. Call `pt-techne-mcp-server/open_team_docs_pr` with the team spec. Inspect the full response before pushing additional docs files:
 - If `action` is **not** `noop` — a feature branch was created or updated. Use the returned branch name to push any additional docs files (e.g. `networking.md` for GKE onboarding) with `push_files`.
 - If `action` is `noop` — docs already match. **Do not call `push_files` unconditionally.** Check whether the additional file already contains the expected change. If it does, nothing more is needed. If it doesn't, use the standard manual flow below to open a dedicated PR for that file change only.
 
