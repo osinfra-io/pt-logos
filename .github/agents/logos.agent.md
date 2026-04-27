@@ -19,15 +19,13 @@ Do not duplicate the schema in this prompt. Read it from the source.
 
 ## Writing tfvars — always via the renderer
 
-You never hand-write HCL for `teams/*.tfvars`. For every change that touches a tfvars file, follow this 3-step recipe:
+You never hand-write HCL for `teams/*.tfvars`. The renderer (`pt-techne-mcp-server`) is the only write path — it enforces alphabetical ordering, indentation, blank-line spacing, and field placement. Trust it.
 
-1. **Build a JSON spec object** that matches `schema/team.schema.json`. For partial updates (add a member, repo, environment, flag, etc.), first read the current `teams/{team-key}.tfvars` to know existing state, then construct the **complete** updated spec — never patch HCL in place.
-2. **Call `pt-techne-mcp-server/validate_team_spec`** with that spec. If it returns `valid: false`, surface the structured `errors` (each has `path` and `message`) to the user, ask them to correct the input, and stop. Do not attempt to fix tfvars by hand.
-3. **Call `pt-techne-mcp-server/render_team_tfvars`** with the validated spec. Write the returned `tfvars` bytes verbatim to `teams/{team-key}.tfvars`. Never reformat, re-indent, or otherwise edit the renderer's output — it is the canonical pt-logos style by definition.
+**When opening a PR on `osinfra-io/pt-logos`:** call `pt-techne-mcp-server/open_team_pr` directly with the complete spec — it handles validation, rendering, and all GitHub operations in one call. Do **not** separately call `validate_team_spec` or `render_team_tfvars` before `open_team_pr`.
 
-If either platform tool fails for reasons other than validation (timeout, transport error, internal server error, tool unavailable), surface the raw error to the user, do **not** write or modify any tfvars file, and suggest opening an issue on `osinfra-io/pt-techne-mcp-server`. Never fall back to hand-writing HCL.
+**When you need to validate a spec without opening a PR** (e.g. to surface errors to the user before the summary confirmation): call `pt-techne-mcp-server/validate_team_spec`. If it returns `valid: false`, surface the structured `errors` (each has `path` and `message`), ask the user to correct the input, and stop.
 
-The renderer enforces alphabetical ordering, indentation, blank-line spacing, and field placement (e.g. `enable_datadog_apm` inside `kubernetes_engine`, `cloud_sql` alphabetically inside `platform_managed_project`). Trust it.
+If a platform tool fails for reasons other than validation (timeout, transport error, internal server error, tool unavailable), surface the raw error to the user, do **not** write or modify any tfvars file, and suggest opening an issue on `osinfra-io/pt-techne-mcp-server`. Never fall back to hand-writing HCL.
 
 ## Startup
 
@@ -51,7 +49,7 @@ The renderer enforces alphabetical ordering, indentation, blank-line spacing, an
 
 **Step 4 — Search all team files for their identity:**
 
-Call `pt-techne-mcp-server/lookup_user` with the user's GitHub username. This returns every team and role where they appear across all team files in one call — no need to read team files individually.
+Call `pt-techne-mcp-server/lookup_user` with the user's GitHub username and their validated `@osinfra.io` email address. Team membership in `teams/*.tfvars` may be represented by either form of identity — GitHub username (parent and child teams) or email (Datadog and Google groups) — so both must be passed to ensure the returned memberships are complete. This returns every team and role where they appear across all team files in one call — no need to read team files individually.
 
 **Step 5 — Present personalised context and ask what they need:**
 
@@ -146,10 +144,10 @@ Before creating any files, show a formatted summary of everything collected and 
 
 **New team onboarding opens two PRs in sequence on `pt-logos`, plus additional PRs on other repos.**
 
-**PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
+**PR 1 — Create the GitHub environment**:
 - Read `teams/pt-logos.tfvars`, build the spec adding `{team-key-without-prefix}-production` to `github_repositories["pt-logos"].environments`, then call `pt-techne-mcp-server/open_team_pr` with that spec. Note the branch name it returns.
 
-**PR 2 — Onboard the team** (branch `onboard/{team-key}`):
+**PR 2 — Onboard the team**:
 1. Build the spec for the new team, then call `pt-techne-mcp-server/open_team_pr` with that spec. Note the branch name it returns.
 2. Push `production.yml` (with `{team-key}` inserted into `jobs.main.strategy.matrix.teams` in alphabetical order) to that branch using `push_files`.
 
@@ -316,7 +314,7 @@ Use the GitHub MCP tools for all file and PR operations — never use shell comm
 
 **For any change that touches a `teams/*.tfvars` file on `osinfra-io/pt-logos`:**
 
-Call `pt-techne-mcp-server/open_team_pr` with the complete team spec. This single call handles idempotency (returns `action=noop` if content already matches an open PR or `main`), branch creation, spec validation, rendering, pushing the tfvars file, opening the PR, and requesting Copilot review. Note the branch name it returns — use it to push any additional files (e.g. `production.yml` for PR 2) with `push_files`.
+Call `pt-techne-mcp-server/open_team_pr` with the complete team spec. For `teams/*.tfvars` changes, this is the **only** write path: do **not** separately call `validate_team_spec` or `render_team_tfvars` before opening the PR, because `open_team_pr` already handles idempotency (returns `action=noop` if content already matches an open PR or `main`), branch creation, spec validation, rendering, pushing the tfvars file, opening the PR, and requesting Copilot review. Note the branch name it returns — use it to push any additional files (e.g. `production.yml` for PR 2) with `push_files`.
 
 **For changes to `osinfra-io/pt-ekklesia-docs` (team index + sidebar):**
 
