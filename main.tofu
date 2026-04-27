@@ -427,8 +427,6 @@ resource "github_repository_file" "releases" {
   for_each = local.github_repositories
 
   branch         = "main"
-  commit_author  = "Open Source Infrastructure as Code Service Account"
-  commit_email   = "github-sa@osinfra.io"
   commit_message = "Update .github/release.yml"
 
   content = file("${path.module}/markdown/release.yml")
@@ -446,8 +444,6 @@ resource "github_repository_file" "security_policies" {
   for_each = local.github_repositories
 
   branch         = "main"
-  commit_author  = "Open Source Infrastructure as Code Service Account"
-  commit_email   = "github-sa@osinfra.io"
   commit_message = "Update SECURITY.md"
 
   content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
