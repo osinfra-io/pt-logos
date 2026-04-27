@@ -324,7 +324,9 @@ Inspect the full response before pushing additional files:
 
 **For changes to `osinfra-io/pt-ekklesia-docs` (team index + sidebar):**
 
-Call `pt-techne-mcp-server/open_team_docs_pr` with the team spec. Note the branch name it returns — use it to push any additional docs files (e.g. `networking.md` for GKE onboarding) with `push_files`.
+Call `pt-techne-mcp-server/open_team_docs_pr` with the team spec. Inspect the full response before pushing additional docs files:
+- If `action` is **not** `noop` — a feature branch was created or updated. Use the returned branch name to push any additional docs files (e.g. `networking.md` for GKE onboarding) with `push_files`.
+- If `action` is `noop` — docs already match. **Do not call `push_files` unconditionally.** Check whether the additional file already contains the expected change. If it does, nothing more is needed. If it doesn't, use the standard manual flow below to open a dedicated PR for that file change only.
 
 **For Corpus and Pneuma helpers.tofu changes:**
 
