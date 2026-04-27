@@ -5,7 +5,7 @@ teams = {
       members = []
     }
 
-    display_name = "Techne" # The practiced art of making — the disciplined craft through which raw materials of infrastructure are shaped into purposeful, refined platform instruments.
+    display_name = "Techne"
 
     enable_google_project            = true
     enable_opentofu_state_management = true
@@ -36,6 +36,18 @@ teams = {
     }
 
     github_repositories = {
+      "pt-techne-agents" = {
+        description            = "AI agent definitions and Copilot coding agent configurations for the osinfra.io platform."
+        enable_datadog_webhook = true
+
+        topics = [
+          "agent",
+          "github-copilot",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-ai-context" = {
         description = "Centralized AI context and GitHub Copilot instructions for the pt-techne team."
 
