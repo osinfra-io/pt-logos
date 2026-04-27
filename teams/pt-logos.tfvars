@@ -94,6 +94,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          foo-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: st-foo"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           kryptos-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
