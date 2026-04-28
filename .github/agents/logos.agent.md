@@ -155,7 +155,7 @@ Before creating any files, show a formatted summary of everything collected and 
 
 **PR 3 — Docs** (`osinfra-io/pt-ekklesia-docs`): call `pt-techne-mcp-server/open_team_docs_pr` with the team spec — it creates the team page, updates the section index card, and patches `sidebars.js` in one call. Note the branch name it returns.
 
-**If GKE clusters are configured** (any team type): after `open_team_docs_pr` returns, push the `docs/platform-teams/corpus/networking.md` update to the same branch using `push_files` — follow the Active Clusters / Available Slots / tab-count edits described in **Operation 10** for each new cluster location.
+**If GKE clusters are configured** (any team type): after `open_team_docs_pr` returns, push the `docs/platform-grouping/corpus/networking.md` update to the same branch using `push_files` — follow the Active Clusters / Available Slots / tab-count edits described in **Operation 10** for each new cluster location.
 
 **Corpus PR** (`osinfra-io/pt-corpus`): branch `onboard/{team-key}-corpus`, title `"Update pt-corpus: add {team-key} logos workspace"` — open only if **GKE clusters are configured OR additional Google Cloud Platform projects are being created**:
 1. Call `pt-techne-mcp-server/render_corpus_helpers` with the team key — returns patched `helpers.tofu` bytes with `"{team-key}-main-production"` inserted into `logos_workspaces`.
@@ -288,7 +288,7 @@ Read `teams/{team-key}.tfvars`. Check the location doesn't already exist.
 
 **PR 1 — Logos** (`osinfra-io/pt-logos`): branch `update/{team-key}`, title `"Update {team-key}: add Google Kubernetes Engine cluster location {location}"`.
 
-**PR 2 — Docs** (`osinfra-io/pt-ekklesia-docs`): update `docs/platform-teams/corpus/networking.md` to record the claimed CIDR slot:
+**PR 2 — Docs** (`osinfra-io/pt-ekklesia-docs`): update `docs/platform-grouping/corpus/networking.md` to record the claimed CIDR slot:
 1. In the Active Clusters tab: insert a new `<NetworkCard>` with `cluster="{team-key}-{location}"`, `logo="/img/gke.svg"`, and the confirmed `primary`/`pods`/`services`/`master` values at the position that preserves slot-number ascending order; do not always append.
 2. In the Available Slots tab: remove the `<NetworkCard>` whose `primary` matches the claimed primary CIDR.
 3. Update both tab label counts: increment Active Clusters by 1, decrement Available Slots by 1.
