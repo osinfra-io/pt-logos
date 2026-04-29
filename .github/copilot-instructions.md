@@ -9,13 +9,11 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 `teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
 
-## Logos Agent
+## Nomos Agent
 
-`.github/agents/logos.agent.md` is the Copilot agent for managing all logos-owned resources. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
+[`pt-techne-agents`](https://github.com/osinfra-io/pt-techne-agents) hosts the [Nomos Agent](https://github.com/osinfra-io/pt-techne-agents/blob/main/.github/agents/nomos.agent.md) — the Copilot agent for managing all logos-owned resources. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
 
-Supported operations: onboard a new team, add or remove members (GitHub teams, Datadog team, GCP Identity groups), add or remove repositories, add or remove GitHub environments, enable or disable feature flags, add or remove GCP projects, add GKE cluster locations, and update a team's display name.
-
-**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
+**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the Nomos Agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
 When onboarding a team, the agent opens **two pull requests in sequence** — the GitHub environment must exist before the second PR's deployment can be gated by it:
 
