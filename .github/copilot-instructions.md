@@ -11,7 +11,7 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 ## Nomos Agent
 
-[`pt-techne-agents`](https://github.com/osinfra-io/pt-techne-agents) hosts the [Nomos Agent](https://github.com/osinfra-io/pt-techne-agents/blob/main/.github/agents/nomos.agent.md) — the platform's self-serve interface for all teams. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
+[`pt-techne-agents`](https://github.com/osinfra-io/pt-techne-agents) hosts the [Nomos Agent](https://github.com/osinfra-io/pt-techne-agents/blob/main/.github/agents/techne-nomos.agent.md) — the platform's self-serve interface for all teams. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
 
 **Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the Nomos Agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
