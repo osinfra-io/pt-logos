@@ -429,7 +429,7 @@ resource "github_repository_file" "releases" {
   branch         = "main"
   commit_message = "Update .github/release.yml"
 
-  content = file("${path.module}/markdown/release.yml")
+  content = file("${path.module}/files/release.yml")
 
   file                = ".github/release.yml"
   overwrite_on_create = true
@@ -446,7 +446,7 @@ resource "github_repository_file" "security_policies" {
   branch         = "main"
   commit_message = "Update SECURITY.md"
 
-  content = templatefile("${path.module}/markdown/SECURITY.md.tpl", {
+  content = templatefile("${path.module}/files/SECURITY.md.tpl", {
     repository = each.key
   })
 
