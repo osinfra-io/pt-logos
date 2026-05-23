@@ -5,7 +5,7 @@ teams = {
       members = []
     }
 
-    display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
+    display_name = "Logos"
 
     enable_opentofu_state_management = true
     enable_workflows                 = true
@@ -70,6 +70,16 @@ teams = {
               protected_branches     = true
             }
             name = "Production: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
+          delete-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: et-delete"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
             }
