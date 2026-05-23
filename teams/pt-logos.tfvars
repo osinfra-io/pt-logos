@@ -134,6 +134,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          test-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: et-test"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
         }
 
         topics = [
