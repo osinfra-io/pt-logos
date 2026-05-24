@@ -356,6 +356,7 @@ locals {
     "good first issue" = { color = "7057FF", description = "Good for newcomers" }
     "major"            = { color = "B60205", description = "Major version: Incompatible changes" }
     "minor"            = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
+    "nomos"            = { color = "FFB400", description = "Created by the Nomos agent" }
     "patch"            = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
     "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
     "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
