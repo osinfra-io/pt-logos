@@ -212,6 +212,7 @@ resource "github_actions_organization_permissions" "this" {
       "dependabot/*",
       "docker/*",
       "github/*",
+      "golangci/*",
       "google-github-actions/*",
       "open-policy-agent/*",
       "opentofu/*",
