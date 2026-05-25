@@ -217,7 +217,8 @@ resource "github_actions_organization_permissions" "this" {
       "open-policy-agent/*",
       "opentofu/*",
       "projectdiscovery/*",
-      "promptfoo/*"
+      "promptfoo/*",
+      "sigstore/*"
     ]
 
     verified_allowed = false
