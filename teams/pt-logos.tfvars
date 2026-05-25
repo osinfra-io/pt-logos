@@ -54,6 +54,16 @@ teams = {
         enable_google_wif_service_account = true
 
         environments = {
+          ai-agents-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: st-ai-agents"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           arche-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
