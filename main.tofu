@@ -218,7 +218,8 @@ resource "github_actions_organization_permissions" "this" {
       "opentofu/*",
       "projectdiscovery/*",
       "promptfoo/*",
-      "sigstore/*"
+      "sigstore/*",
+      "styrainc/*"
     ]
 
     verified_allowed = false

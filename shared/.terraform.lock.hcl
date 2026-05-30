@@ -25,7 +25,21 @@ provider "registry.opentofu.org/datadog/datadog" {
 provider "registry.opentofu.org/hashicorp/google" {
   version = "7.34.0"
   hashes = [
+    "h1:/0CLAwWCTrZJovTRenvz4mhVOYP7XD4w167BS0891Ng=",
+    "h1:2CzHHFSvDGavGrRsfJVCgVs5Nb8EkzjqZh+Ph6f90Y0=",
+    "h1:3/t2noNGk6IVv+Y8yoRfPG4A2wmSfPKRO6OrRAUiCpg=",
     "h1:48P79sXWSNOFTSrtQpSHIdBZNoWwBRn91EZhFpqrDTc=",
+    "h1:5J7iE1GVkLZQIL1FpsroGI+GFcW1Cs1MrqU2U4M34G0=",
+    "h1:7gXk1LpYVyNW4ws2wx9b3TLZUH8W492/TRmr0e6s1z0=",
+    "h1:EeVoBLo79udIf1HEiI0On9n7FB0LwXuL/1oYTpHIDrs=",
+    "h1:IBtL6LbnJQO0msexuB62TnsymubcL3hyUT5oWHdXLuQ=",
+    "h1:JuDLBGC6h07BVKHFSUjZO5sWkhAuscUzv9gjfxKeH1w=",
+    "h1:NuKW0dM3w0IqB0aYIWHXm9vZVGYq8RODcAYmmSKEn88=",
+    "h1:Y3+COAisHfe8z3XL5WrDx9X9z9GAgDAdKuCI/pGtx1s=",
+    "h1:cDncHGVqeS5K2ZhCZlvMSSw+SIOePXpbVaY6q59gmHk=",
+    "h1:fR7kux5DSDiZkMYuWZmYjj+b7MEhGsH6VImlthkSvnU=",
+    "h1:jiIcSQ/FqyCU4aRQ62O38HX0U/WaLc852ry8EAq21e8=",
+    "h1:mmmRMKAP2orxHvlY9hIcHbrV8CxpEzPMuhkbJc4PGKg=",
     "zh:0767408a0e079520d97ecf3a57cc37247b043ab8a0227227b723a17b96849dd4",
     "zh:0c263b6bc69ccf221dac9f775b892bdf3bc8dd935b84ae69e0462393767148fb",
     "zh:128534e92bb8c00e0692c13de5555ceb4f68a2ccf8aba70bc9bb2115675900bd",
