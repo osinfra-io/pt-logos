@@ -94,6 +94,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          kratos-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: pt-kratos"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
           kryptos-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
