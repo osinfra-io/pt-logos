@@ -5,7 +5,7 @@ teams = {
       members = []
     }
 
-    display_name = "Techne"
+    display_name = "Techne" # The practiced art of making — the disciplined craft through which raw materials of infrastructure are shaped into purposeful, refined platform instruments.
 
     enable_google_project            = true
     enable_opentofu_state_management = true
