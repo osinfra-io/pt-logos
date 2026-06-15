@@ -32,10 +32,7 @@ locals {
   datadog_admin_users_for_each = local.within_logos ? local.datadog_admin_users : tomap({})
 
   # Lookup admin users only in non-logos workspaces
-  datadog_existing_admins_for_each = local.within_logos ? tomap({}) : {
-    for email in local.datadog_organization_admins :
-    replace(replace(email, "@", "-at-"), ".", "-") => email
-  }
+  datadog_existing_admins_for_each = local.within_logos ? tomap({}) : local.datadog_admin_users
 
   datadog_log_indexes = {
     high-retention = {
@@ -340,8 +337,7 @@ locals {
   github_repository_datadog_webhooks = { for repo in flatten([
     for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : {
-        key                    = repo_key
-        enable_datadog_webhook = repo.enable_datadog_webhook
+        key = repo_key
       }
       if repo.enable_datadog_webhook
     ]
