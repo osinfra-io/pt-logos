@@ -219,7 +219,6 @@ variable "teams" {
       owners   = list(string)
     })), {})
 
-
     google_xpn_admin_groups_memberships = optional(map(object({
       managers = list(string)
       members  = list(string)

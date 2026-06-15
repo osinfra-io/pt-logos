@@ -7,13 +7,15 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 
 ## Team Configuration Schema
 
-`teams/example.tfvars` is the canonical schema reference for all team configuration options. **Any time a field is added, removed, or changed in `variables.tofu`, `teams/example.tfvars` must be updated to match** — including the field itself, its comment explaining purpose and valid values, and whether it is required or optional.
+The `teams` variable in `variables.tofu` is the canonical, in-repo schema for all team configuration options — its types, `optional()` defaults, and `validation` blocks define what every `teams/*.tfvars` file may contain. The schema is also documented on the [Team Topology](https://osinfra-io.github.io/docs/platform-grouping/logos/team-topology) docs page and enforced by `schema/team.schema.json` in [`pt-techne-mcp-server`](https://github.com/osinfra-io/pt-techne-mcp-server) (used by the `render_team_tfvars` tool to validate a spec before rendering a `.tfvars` file).
+
+**Any time a field is added, removed, or changed in the `teams` variable in `variables.tofu`, all of the following must be updated to match:** the Team Topology docs page, `schema/team.schema.json` in `pt-techne-mcp-server`, and the Nomos Agent prompt (see below).
 
 ## Nomos Agent
 
 [`pt-techne-agents`](https://github.com/osinfra-io/pt-techne-agents) hosts the [Nomos Agent](https://github.com/osinfra-io/pt-techne-agents/blob/main/.github/agents/techne-nomos.agent.md) — the platform's self-serve interface for all teams. It detects intent from natural language, guides the user through the appropriate flow, and opens a pull request with every change.
 
-**Any time a field is added, removed, or changed in `variables.tofu` or `teams/example.tfvars`, the Nomos Agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
+**Any time a field is added, removed, or changed in the `teams` variable in `variables.tofu`, the Nomos Agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
 When onboarding a team, the agent opens **two pull requests in sequence** — the GitHub environment must exist before the second PR's deployment can be gated by it:
 
