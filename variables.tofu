@@ -241,7 +241,7 @@ variable "teams" {
 
   validation {
     condition = alltrue([
-      for team_key, team in var.teams : can(regex("^[A-Z][A-Za-z0-9]*( (and|[A-Z][A-Za-z0-9]*) [A-Z][A-Za-z0-9]*| [A-Z][A-Za-z0-9]*)*$", team.display_name))
+      for team_key, team in var.teams : can(regex("^[A-Z][A-Za-z]*( (and|[A-Z][A-Za-z]*))*$", team.display_name))
     ])
     error_message = "Team display_name must be in Title Case with no special characters except spaces. The word 'and' is allowed in lowercase (e.g., 'Platform Team', 'Trust and Safety')."
   }
