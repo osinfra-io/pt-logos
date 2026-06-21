@@ -36,14 +36,24 @@ teams = {
 
     github_repositories = {
       "pt-ai-context" = {
-        description = "Centralized AI context and GitHub Copilot instructions shared across all platform team repositories."
+        description = "Centralized AI context and GitHub Copilot instructions shared across all platform grouping team members."
 
         topics = [
           "copilot",
           "github",
           "osinfra",
-          "platform-team",
-          "pt-logos"
+          "platform-grouping"
+        ]
+      }
+
+      "pt-ai-plugins" = {
+        description = "Centralized GitHub Copilot CLI plugin marketplace shared across all platform grouping team members."
+
+        topics = [
+          "copilot",
+          "github",
+          "osinfra",
+          "platform-grouping"
         ]
       }
 
