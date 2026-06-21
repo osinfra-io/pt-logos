@@ -42,7 +42,8 @@ teams = {
           "copilot",
           "github",
           "osinfra",
-          "platform-grouping"
+          "platform-team",
+          "pt-logos"
         ]
       }
 
@@ -53,7 +54,8 @@ teams = {
           "copilot",
           "github",
           "osinfra",
-          "platform-grouping"
+          "platform-team",
+          "pt-logos"
         ]
       }
 
