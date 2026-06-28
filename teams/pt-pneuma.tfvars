@@ -805,6 +805,7 @@ teams = {
 
       "pt-pneuma-istio-test" = {
         description                       = "Istio test application used to validate Istio service mesh configurations in the pt-pneuma Kubernetes platform."
+        enable_datadog_secrets            = true
         enable_google_wif_service_account = true
 
         topics = [
