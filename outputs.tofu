@@ -47,6 +47,9 @@ output "teams" {
         if repo.team_key == team_key
       }
 
+      # GKE namespace config for this team (consumed by pneuma onboarding)
+      gke_namespace = try(team.gke_namespace, null)
+
       # Platform-managed project config for this team
       has_platform_managed_project = team.platform_managed_project != null
       platform_managed_project = {
@@ -55,7 +58,8 @@ output "teams" {
           machine_tier     = try(team.platform_managed_project.cloud_sql.machine_tier, null)
           regions          = try(toset(team.platform_managed_project.cloud_sql.regions), toset([]))
         }
-        kubernetes_engine_locations = try(team.platform_managed_project.kubernetes_engine.locations, {})
+        kubernetes_engine_locations  = try(team.platform_managed_project.kubernetes_engine.locations, {})
+        kubernetes_engine_namespaces = try(team.platform_managed_project.kubernetes_engine.namespaces, {})
       }
 
       # Google Cloud project flags for this team (consumed by corpus)

@@ -210,6 +210,11 @@ variable "teams" {
             services_ip_cidr_range = string
           })
         })), {})
+
+        namespaces = optional(map(object({
+          google_service_account = optional(string, null)
+          istio_injection        = optional(string, "disabled")
+        })), {})
       }))
     }))
 
@@ -325,6 +330,16 @@ variable "teams" {
       ]
     ]))
     error_message = "pages.source is required when pages.build_type is \"legacy\"."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) :
+        can(regex("^[a-z][a-z0-9-]*$", ns_name)) && contains(["enabled", "disabled"], ns.istio_injection)
+      ]
+    ]))
+    error_message = "kubernetes_engine.namespaces keys must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; istio_injection must be \"enabled\" or \"disabled\"."
   }
 
 }
