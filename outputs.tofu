@@ -47,9 +47,6 @@ output "teams" {
         if repo.team_key == team_key
       }
 
-      # GKE namespace config for this team (consumed by pneuma onboarding)
-      gke_namespace = try(team.gke_namespace, null)
-
       # Platform-managed project config for this team
       has_platform_managed_project = team.platform_managed_project != null
       platform_managed_project = {

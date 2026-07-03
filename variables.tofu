@@ -212,8 +212,7 @@ variable "teams" {
         })), {})
 
         namespaces = optional(map(object({
-          google_service_account = optional(string, null)
-          istio_injection        = optional(string, "disabled")
+          istio_injection = optional(string, "disabled")
         })), {})
       }))
     }))
