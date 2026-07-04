@@ -140,7 +140,7 @@ teams = {
             istio_injection = "enabled"
           }
           openbao = {
-            istio_injection = "enabled"
+            istio_injection = "disabled"
           }
         }
 
