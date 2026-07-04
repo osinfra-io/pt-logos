@@ -135,6 +135,15 @@ teams = {
 
         dns_subdomain = "kryptos"
 
+        namespaces = {
+          istio-test = {
+            istio_injection = "enabled"
+          }
+          openbao = {
+            istio_injection = "enabled"
+          }
+        }
+
         locations = {
           "us-east1-b" = {
             node_pools = {
