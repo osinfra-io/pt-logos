@@ -136,9 +136,6 @@ teams = {
         dns_subdomain = "kryptos"
 
         namespaces = {
-          istio-test = {
-            istio_injection = "enabled"
-          }
           openbao = {
             istio_injection = "disabled"
           }
