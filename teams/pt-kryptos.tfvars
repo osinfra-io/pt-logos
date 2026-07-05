@@ -173,6 +173,10 @@ teams = {
           "openbao" = {
             istio_injection = "disabled"
           }
+
+          "testing" = {
+            istio_injection = "enabled"
+          }
         }
       }
     }
