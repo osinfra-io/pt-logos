@@ -168,6 +168,12 @@ teams = {
             }
           }
         }
+
+        namespaces = {
+          "openbao" = {
+            istio_injection = "disabled"
+          }
+        }
       }
     }
 
