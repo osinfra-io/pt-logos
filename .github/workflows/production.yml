@@ -22,7 +22,7 @@ permissions:
 jobs:
   main:
     name: "Team: ${{ matrix.teams }}"
-    uses: osinfra-io/pt-techne-opentofu-workflows/.github/workflows/plan-and-apply.yml@40b5b4670d88a7a01f7c8af1cdb8c0d0eb16ed9b # v0.5.0
+    uses: osinfra-io/pt-techne-opentofu-workflows/.github/workflows/plan-and-apply.yml@66e04fe1c5a017238caf7be3d544a0a66b918dd1 # v0.5.5
     if: github.event.head_commit.author.username != 'dependabot[bot]'
     strategy:
       fail-fast: false
