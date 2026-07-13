@@ -116,8 +116,8 @@ locals {
   # Used by datadog_logs_index_order resource to ensure correct processing sequence
   datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
 
-  # Enable logs index order resource only in logos workspace when log indexes are configured
-  datadog_logs_index_order_enabled = local.within_logos && length(local.datadog_log_indexes) > 0
+  # Enable logs index order resource only in logos workspace
+  datadog_logs_index_order_enabled = local.within_logos
 
   # Computed index IDs for datadog_logs_index_order resource
   datadog_logs_index_order_indexes = local.within_logos ? [
@@ -598,6 +598,31 @@ locals {
     } : {}
   )
 
+  # Flatten Google Cloud IAM bindings for corpus platform service access across all team environment folders
+  # Combines browser, project creator, and XPN admin bindings in a single iterable map
+  google_folder_corpus_iam = { for binding in flatten([
+    for env_key, env in local.environments : [
+      {
+        folder    = google_folder.environments[env_key].name
+        group_key = "pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
+        key       = "${env_key}-browsers"
+        role      = "roles/browser"
+      },
+      {
+        folder    = google_folder.environments[env_key].name
+        group_key = "pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
+        key       = "${env_key}-project-creators"
+        role      = "roles/resourcemanager.projectCreator"
+      },
+      {
+        folder    = google_folder.environments[env_key].name
+        group_key = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
+        key       = "${env_key}-xpn-administrators"
+        role      = "roles/compute.xpnAdmin"
+      }
+    ]
+  ]) : binding.key => binding }
+
   # This Google Group is required to enable Kubernetes role-based access control (RBAC)
   # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
   # Don't add individual users as members of gke-security-groups.
@@ -610,35 +635,21 @@ locals {
     owners       = []
   }
 
-  # Flatten GKE security groups manager memberships
-  google_gke_security_groups_managers = { for item in flatten([
-    for user in local.google_gke_security_groups.managers : [
-      { user = user }
-    ]
-  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { manager = item.user } }
+  # GKE security group memberships — conditionally created only in logos workspace
+  google_gke_security_groups_managers_for_each = local.within_logos ? {
+    for user in local.google_gke_security_groups.managers :
+    replace(replace(user, "@", "-at-"), ".", "-") => { manager = user }
+  } : {}
 
-  # Conditionally manage GKE security groups managers only in logos workspace
-  google_gke_security_groups_managers_for_each = local.within_logos ? local.google_gke_security_groups_managers : {}
+  google_gke_security_groups_members_for_each = local.within_logos ? {
+    for user in local.google_gke_security_groups.members :
+    replace(replace(user, "@", "-at-"), ".", "-") => { member = user }
+  } : {}
 
-  # Flatten GKE security groups member memberships
-  google_gke_security_groups_members = { for item in flatten([
-    for user in local.google_gke_security_groups.members : [
-      { user = user }
-    ]
-  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { member = item.user } }
-
-  # Conditionally manage GKE security groups members only in logos workspace
-  google_gke_security_groups_members_for_each = local.within_logos ? local.google_gke_security_groups_members : {}
-
-  # Flatten GKE security groups owner memberships
-  google_gke_security_groups_owners = { for item in flatten([
-    for user in local.google_gke_security_groups.owners : [
-      { user = user }
-    ]
-  ]) : "${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { owner = item.user } }
-
-  # Conditionally manage GKE security groups owners only in logos workspace
-  google_gke_security_groups_owners_for_each = local.within_logos ? local.google_gke_security_groups_owners : {}
+  google_gke_security_groups_owners_for_each = local.within_logos ? {
+    for user in local.google_gke_security_groups.owners :
+    replace(replace(user, "@", "-at-"), ".", "-") => { owner = user }
+  } : {}
 
   # Flatten IAM role bindings for team folder assignments (top-level team folders only)
   # Groups get access to entire team folder and all child environments
@@ -686,20 +697,12 @@ locals {
     "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
   }
 
-  # Map team type keys to plural display names for reference
-  # Used for team type folder names (e.g., "Platform Teams", "Stream-aligned Teams") - folders are pre-created
-  team_type_display_names = {
-    "complicated-subsystem-team" = "Complicated-subsystem Teams"
-    "enabling-team"              = "Enabling Teams"
-    "platform-team"              = "Platform Teams"
-    "stream-aligned-team"        = "Stream-aligned Teams"
-  }
-
-  # Helper: team type singular labels (removes "s" from display names)
-  # Used throughout for consistent description formatting (e.g., "Platform Team" instead of "Platform Teams")
+  # Team type singular labels for consistent description formatting (e.g., "Platform Team")
   team_type_labels = {
-    for key, display_name in local.team_type_display_names :
-    key => trimsuffix(display_name, "s")
+    "complicated-subsystem-team" = "Complicated-subsystem Team"
+    "enabling-team"              = "Enabling Team"
+    "platform-team"              = "Platform Team"
+    "stream-aligned-team"        = "Stream-aligned Team"
   }
 
   # If we are within Logos workspace, create admin/owner resources (prevents conflicts across team deployments)

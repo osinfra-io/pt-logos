@@ -906,82 +906,16 @@ resource "google_folder" "teams" {
 # Google Folder IAM Member Resource
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder_iam_member
 
-# Grant corpus browser groups access to environment folders for resource discovery
-# Each corpus group (sandbox/non-production/production) has browser role on corresponding environment folders across all teams
-# This allows service accounts to list/discover resources without needing direct access
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_browsers" {
+resource "google_folder_iam_member" "corpus_env_access" {
   depends_on = [
     google_folder.environments
   ]
 
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environments[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
+  for_each = local.google_folder_corpus_iam
 
   folder = each.value.folder
   member = "group:${each.value.group_key}"
-  role   = "roles/browser"
-}
-
-# Grant corpus project creator groups access to environment folders for centralized project factory
-# Each corpus group (sandbox/non-production/production) has projectCreator role on corresponding environment folders across all teams
-# This allows pt-corpus to create projects in the appropriate environment folders for any team
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_project_creators" {
-  depends_on = [
-    google_folder.environments
-  ]
-
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environments[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
-
-  folder = each.value.folder
-  member = "group:${each.value.group_key}"
-  role   = "roles/resourcemanager.projectCreator"
-}
-
-# Grant corpus XPN admin groups access to environment folders for shared VPC administration
-# Each corpus group (sandbox/non-production/production) has compute.xpnAdmin role on corresponding environment folders across all teams
-# This allows pt-corpus to attach service projects to shared VPC in any team's environment folder
-# Created in every team workspace to grant access to that team's environment folders
-resource "google_folder_iam_member" "corpus_xpn_admins" {
-  depends_on = [
-    google_folder.environments
-  ]
-
-  for_each = {
-    for pair in flatten([
-      for env_key, env in local.environments : {
-        environment = env.environment
-        folder      = google_folder.environments[env_key].name
-        group_key   = "pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
-        key         = env_key
-        team        = env.team
-      }
-    ]) : pair.key => pair
-  }
-
-  folder = each.value.folder
-  member = "group:${each.value.group_key}"
-  role   = "roles/compute.xpnAdmin"
+  role   = each.value.role
 }
 
 # Assign identity groups to team folders with their specified roles

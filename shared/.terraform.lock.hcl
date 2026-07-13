@@ -4,10 +4,18 @@
 provider "registry.opentofu.org/datadog/datadog" {
   version = "4.15.0"
   hashes = [
+    "h1:47XEsD9QKkatwAZ08HqFI+xGeFDAtL0YHqduabuvEGc=",
+    "h1:BwUNozmgA4LZ39D+O0FFzITRenKxf95eepfpfuifYYc=",
+    "h1:Em+GAHTJbM3+GHBMuXpzTG/jUJSjGqqGtsmixeA9LPk=",
+    "h1:HXoa4Il+JLZe4MUYi3Iwefpg/9D7l5k34JHdbpm0yEQ=",
+    "h1:JHKS8GFogwA45ZOMOvPY3w4LpciyOpJscQhwhoc0x/w=",
     "h1:MUhMyIS+G3cWxAeHpP8TiFoVwuc1MAqabdQrg7FZ6LE=",
     "h1:PEzh5HgIR+o59ztpfsRP9vAD6WddFVbewyJPPTWonbk=",
+    "h1:SlvYOf9MmJO+G6Lh0u4bQ2q2dFbEl1BwVpuwqAb+oN4=",
     "h1:WUdat77L4JDbAXDeV3Hi2J+OmzGEPcFt+/SoLiUojDw=",
+    "h1:fuJxr+LmcaDT4Air3cHCKqai6o0wCM5hWUleN5zreD0=",
     "h1:jQ8JieOQT8Arsl3E6qUzIRV81aKxoq18Y1b4VVtem6w=",
+    "h1:kS/C6swZW+ASU2htKGj2chyQn//1sTKsLFWlZPewS50=",
     "h1:ljjSWjLFhuSBPu5rui5G53qmcwbE2Oqz+uNg5eBHb0s=",
     "zh:034cc499dfb5b354b85181f163169f629797b7e0bee369317c8ec95011fd8c06",
     "zh:18e60918cd588505c58f8b1a3472f439b73c944178cb786a1da9e7cdd6810406",
@@ -66,9 +74,17 @@ provider "registry.opentofu.org/integrations/github" {
   version = "6.13.0"
   hashes = [
     "h1:2kD+4leuV8tBBXv+EPeehmfW6cDhIzVki61OXsGCtRI=",
+    "h1:99s0C+KmzXIsUJY0tKlgfcFUIuuXjCK0TAeeZ8HaOZQ=",
     "h1:Mug81HyUTKKMngXMOtBxuQ8ge3dVnzt9tGcF9SxLcVE=",
     "h1:RhCWa2aaFVKF/HzeR0fkIxZmoJvkGrv07hE0z09aPQs=",
     "h1:YS8951MRtP4YNs2CNsDfqE7Mr9tDz/Y7xDSo18zyCkQ=",
+    "h1:Z0dj6yhxjLxg44gGNkh3zdAPY9iNkkiC+n7mEJcvUHY=",
+    "h1:a9VUv7chtxc+vro0uZo12PhBGbyeq3uKslrKLDHbkeg=",
+    "h1:awjLJy4zAQRONIVuKbsFSOpEWYWREdeeAXQHkhDXMDI=",
+    "h1:gz9DIUPAPQf0wI9dcmcNMgPBY/AwUfzKZbVnUMbAd9I=",
+    "h1:jPHxtaeO8mgFGGWdEmATq/BNGo1LkE6FYFgMa6Dum08=",
+    "h1:jXEm7QnQCF2UG4KTgDMwT2cEqezPE8a+3V0iA8N1r7k=",
+    "h1:jjeEBnfOJI+bV/rf1721l4B3fNO7Yws4AKf4NDdhiho=",
     "h1:y0Sujto8gttV86innNp/LTMzq7CqsFpBs7XKH8AlMl4=",
     "zh:0ab29fc21699f34345cf0bbbe44745fd1b143b7c73b410c1dc4abe05ffad0a84",
     "zh:1aed10d06755d420bb3a893bf548ab2932297a9d094c04c5a8501e949ca186ed",
