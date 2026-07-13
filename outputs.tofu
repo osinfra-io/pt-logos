@@ -69,12 +69,12 @@ output "teams" {
       # Identity groups for this team
       identity_groups = {
         for group_key, group in local.google_cloud_identity_groups :
-        trimsuffix(trimprefix(group_key, "${team_key}-"), "") => {
+        trimprefix(group_key, "${team_key}-") => {
           description  = group.description
           display_name = group.display_name
           email        = google_cloud_identity_group.this[group_key].group_key[0].id
           name         = google_cloud_identity_group.this[group_key].name
-          role         = trimsuffix(trimprefix(group_key, "${team_key}-"), "")
+          role         = trimprefix(group_key, "${team_key}-")
         }
         if startswith(group_key, "${team_key}-")
       }
