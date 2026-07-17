@@ -345,17 +345,13 @@ locals {
 
   # Default GitHub repository labels with consistent colors and descriptions
   github_repository_default_labels = {
-    "bug"              = { color = "84A255", description = "Something is not working" }
-    "chore"            = { color = "FBCA04", description = "Grunt tasks etc; no production code change" }
-    "documentation"    = { color = "0075CA", description = "Improvements or additions to documentation" }
-    "enhancement"      = { color = "A2EEEF", description = "New feature or request" }
-    "good first issue" = { color = "7057FF", description = "Good for newcomers" }
-    "major"            = { color = "B60205", description = "Major version: Incompatible changes" }
-    "minor"            = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
-    "nomos"            = { color = "FFB400", description = "Created by the Nomos agent" }
-    "patch"            = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
-    "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
-    "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
+    "copilot"      = { color = "6E40C9", description = "Copilot instructions, skills, hooks, and agents" }
+    "dependencies" = { color = "0075CA", description = "Pull requests that update a dependency file" }
+    "devex"        = { color = "84A255", description = "Developer experience, tooling, and local environment" }
+    "docs"         = { color = "0052CC", description = "Docusaurus documentation site or other markdown documentation" }
+    "scripts"      = { color = "FBCA04", description = "Generator and utility scripts" }
+    "security"     = { color = "B60205", description = "Driven by security requirements or hardening" }
+    "tofu"         = { color = "FEDA15", description = "OpenTofu infrastructure code" }
   }
 
   # Flatten GitHub repository environments for each repository that has environments configured
