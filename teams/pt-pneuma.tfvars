@@ -827,7 +827,7 @@ teams = {
       "nomos"        = { color = "FFB400", description = "Created by the Nomos agent" }
       "scripts"      = { color = "FBCA04", description = "Generator and utility scripts" }
       "security"     = { color = "B60205", description = "Driven by security requirements or hardening" }
-      "tofu"         = { color = "FEDA15", description = "OpenTofu infrastructure code" }
+      "opentofu"     = { color = "FEDA15", description = "OpenTofu infrastructure code" }
     }
 
     google_basic_groups_env_memberships = {
