@@ -119,6 +119,17 @@ teams = {
       }
     }
 
+    github_repository_labels = {
+      "copilot"      = { color = "6E40C9", description = "Copilot instructions, skills, hooks, and agents" }
+      "dependencies" = { color = "0075CA", description = "Pull requests that update a dependency file" }
+      "devex"        = { color = "84A255", description = "Developer experience, tooling, and local environment" }
+      "docs"         = { color = "0052CC", description = "Docusaurus documentation site or other markdown documentation" }
+      "nomos"        = { color = "FFB400", description = "Created by the Nomos agent" }
+      "scripts"      = { color = "FBCA04", description = "Generator and utility scripts" }
+      "security"     = { color = "B60205", description = "Driven by security requirements or hardening" }
+      "tofu"         = { color = "FEDA15", description = "OpenTofu infrastructure code" }
+    }
+
     google_basic_groups_env_memberships = {
       admin = {
         non-production = {

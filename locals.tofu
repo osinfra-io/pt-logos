@@ -345,13 +345,9 @@ locals {
 
   # Default GitHub repository labels with consistent colors and descriptions
   github_repository_default_labels = {
-    "copilot"      = { color = "6E40C9", description = "Copilot instructions, skills, hooks, and agents" }
-    "dependencies" = { color = "0075CA", description = "Pull requests that update a dependency file" }
-    "devex"        = { color = "84A255", description = "Developer experience, tooling, and local environment" }
-    "docs"         = { color = "0052CC", description = "Docusaurus documentation site or other markdown documentation" }
-    "scripts"      = { color = "FBCA04", description = "Generator and utility scripts" }
-    "security"     = { color = "B60205", description = "Driven by security requirements or hardening" }
-    "tofu"         = { color = "FEDA15", description = "OpenTofu infrastructure code" }
+    "major" = { color = "B60205", description = "Major version: Incompatible changes" }
+    "minor" = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
+    "patch" = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
   }
 
   # Flatten GitHub repository environments for each repository that has environments configured
@@ -369,18 +365,28 @@ locals {
     ]
   ]) : env.key => env }
 
-  # Flatten repository labels by applying default labels to all repositories
+  # Flatten repository labels: default labels applied to all repos, team-specific labels merged on top
   github_repository_labels = {
     for label in flatten([
       for team_key, team in var.teams : [
-        for repo_key, repo in team.github_repositories : [
-          for label_key, label in local.github_repository_default_labels : {
-            name        = label_key
-            color       = label.color
-            description = label.description
-            repository  = repo_key
-          }
-        ]
+        for repo_key, repo in team.github_repositories : concat(
+          [
+            for label_key, label in local.github_repository_default_labels : {
+              name        = label_key
+              color       = label.color
+              description = label.description
+              repository  = repo_key
+            }
+          ],
+          [
+            for label_key, label in team.github_repository_labels : {
+              name        = label_key
+              color       = label.color
+              description = label.description
+              repository  = repo_key
+            }
+          ]
+        )
       ]
   ]) : "${label.repository}-${label.name}" => label }
 
