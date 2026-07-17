@@ -12,21 +12,57 @@ teams = {
       members     = []
     }
 
-    google_basic_groups_memberships = {
+    google_basic_groups_env_memberships = {
       admin = {
-        managers = []
-        members  = []
-        owners   = []
+        non-production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = []
+        }
       }
       reader = {
-        managers = []
-        members  = []
-        owners   = []
+        non-production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = []
+        }
       }
       writer = {
-        managers = []
-        members  = []
-        owners   = []
+        non-production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = []
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = []
+        }
       }
     }
 
