@@ -345,17 +345,9 @@ locals {
 
   # Default GitHub repository labels with consistent colors and descriptions
   github_repository_default_labels = {
-    "bug"              = { color = "84A255", description = "Something is not working" }
-    "chore"            = { color = "FBCA04", description = "Grunt tasks etc; no production code change" }
-    "documentation"    = { color = "0075CA", description = "Improvements or additions to documentation" }
-    "enhancement"      = { color = "A2EEEF", description = "New feature or request" }
-    "good first issue" = { color = "7057FF", description = "Good for newcomers" }
-    "major"            = { color = "B60205", description = "Major version: Incompatible changes" }
-    "minor"            = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
-    "nomos"            = { color = "FFB400", description = "Created by the Nomos agent" }
-    "patch"            = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
-    "security"         = { color = "B60205", description = "Security vulnerability or configuration" }
-    "tech-debt"        = { color = "443221", description = "Accrued work that is owed to a system or process" }
+    "major" = { color = "B60205", description = "Major version: Incompatible changes" }
+    "minor" = { color = "FBCA04", description = "Minor version: Additional functionality in a backwards-compatible manner" }
+    "patch" = { color = "0E8A16", description = "Patch version: Backwards-compatible bug fixes" }
   }
 
   # Flatten GitHub repository environments for each repository that has environments configured
@@ -373,18 +365,28 @@ locals {
     ]
   ]) : env.key => env }
 
-  # Flatten repository labels by applying default labels to all repositories
+  # Flatten repository labels: default labels applied to all repos, team-specific labels merged on top
   github_repository_labels = {
     for label in flatten([
       for team_key, team in var.teams : [
-        for repo_key, repo in team.github_repositories : [
-          for label_key, label in local.github_repository_default_labels : {
-            name        = label_key
-            color       = label.color
-            description = label.description
-            repository  = repo_key
-          }
-        ]
+        for repo_key, repo in team.github_repositories : concat(
+          [
+            for label_key, label in local.github_repository_default_labels : {
+              name        = label_key
+              color       = label.color
+              description = label.description
+              repository  = repo_key
+            }
+          ],
+          [
+            for label_key, label in team.github_repository_labels : {
+              name        = label_key
+              color       = label.color
+              description = label.description
+              repository  = repo_key
+            }
+          ]
+        )
       ]
   ]) : "${label.repository}-${label.name}" => label }
 

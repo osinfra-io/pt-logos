@@ -146,6 +146,11 @@ variable "teams" {
       topics = list(string)
     })), {})
 
+    github_repository_labels = optional(map(object({
+      color       = string
+      description = string
+    })), {})
+
     google_basic_groups_env_memberships = object({
       admin = object({
         non-production = object({
