@@ -478,7 +478,7 @@ locals {
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
   # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
-  # Creates exactly 3 groups per team: admin, writer, reader
+  # Creates exactly 9 groups per team: admin, writer, reader × sandbox, non-production, production
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
   google_cloud_identity_groups = merge(
