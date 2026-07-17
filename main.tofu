@@ -918,17 +918,16 @@ resource "google_folder_iam_member" "corpus_env_access" {
   role   = each.value.role
 }
 
-# Assign identity groups to team folders with their specified roles
-# Groups inherit access to all child environment folders
-resource "google_folder_iam_member" "team_access" {
+# Assign per-environment basic groups to their respective environment folders
+resource "google_folder_iam_member" "team_env_access" {
   depends_on = [
     google_cloud_identity_group.this,
-    google_folder.teams
+    google_folder.environments
   ]
 
-  for_each = local.google_iam_bindings
+  for_each = local.google_folder_team_env_iam
 
-  folder = google_folder.teams[each.value.team_key].name
+  folder = google_folder.environments[each.value.env_key].name
   member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
   role   = each.value.role
 }

@@ -87,7 +87,7 @@ variable "teams" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
-    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_memberships{hardcoded}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
   type = map(object({
     datadog_team_memberships = object({
@@ -146,21 +146,57 @@ variable "teams" {
       topics = list(string)
     })), {})
 
-    google_basic_groups_memberships = object({
+    google_basic_groups_env_memberships = object({
       admin = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
+        non-production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        sandbox = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
       })
       reader = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
+        non-production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        sandbox = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
       })
       writer = object({
-        managers = list(string)
-        members  = list(string)
-        owners   = list(string)
+        non-production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        production = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
+        sandbox = object({
+          managers = list(string)
+          members  = list(string)
+          owners   = list(string)
+        })
       })
     })
 

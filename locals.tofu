@@ -478,7 +478,7 @@ locals {
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
   # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
-  # Creates exactly 3 groups per team: admin, writer, reader
+  # Creates exactly 9 groups per team: admin, writer, reader × sandbox, non-production, production
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
   google_cloud_identity_groups = merge(
@@ -518,19 +518,20 @@ locals {
       if team.platform_managed_project != null && try(team.platform_managed_project.kubernetes_engine, null) != null && try(team.platform_managed_project.kubernetes_engine.artifact_registry_groups_memberships, null) != null
     ]) : identity_group.key => identity_group },
 
-    # Standard groups for all teams (administrators, writers, readers)
+    # Per-environment basic groups for all teams (administrators, writers, readers × sandbox/non-production/production)
     { for identity_group in flatten([
       for team_key, team in var.teams : [
-        for group_key in ["admin", "writer", "reader"] : {
-          description  = local.google_role_descriptions[group_key]
-          display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${title(local.google_role_plural_names[group_key])}"
-          key          = "${team_key}-${local.google_role_plural_names[group_key]}"
-          managers     = team.google_basic_groups_memberships[group_key].managers
-          members      = team.google_basic_groups_memberships[group_key].members
-          owners       = team.google_basic_groups_memberships[group_key].owners
-          roles        = ["roles/${group_key}"]
-          team         = team_key
-        }
+        for group_key in ["admin", "writer", "reader"] : [
+          for environment in ["sandbox", "non-production", "production"] : {
+            description  = local.google_role_descriptions[group_key]
+            display_name = "${local.team_type_labels[team.team_type]}: ${team.display_name} ${join(" ", [for word in split("-", environment) : title(word)])} ${title(local.google_role_plural_names[group_key])}"
+            key          = "${team_key}-${environment}-${local.google_role_plural_names[group_key]}"
+            managers     = team.google_basic_groups_env_memberships[group_key][environment].managers
+            members      = team.google_basic_groups_env_memberships[group_key][environment].members
+            owners       = team.google_basic_groups_env_memberships[group_key][environment].owners
+            team         = team_key
+          }
+        ]
       ]
     ]) : identity_group.key => identity_group },
 
@@ -623,6 +624,21 @@ locals {
     ]
   ]) : binding.key => binding }
 
+  # Flatten IAM bindings for per-environment basic group assignments
+  # Binds each team's admin/reader/writer groups to their respective environment folders
+  google_folder_team_env_iam = { for binding in flatten([
+    for team_key, team in var.teams : [
+      for group_key in ["admin", "writer", "reader"] : [
+        for environment in ["sandbox", "non-production", "production"] : {
+          binding_key = "${team_key}-${environment}-${local.google_role_plural_names[group_key]}-${replace("roles/${group_key}", "/", "-")}"
+          env_key     = "${team_key}-${environment}"
+          group_key   = "${team_key}-${environment}-${local.google_role_plural_names[group_key]}"
+          role        = "roles/${group_key}"
+        }
+      ]
+    ]
+  ]) : binding.binding_key => binding }
+
   # This Google Group is required to enable Kubernetes role-based access control (RBAC)
   # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
   # Don't add individual users as members of gke-security-groups.
@@ -650,20 +666,6 @@ locals {
     for user in local.google_gke_security_groups.owners :
     replace(replace(user, "@", "-at-"), ".", "-") => { owner = user }
   } : {}
-
-  # Flatten IAM role bindings for team folder assignments (top-level team folders only)
-  # Groups get access to entire team folder and all child environments
-  # Excludes project creator groups which have no team folder roles
-  google_iam_bindings = { for binding in flatten([
-    for identity_group_key, group in local.google_cloud_identity_groups : [
-      for role in try(group.roles, []) : {
-        binding_key = "${identity_group_key}-${replace(role, "/", "-")}"
-        group_key   = identity_group_key
-        role        = role
-        team_key    = group.team
-      }
-    ]
-  ]) : binding.binding_key => binding }
 
   # Google Cloud role descriptions mapping
   google_role_descriptions = {

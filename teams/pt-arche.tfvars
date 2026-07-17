@@ -221,21 +221,57 @@ teams = {
       }
     }
 
-    google_basic_groups_memberships = {
+    google_basic_groups_env_memberships = {
       admin = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
+        non-production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
       }
       reader = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
+        non-production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
       }
       writer = {
-        managers = []
-        members  = []
-        owners   = ["brett@osinfra.io"]
+        non-production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        production = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
+        sandbox = {
+          managers = []
+          members  = []
+          owners   = ["brett@osinfra.io"]
+        }
       }
     }
 
