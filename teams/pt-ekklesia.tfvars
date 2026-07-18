@@ -57,6 +57,8 @@ teams = {
       "devex"         = { color = "84A255", description = "Developer experience, tooling, and local environment" }
       "docker"        = { color = "0DB7ED", description = "Docker images and container configuration" }
       "docs"          = { color = "0052CC", description = "Docusaurus documentation site or other markdown documentation" }
+      "kubernetes"    = { color = "326CE5", description = "Kubernetes manifests, Helm charts, and cluster configuration" }
+      "misc"          = { color = "E4E669", description = "Miscellaneous work that does not fit another label" }
       "nomos"         = { color = "FFB400", description = "Created by the Nomos agent" }
       "observability" = { color = "632CA6", description = "Observability, monitoring, and alerting" }
       "opentofu"      = { color = "FEDA15", description = "OpenTofu infrastructure code" }
