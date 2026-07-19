@@ -43,32 +43,38 @@ teams = {
         enable_google_wif_service_account = true
 
         environments = {
-          non-production = {
-            deployment_branch_policy = {
-              custom_branch_policies = false
-              protected_branches     = true
-            }
-            name = "Non-Production"
+          non-production-regional-us-east1-b = {
+            name = "Non-Production: us-east1-b"
             reviewers = {
               teams = ["pt-kryptos-non-production-approvers"]
             }
           }
-          production = {
-            deployment_branch_policy = {
-              custom_branch_policies = false
-              protected_branches     = true
+          non-production-regional-us-east4-a = {
+            name = "Non-Production: us-east4-a"
+            reviewers = {
+              teams = ["pt-kryptos-non-production-approvers"]
             }
-            name = "Production"
+          }
+          production-regional-us-east1-b = {
+            name = "Production: us-east1-b"
             reviewers = {
               teams = ["pt-kryptos-production-approvers"]
             }
           }
-          sandbox = {
-            deployment_branch_policy = {
-              custom_branch_policies = false
-              protected_branches     = true
+          production-regional-us-east4-a = {
+            name = "Production: us-east4-a"
+            reviewers = {
+              teams = ["pt-kryptos-production-approvers"]
             }
-            name = "Sandbox"
+          }
+          sandbox-regional-us-east1-b = {
+            name = "Sandbox: us-east1-b"
+            reviewers = {
+              teams = ["pt-kryptos-sandbox-approvers"]
+            }
+          }
+          sandbox-regional-us-east4-a = {
+            name = "Sandbox: us-east4-a"
             reviewers = {
               teams = ["pt-kryptos-sandbox-approvers"]
             }
