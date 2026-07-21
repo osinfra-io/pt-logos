@@ -229,6 +229,9 @@ teams = {
         }
 
         namespaces = {
+          "istio-test" = {
+            istio_injection = "enabled"
+          }
           "openbao" = {
             istio_injection = "disabled"
           }
