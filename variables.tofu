@@ -223,6 +223,7 @@ variable "teams" {
       kubernetes_engine = optional(object({
         dns_subdomain      = optional(string, null)
         enable_datadog_apm = optional(bool, false)
+        route_prefix       = optional(string, null)
 
         artifact_registry_groups_memberships = optional(object({
           readers = object({
@@ -380,6 +381,15 @@ variable "teams" {
       ]
     ]))
     error_message = "kubernetes_engine.namespaces keys must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; istio_injection must be \"enabled\" or \"disabled\"."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      try(team.platform_managed_project.kubernetes_engine.route_prefix, null) == null ||
+      can(regex("^[a-z][a-z0-9-]*$", try(team.platform_managed_project.kubernetes_engine.route_prefix, "")))
+    ])
+    error_message = "kubernetes_engine.route_prefix must be a valid DNS label: start with a lowercase letter and contain only lowercase letters, digits, and hyphens."
   }
 
 }

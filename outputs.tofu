@@ -66,6 +66,10 @@ output "teams" {
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
       dns_subdomain = try(team.platform_managed_project.kubernetes_engine.dns_subdomain, null)
 
+      # Route prefix for teams that attach HTTPRoutes to the shared gateway (e.g., "ethos" → ethos.osinfra.io).
+      # Applied as the osinfra.io/route-prefix namespace label and used to generate the team's gateway listener.
+      route_prefix = try(team.platform_managed_project.kubernetes_engine.route_prefix, null)
+
       # Identity groups for this team
       identity_groups = {
         for group_key, group in local.google_cloud_identity_groups :
