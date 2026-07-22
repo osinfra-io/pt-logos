@@ -394,14 +394,14 @@ variable "teams" {
         for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
           for route_name, route in ns.routes :
           ns.istio_injection == "enabled" &&
-          can(regex("^[a-z][a-z0-9-]*$", route_name)) &&
-          can(regex("^[a-z][a-z0-9-]*$", route.service)) &&
+          can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", route_name)) && length(route_name) <= 63 &&
+          can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", route.service)) && length(route.service) <= 63 &&
           startswith(route.path, "/") &&
-          route.port > 0 && route.port <= 65535
+          floor(route.port) == route.port && route.port > 0 && route.port <= 65535
         ]
       ]
     ]))
-    error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\"); route and service names must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; path must start with \"/\"; port must be between 1 and 65535."
+    error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\"); route and service names must be RFC 1123 labels (lowercase alphanumeric or hyphen, starting and ending alphanumeric, at most 63 characters); path must start with \"/\"; port must be an integer between 1 and 65535."
   }
 
 }
