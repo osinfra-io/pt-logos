@@ -1012,6 +1012,14 @@ teams = {
         namespaces = {
           "istio-test" = {
             istio_injection = "enabled"
+
+            routes = {
+              "istio-test" = {
+                path    = "/istio-test"
+                port    = 8080
+                service = "istio-test"
+              }
+            }
           }
         }
       }

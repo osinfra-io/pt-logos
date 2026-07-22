@@ -254,6 +254,12 @@ variable "teams" {
 
         namespaces = optional(map(object({
           istio_injection = optional(string, "disabled")
+
+          routes = optional(map(object({
+            path    = optional(string, "/")
+            port    = number
+            service = string
+          })), {})
         })), {})
       }))
     }))
@@ -380,6 +386,22 @@ variable "teams" {
       ]
     ]))
     error_message = "kubernetes_engine.namespaces keys must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; istio_injection must be \"enabled\" or \"disabled\"."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
+          for route_name, route in ns.routes :
+          ns.istio_injection == "enabled" &&
+          can(regex("^[a-z][a-z0-9-]*$", route_name)) &&
+          can(regex("^[a-z][a-z0-9-]*$", route.service)) &&
+          startswith(route.path, "/") &&
+          route.port > 0 && route.port <= 65535
+        ]
+      ]
+    ]))
+    error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\"); route and service names must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; path must start with \"/\"; port must be between 1 and 65535."
   }
 
 }
