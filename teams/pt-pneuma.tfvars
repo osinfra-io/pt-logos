@@ -1013,6 +1013,17 @@ teams = {
           "istio-test" = {
             istio_injection = "enabled"
 
+            route_auth_policies = {
+              "istio-test" = {
+                public_paths = [
+
+                  "/istio-test/healthz",
+                  "/istio-test/oauth2/callback",
+                ]
+                required_groups = ["pt-pneuma-readers"]
+              }
+            }
+
             routes = {
               "istio-test" = {
                 path    = "/istio-test"

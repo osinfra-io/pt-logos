@@ -87,6 +87,8 @@ variable "teams" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
+    Gateway auth policy contract: kubernetes_engine.namespaces[*].route_auth_policies is a map keyed by route name. Each policy declares enforced (bool, default true), public_paths (list(string), default []), required_groups (list(string), default []), and required_roles (list(string), default []).
+
     Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
   type = map(object({
@@ -255,6 +257,13 @@ variable "teams" {
         namespaces = optional(map(object({
           istio_injection = optional(string, "disabled")
 
+          route_auth_policies = optional(map(object({
+            enforced        = optional(bool, true)
+            public_paths    = optional(list(string), [])
+            required_groups = optional(list(string), [])
+            required_roles  = optional(list(string), [])
+          })), {})
+
           routes = optional(map(object({
             path    = optional(string, "/")
             port    = number
@@ -402,6 +411,54 @@ variable "teams" {
       ]
     ]))
     error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\"); route and service names must be RFC 1123 labels (lowercase alphanumeric or hyphen, starting and ending alphanumeric, at most 63 characters); path must start with \"/\"; port must be an integer between 1 and 65535."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
+          for policy_name, policy in ns.route_auth_policies :
+          ns.istio_injection == "enabled" &&
+          contains(keys(ns.routes), policy_name) &&
+          can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", policy_name)) && length(policy_name) <= 63 &&
+          (
+            policy.enforced ||
+            (
+              length(policy.public_paths) == 0 &&
+              length(policy.required_groups) == 0 &&
+              length(policy.required_roles) == 0
+            )
+          ) &&
+          (
+            !policy.enforced ||
+            length(policy.required_groups) + length(policy.required_roles) > 0
+          ) &&
+          length(distinct(policy.public_paths)) == length(policy.public_paths) &&
+          length(distinct(policy.required_groups)) == length(policy.required_groups) &&
+          length(distinct(policy.required_roles)) == length(policy.required_roles) &&
+          alltrue([
+            for public_path in policy.public_paths :
+            public_path != "/" &&
+            startswith(public_path, "/") &&
+            !can(regex("\\s", public_path)) &&
+            (
+              try(ns.routes[policy_name].path, "") == "/" ?
+              startswith(public_path, "/") :
+              startswith(public_path, "${trimsuffix(try(ns.routes[policy_name].path, ""), "/")}/")
+            )
+          ]) &&
+          alltrue([
+            for group in policy.required_groups :
+            length(group) > 0 && !can(regex("\\s", group))
+          ]) &&
+          alltrue([
+            for role in policy.required_roles :
+            length(role) > 0 && !can(regex("\\s", role))
+          ])
+        ]
+      ]
+    ]))
+    error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\") and must be keyed by an existing route name; policy keys must be RFC 1123 labels; enforced policies must require at least one group or role; disabled policies cannot declare groups, roles, or public paths; public_paths must be unique, start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; required_groups and required_roles must be unique, non-empty strings with no whitespace."
   }
 
 }
