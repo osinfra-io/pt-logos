@@ -156,6 +156,23 @@ teams = {
         ]
       }
 
+      "pt-arche-kubernetes-authentik" = {
+        description            = "OpenTofu module for deploying and configuring Authentik on Google Kubernetes Engine."
+        enable_datadog_webhook = true
+
+        topics = [
+          "authentik",
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche",
+          "security"
+        ]
+      }
+
       "pt-arche-kubernetes-cert-manager" = {
         description            = "OpenTofu example module for cert-manager on Google Kubernetes Engine."
         enable_datadog_webhook = true
@@ -185,23 +202,6 @@ teams = {
           "opentofu-child-module",
           "platform-team",
           "pt-arche"
-        ]
-      }
-
-      "pt-arche-kubernetes-keycloak" = {
-        description            = "OpenTofu module for deploying and configuring Keycloak on Google Kubernetes Engine."
-        enable_datadog_webhook = true
-
-        topics = [
-          "helm",
-          "infrastructure-as-code",
-          "keycloak",
-          "kubernetes",
-          "opentofu",
-          "opentofu-child-module",
-          "platform-team",
-          "pt-arche",
-          "security"
         ]
       }
 
