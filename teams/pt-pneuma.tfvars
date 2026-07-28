@@ -1018,7 +1018,7 @@ teams = {
                 public_paths = [
 
                   "/istio-test/healthz",
-                  "/istio-test/oauth2/callback",
+                  "/istio-test/outpost.goauthentik.io/callback",
                 ]
                 required_groups = ["pt-pneuma-readers"]
               }
