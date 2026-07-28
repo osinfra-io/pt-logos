@@ -221,23 +221,6 @@ teams = {
         ]
       }
 
-      "pt-arche-kubernetes-oauth2-proxy" = {
-        description            = "OpenTofu module for deploying and configuring OAuth2 Proxy on Google Kubernetes Engine."
-        enable_datadog_webhook = true
-
-        topics = [
-          "helm",
-          "infrastructure-as-code",
-          "kubernetes",
-          "oauth2-proxy",
-          "opentofu",
-          "opentofu-child-module",
-          "platform-team",
-          "pt-arche",
-          "security"
-        ]
-      }
-
       "pt-arche-kubernetes-opa-gatekeeper" = {
         description            = "OpenTofu example module for Open Policy Agent Gatekeeper on Google Kubernetes Engine."
         enable_datadog_webhook = true
