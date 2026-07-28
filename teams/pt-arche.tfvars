@@ -156,6 +156,23 @@ teams = {
         ]
       }
 
+      "pt-arche-kubernetes-authentik" = {
+        description            = "OpenTofu module for deploying and configuring Authentik on Google Kubernetes Engine."
+        enable_datadog_webhook = true
+
+        topics = [
+          "authentik",
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche",
+          "security"
+        ]
+      }
+
       "pt-arche-kubernetes-cert-manager" = {
         description            = "OpenTofu example module for cert-manager on Google Kubernetes Engine."
         enable_datadog_webhook = true
@@ -188,23 +205,6 @@ teams = {
         ]
       }
 
-      "pt-arche-kubernetes-keycloak" = {
-        description            = "OpenTofu module for deploying and configuring Keycloak on Google Kubernetes Engine."
-        enable_datadog_webhook = true
-
-        topics = [
-          "helm",
-          "infrastructure-as-code",
-          "keycloak",
-          "kubernetes",
-          "opentofu",
-          "opentofu-child-module",
-          "platform-team",
-          "pt-arche",
-          "security"
-        ]
-      }
-
       "pt-arche-kubernetes-istio" = {
         description            = "OpenTofu example module that deploys the Istio service mesh on GKE using Helm charts with optional ingress gateway, Cloud Armor WAF protection, and cert-manager integration for mTLS."
         enable_datadog_webhook = true
@@ -218,23 +218,6 @@ teams = {
           "opentofu-child-module",
           "platform-team",
           "pt-arche"
-        ]
-      }
-
-      "pt-arche-kubernetes-oauth2-proxy" = {
-        description            = "OpenTofu module for deploying and configuring OAuth2 Proxy on Google Kubernetes Engine."
-        enable_datadog_webhook = true
-
-        topics = [
-          "helm",
-          "infrastructure-as-code",
-          "kubernetes",
-          "oauth2-proxy",
-          "opentofu",
-          "opentofu-child-module",
-          "platform-team",
-          "pt-arche",
-          "security"
         ]
       }
 
