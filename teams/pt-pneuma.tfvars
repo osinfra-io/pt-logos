@@ -1015,6 +1015,8 @@ teams = {
 
             route_auth_policies = {
               "istio-test" = {
+                mode = "browser"
+
                 public_paths = [
 
                   "/istio-test/healthz",
