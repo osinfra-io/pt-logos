@@ -1015,14 +1015,7 @@ teams = {
 
             route_auth_policies = {
               "istio-test" = {
-                mode = "browser"
-
-                public_paths = [
-
-                  "/istio-test/healthz",
-                  "/istio-test/outpost.goauthentik.io/callback",
-                ]
-                required_groups = ["pt-pneuma-readers"]
+                mode = "public"
               }
             }
 
