@@ -48,6 +48,24 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
+          non-production-authentik-config = {
+            name = "Non-Production Authentik Config"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-authentik-us-east1-b = {
+            name = "Non-Production Authentik: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-authentik-us-east4-a = {
+            name = "Non-Production Authentik: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
           non-production-cert-manager-istio-csr-us-east1-b = {
             name = "Non-Production cert-manager Istio CSR: us-east1-b"
             reviewers = {
@@ -194,6 +212,48 @@ teams = {
           }
           production = {
             name = "Production: Main"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-config = {
+            name = "Production Authentik Config"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east1-b = {
+            name = "Production Authentik: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east1-c = {
+            name = "Production Authentik: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east1-d = {
+            name = "Production Authentik: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east4-a = {
+            name = "Production Authentik: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east4-b = {
+            name = "Production Authentik: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-authentik-us-east4-c = {
+            name = "Production Authentik: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
@@ -632,6 +692,24 @@ teams = {
           }
           sandbox = {
             name = "Sandbox: Main"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-authentik-config = {
+            name = "Sandbox Authentik Config"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-authentik-us-east1-b = {
+            name = "Sandbox Authentik: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-authentik-us-east4-a = {
+            name = "Sandbox Authentik: us-east4-a"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
