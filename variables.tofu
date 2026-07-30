@@ -214,11 +214,11 @@ variable "teams" {
     })), {})
 
     platform_managed_project = optional(object({
-      cloud_sql = optional(object({
+      cloud_sql = optional(map(object({
         database_version = string
         machine_tier     = string
         regions          = set(string)
-      }))
+      })), {})
 
       enable_datadog = optional(bool, false)
 
@@ -330,15 +330,14 @@ variable "teams" {
   }
 
   validation {
-    condition = alltrue([
-      for team_key, team in var.teams :
-      try(team.platform_managed_project.cloud_sql, null) == null ||
-      (
-        length(tolist(team.platform_managed_project.cloud_sql.regions)) > 0 &&
-        alltrue([for region in tolist(team.platform_managed_project.cloud_sql.regions) : contains(["us-east1", "us-east4"], region)])
-      )
-    ])
-    error_message = "cloud_sql.regions must be non-empty and contain only us-east1 and us-east4."
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for instance_key, instance in try(team.platform_managed_project.cloud_sql, {}) :
+        length(instance.regions) > 0 &&
+        alltrue([for region in instance.regions : contains(["us-east1", "us-east4"], region)])
+      ]
+    ]))
+    error_message = "Each cloud_sql instance's regions must be non-empty and contain only us-east1 and us-east4."
   }
 
   validation {
