@@ -1013,6 +1013,12 @@ teams = {
           "istio-test" = {
             istio_injection = "enabled"
 
+            route_auth_policies = {
+              "istio-test" = {
+                mode = "public"
+              }
+            }
+
             routes = {
               "istio-test" = {
                 path    = "/istio-test"
