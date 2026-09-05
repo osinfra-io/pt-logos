@@ -1101,7 +1101,8 @@ teams = {
 
             route_auth_policies = {
               "istio-test" = {
-                mode = "public"
+                mode            = "browser"
+                required_groups = ["pt-pneuma-production-readers"]
               }
             }
 
