@@ -364,14 +364,14 @@ resource "github_repository" "this" {
   name                   = each.key
 
   dynamic "pages" {
-    for_each = each.value.pages_list
+    for_each = try(each.value.pages[*], [])
 
     content {
       build_type = pages.value.build_type
       cname      = pages.value.cname
 
       dynamic "source" {
-        for_each = each.value.pages_source_list
+        for_each = try(pages.value.source[*], [])
 
         content {
           branch = source.value.branch
@@ -401,7 +401,7 @@ resource "github_repository_environment" "this" {
   for_each = local.github_repository_environments
 
   dynamic "deployment_branch_policy" {
-    for_each = each.value.deployment_branch_policies
+    for_each = try(each.value.deployment_branch_policy[*], [])
 
     content {
       custom_branch_policies = deployment_branch_policy.value.custom_branch_policies

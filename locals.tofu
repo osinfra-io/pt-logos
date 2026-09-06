@@ -314,8 +314,6 @@ locals {
         enable_google_wif_service_account = repo.enable_google_wif_service_account
         key                               = repo_key
         pages                             = repo.pages
-        pages_list                        = repo.pages != null ? [repo.pages] : []
-        pages_source_list                 = repo.pages != null && repo.pages.source != null ? [repo.pages.source] : []
         team_key                          = team_key
         topics                            = distinct(concat(repo.topics, ["osinfra", team.team_type, team_key]))
       }
@@ -355,11 +353,11 @@ locals {
     for team_key, team in var.teams : [
       for repo_key, repo in team.github_repositories : [
         for env_key, environment in repo.environments : {
-          deployment_branch_policies = environment.deployment_branch_policy != null ? [environment.deployment_branch_policy] : []
-          environment                = environment.name
-          key                        = "${repo_key}-${env_key}"
-          repo_key                   = repo_key
-          reviewing_teams            = environment.reviewers.teams
+          deployment_branch_policy = environment.deployment_branch_policy
+          environment              = environment.name
+          key                      = "${repo_key}-${env_key}"
+          repo_key                 = repo_key
+          reviewing_teams          = environment.reviewers.teams
         }
       ]
     ]
