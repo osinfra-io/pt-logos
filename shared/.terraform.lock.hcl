@@ -30,6 +30,7 @@ provider "registry.opentofu.org/datadog/datadog" {
     "zh:ba0b294e1f25fdd59783c3ff0fd4cd0db69098e505b4f5feb8a63af9e6e30675",
     "zh:c9d6adc813ac3e471617c0d3358d3efaf8081150b7c45867d7cd917c0758263a",
     "zh:e540f0b95b9e964fb2a3d26dfbdfbe830018dd17f7f2ed8afbb15a6b19a881eb",
+    "zh:f809ab383cca0a5f83072981c64208cbd7fa67e986a86ee02dd2c82333221e32",
   ]
 }
 
