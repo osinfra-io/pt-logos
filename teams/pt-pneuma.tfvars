@@ -1102,6 +1102,7 @@ teams = {
             route_auth_policies = {
               "istio-test" = {
                 mode            = "browser"
+                public_paths    = ["/istio-test/metadata/cluster-name"]
                 required_groups = ["all"]
               }
             }
