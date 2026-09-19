@@ -1096,6 +1096,9 @@ teams = {
         }
 
         namespaces = {
+          "authentik" = {
+            istio_injection = "enabled"
+          }
           "istio-test" = {
             istio_injection = "enabled"
 
