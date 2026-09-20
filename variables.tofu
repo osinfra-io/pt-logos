@@ -87,7 +87,7 @@ variable "teams" {
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
-    Gateway auth policy contract: kubernetes_engine.namespaces[*].route_auth_policies is a map keyed by route name. Each policy declares mode ("public" | "browser" | "api-jwt", default "browser"), audiences (list(string), default [], required for api-jwt), public_paths (list(string), default []), required_groups (list(string), default []), and required_roles (list(string), default []). browser routes enforce forward-auth via the embedded outpost and require at least one group or role; api-jwt routes validate bearer JWTs for the given audiences with native claim authorization; public routes are unauthenticated.
+    Gateway auth policy contract: kubernetes_engine.namespaces[*].route_auth_policies is a map keyed by route name. Each policy declares mode ("public" | "browser" | "api-jwt", default "browser"), audiences (list(string), default [], required for api-jwt), public_paths (list(string), default []), required_groups (list(string), default []), and required_roles (list(string), default []). browser routes enforce forward-auth via the embedded outpost and require at least one group or role; all browser routes for a team share its gateway hosts and must therefore declare identical required_groups and required_roles; api-jwt routes validate bearer JWTs for the given audiences with native claim authorization; public routes are unauthenticated.
 
     Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
@@ -473,6 +473,23 @@ variable "teams" {
       ]
     ]))
     error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\") and must be keyed by an existing route name; policy keys must be RFC 1123 labels; mode must be one of \"public\", \"browser\", or \"api-jwt\"; public policies cannot declare audiences, public paths, groups, or roles; browser policies cannot declare audiences and must require at least one group or role; api-jwt policies must declare at least one audience; audiences, public_paths, required_groups, and required_roles must be unique; public_paths must start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; audiences, required_groups, and required_roles must be non-empty strings with no whitespace."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      length(distinct(flatten([
+        for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
+          for policy_name, policy in ns.route_auth_policies :
+          jsonencode({
+            required_groups = sort(policy.required_groups)
+            required_roles  = sort(policy.required_roles)
+          })
+          if policy.mode == "browser"
+        ]
+      ]))) <= 1
+    ])
+    error_message = "All browser route_auth_policies for a team must declare identical required_groups and required_roles because they share the same host-scoped Authentik application."
   }
 
 }
