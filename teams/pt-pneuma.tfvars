@@ -1097,10 +1097,10 @@ teams = {
 
         namespaces = {
           "authentik" = {
-            istio_injection = "enabled"
+            mesh_enabled = true
           }
           "istio-test" = {
-            istio_injection = "enabled"
+            mesh_enabled = true
 
             route_auth_policies = {
               "istio-test" = {
