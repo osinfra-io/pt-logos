@@ -230,7 +230,7 @@ teams = {
 
         namespaces = {
           "istio-test" = {
-            istio_injection = "enabled"
+            mesh_enabled = true
 
             routes = {
               "istio-test" = {
@@ -241,7 +241,7 @@ teams = {
             }
           }
           "openbao" = {
-            istio_injection = "disabled"
+            mesh_enabled = false
           }
         }
       }

@@ -255,7 +255,7 @@ variable "teams" {
         })), {})
 
         namespaces = optional(map(object({
-          istio_injection = optional(string, "disabled")
+          mesh_enabled = optional(bool, false)
 
           route_auth_policies = optional(map(object({
             audiences       = optional(list(string), [])
@@ -391,10 +391,10 @@ variable "teams" {
     condition = alltrue(flatten([
       for team_key, team in var.teams : [
         for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) :
-        can(regex("^[a-z][a-z0-9-]*$", ns_name)) && contains(["enabled", "disabled"], ns.istio_injection)
+        can(regex("^[a-z][a-z0-9-]*$", ns_name))
       ]
     ]))
-    error_message = "kubernetes_engine.namespaces keys must start with a lowercase letter and contain only lowercase letters, digits, and hyphens; istio_injection must be \"enabled\" or \"disabled\"."
+    error_message = "kubernetes_engine.namespaces keys must start with a lowercase letter and contain only lowercase letters, digits, and hyphens."
   }
 
   validation {
@@ -402,7 +402,7 @@ variable "teams" {
       for team_key, team in var.teams : [
         for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
           for route_name, route in ns.routes :
-          ns.istio_injection == "enabled" &&
+          ns.mesh_enabled &&
           can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", route_name)) && length(route_name) <= 63 &&
           can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", route.service)) && length(route.service) <= 63 &&
           startswith(route.path, "/") &&
@@ -410,7 +410,7 @@ variable "teams" {
         ]
       ]
     ]))
-    error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\"); route and service names must be RFC 1123 labels (lowercase alphanumeric or hyphen, starting and ending alphanumeric, at most 63 characters); path must start with \"/\"; port must be an integer between 1 and 65535."
+    error_message = "kubernetes_engine.namespaces routes may only be declared on mesh-enabled namespaces (mesh_enabled = true); route and service names must be RFC 1123 labels (lowercase alphanumeric or hyphen, starting and ending alphanumeric, at most 63 characters); path must start with \"/\"; port must be an integer between 1 and 65535."
   }
 
   validation {
@@ -418,7 +418,7 @@ variable "teams" {
       for team_key, team in var.teams : [
         for ns_name, ns in try(team.platform_managed_project.kubernetes_engine.namespaces, {}) : [
           for policy_name, policy in ns.route_auth_policies :
-          ns.istio_injection == "enabled" &&
+          ns.mesh_enabled &&
           contains(keys(ns.routes), policy_name) &&
           can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", policy_name)) && length(policy_name) <= 63 &&
           contains(["api-jwt", "browser", "public"], policy.mode) &&
@@ -472,7 +472,7 @@ variable "teams" {
         ]
       ]
     ]))
-    error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (istio_injection = \"enabled\") and must be keyed by an existing route name; policy keys must be RFC 1123 labels; mode must be one of \"public\", \"browser\", or \"api-jwt\"; public policies cannot declare audiences, public paths, groups, or roles; browser policies cannot declare audiences and must require at least one group or role; api-jwt policies must declare at least one audience; audiences, public_paths, required_groups, and required_roles must be unique; public_paths must start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; audiences, required_groups, and required_roles must be non-empty strings with no whitespace."
+    error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (mesh_enabled = true) and must be keyed by an existing route name; policy keys must be RFC 1123 labels; mode must be one of \"public\", \"browser\", or \"api-jwt\"; public policies cannot declare audiences, public paths, groups, or roles; browser policies cannot declare audiences and must require at least one group or role; api-jwt policies must declare at least one audience; audiences, public_paths, required_groups, and required_roles must be unique; public_paths must start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; audiences, required_groups, and required_roles must be non-empty strings with no whitespace."
   }
 
   validation {
