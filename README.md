@@ -2,13 +2,17 @@
 
 [![Dependabot](https://img.shields.io/github/actions/workflow/status/osinfra-io/pt-logos/dependabot.yml?style=for-the-badge&logo=github&color=2088FF&label=Dependabot)](https://github.com/osinfra-io/pt-logos/actions/workflows/dependabot.yml) [![Datadog Security Enabled](https://img.shields.io/badge/Datadog%20Security-Enabled-632CA6?style=for-the-badge&logo=datadog)](https://app.datadoghq.com/security/code-security/repositories?repository_id=pt-logos)
 
-## 📄 Repository Description
+## Purpose
 
-This repository contains the Infrastructure as Code (IaC) that establishes the Logos layer — the platform’s primordial principle of order from which all other structure emerges. Using OpenTofu, it brings coherence across multiple cloud providers, setting the first boundaries that transform an undifferentiated technical landscape into a domain where disciplined creation is possible.
+Logos is the source of truth for platform team structure and organizational access. Its OpenTofu configuration provisions GCP folders and identity groups, GitHub teams and repositories, Datadog teams, and the governance settings consumed by downstream platform layers.
 
-As the grounding stratum of the platform hierarchy, Logos encodes the organizational logic itself: the clear lines of access, the governance boundaries that restrain chaos, and the stable standards that enable higher-level systems to flourish. Through the lens of Team Topologies, this layer defines the hierarchy of responsibility and relationship, ensuring that each team inhabits a space conducive to productive action.
+## Consumer contract
 
-Logos is where the platform’s moral architecture begins — where order is spoken into being so that all subsequent layers may stand upon it.
+| Consumers provide | Logos provides |
+| --- | --- |
+| Team key, display name, maintainers, members, repositories, and optional platform features | GCP folder hierarchy, role-based identity groups, GitHub teams and repositories, Datadog team configuration, and downstream team metadata |
+
+Request onboarding and team changes through the [Nomos onboarding flow](https://docs.osinfra.io/onboarding) or by updating `teams/*.tfvars`. Logos owns organizational structure and access boundaries; Corpus owns cloud projects and networking, Pneuma owns Kubernetes runtime services, and Kryptos owns secrets infrastructure.
 
 ### 🛠️ Tools
 
@@ -31,7 +35,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🔄 Platform Deployment Dependency Graph
 
-The platform follows a strict three-layer deployment hierarchy: **Logos → Corpus → Pneuma**. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain. A single global **Authentik Config** job runs last, once every zone's Authentik deployment completes.
+The cross-repository deployment dependency chain shown below is **Logos → Corpus → Pneuma**. Kryptos follows its own Sandbox → Non-Production → Production workflow and is not gated on Pneuma. Logos deploys team workspaces directly to production on merge to `main`; downstream repositories promote changes through sandbox, non-production, and production. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain. A single global **Authentik Config** job runs last, once every zone's Authentik deployment completes.
 
 ```mermaid
 flowchart LR
