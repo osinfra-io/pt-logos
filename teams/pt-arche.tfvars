@@ -166,6 +166,7 @@ teams = {
           "infrastructure-as-code",
           "kubernetes",
           "opentofu",
+          "opentofu-child-module",
           "platform-team",
           "pt-arche"
         ]
