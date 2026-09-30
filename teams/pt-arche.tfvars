@@ -143,12 +143,28 @@ teams = {
       }
 
       "pt-arche-google-storage-bucket" = {
-        description            = "OpenTofu example module that creates a Google Cloud Storage bucket with uniform bucket-level access, public access prevention, optional object versioning, and customer-managed encryption key support."
+        description            = "OpenTofu example module that creates a Google Cloud Storage bucket with uniform bucket-level access, optional object versioning, and customer-managed encryption key support."
         enable_datadog_webhook = true
 
         topics = [
           "google-cloud-platform",
           "infrastructure-as-code",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
+      "pt-arche-kubernetes-agentgateway" = {
+        description            = "OpenTofu child module for deploying and configuring Agentgateway on Google Kubernetes Engine."
+        enable_datadog_webhook = true
+
+        topics = [
+          "agentgateway",
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
           "opentofu",
           "opentofu-child-module",
           "platform-team",
@@ -243,7 +259,7 @@ teams = {
       "copilot"       = { color = "6E40C9", description = "Copilot instructions, skills, hooks, and agents" }
       "dependencies"  = { color = "0075CA", description = "Pull requests that update a dependency file" }
       "devex"         = { color = "84A255", description = "Developer experience, tooling, and local environment" }
-      "docker"        = { color = "0DB7ED", description = "Docker images and container configuration" }
+      "docker"        = { color = "0DB7ED", description = "Docker images and configuration" }
       "docs"          = { color = "25C2A0", description = "Docusaurus documentation site or other markdown documentation" }
       "kubernetes"    = { color = "326CE5", description = "Kubernetes manifests, Helm charts, and cluster configuration" }
       "misc"          = { color = "C5DEF5", description = "Miscellaneous work that does not fit another label" }
