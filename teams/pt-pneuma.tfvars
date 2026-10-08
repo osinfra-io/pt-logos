@@ -1096,6 +1096,9 @@ teams = {
         }
 
         namespaces = {
+          "agentgateway" = {
+            mesh_enabled = true
+          }
           "authentik" = {
             mesh_enabled = true
           }
