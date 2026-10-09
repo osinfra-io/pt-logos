@@ -39,7 +39,7 @@ When onboarding a team, the agent opens **two pull requests in sequence** — th
 
 1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into the all-teams JSON array in `jobs.main.strategy.matrix.teams` in alphabetical order. Preserve the separate `pneuma_only` selection.
+2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.teams` in alphabetical order.
 
 PR 1 must be merged first so the `{team-key-without-prefix}-production` GitHub environment exists to gate the workflow that fires when PR 2 merges.
 
@@ -48,5 +48,3 @@ All other operations open a PR against only the relevant `teams/{team-key}.tfvar
 ## GitHub Actions
 
 Logos deploys only to production — on push to `main` and via `workflow_dispatch`. Each team's tfvars file is applied as a separate matrix job (e.g. `pt-corpus`, `pt-pneuma`).
-
-Manual dispatch accepts `pneuma_only` (default false) to reconcile just Pneuma's foundational output without applying other teams. Pushes and default dispatches still target all teams. This option does not bypass the existing production environment approval.
