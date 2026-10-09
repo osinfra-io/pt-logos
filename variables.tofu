@@ -92,6 +92,16 @@ variable "teams" {
     Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
   EOT
   type = map(object({
+    authentik_groups = optional(map(object({
+      description = string
+      label       = string
+      members = optional(object({
+        non-production = optional(list(string), [])
+        production     = optional(list(string), [])
+        sandbox        = optional(list(string), [])
+      }), {})
+    })), {})
+
     datadog_team_memberships = object({
       admins  = list(string)
       members = list(string)
@@ -294,6 +304,46 @@ variable "teams" {
   }))
 
   validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for key, group in team.authentik_groups :
+        can(regex("^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$", key)) &&
+        can(regex("^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)*$", group.label)) &&
+        length(trimspace(group.description)) > 0 &&
+        alltrue([
+          for members in [group.members.non-production, group.members.production, group.members.sandbox] :
+          length(distinct(members)) == length(members) && alltrue([
+            for email in members : email == lower(email) && can(regex("^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(\\.[a-z0-9-]+)+$", email))
+          ])
+        ])
+      ]
+    ]))
+    error_message = "authentik_groups keys must be RFC 1123 labels; labels must start with a letter and contain only alphanumeric words separated by single spaces; descriptions must not be blank; each environment must declare unique lowercase email addresses."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      length(distinct([for group in values(team.authentik_groups) : group.label])) == length(team.authentik_groups)
+    ])
+    error_message = "authentik_groups labels must be unique within each team."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for ns in values(try(team.platform_managed_project.kubernetes_engine.namespaces, {})) : [
+          for policy in values(ns.route_auth_policies) : [
+            for name in concat(policy.required_groups, policy.required_roles) :
+            !strcontains(name, ": ") || contains([for group in values(team.authentik_groups) : "${team_key}: ${group.label}"], name)
+          ]
+        ]
+      ]
+    ]))
+    error_message = "Team-qualified Authentik groups referenced by routes must be declared in the owning team's authentik_groups."
+  }
+
+  validation {
     condition = alltrue([
       for team_key, team in var.teams : contains(["stream-aligned-team", "platform-team", "complicated-subsystem-team", "enabling-team"], team.team_type)
     ])
@@ -463,16 +513,16 @@ variable "teams" {
           ]) &&
           alltrue([
             for group in policy.required_groups :
-            length(group) > 0 && !can(regex("\\s", group))
+            can(regex("^[!-~]+( [!-~]+)*$", group)) && !can(regex("[|,]", group))
           ]) &&
           alltrue([
             for role in policy.required_roles :
-            length(role) > 0 && !can(regex("\\s", role))
+            can(regex("^[!-~]+( [!-~]+)*$", role)) && !can(regex("[|,]", role))
           ])
         ]
       ]
     ]))
-    error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (mesh_enabled = true) and must be keyed by an existing route name; policy keys must be RFC 1123 labels; mode must be one of \"public\", \"browser\", or \"api-jwt\"; public policies cannot declare audiences, public paths, groups, or roles; browser policies cannot declare audiences and must require at least one group or role; api-jwt policies must declare at least one audience; audiences, public_paths, required_groups, and required_roles must be unique; public_paths must start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; audiences, required_groups, and required_roles must be non-empty strings with no whitespace."
+    error_message = "kubernetes_engine.namespaces route_auth_policies may only be declared on mesh-enabled namespaces (mesh_enabled = true) and must be keyed by an existing route name; policy keys must be RFC 1123 labels; mode must be one of \"public\", \"browser\", or \"api-jwt\"; public policies cannot declare audiences, public paths, groups, or roles; browser policies cannot declare audiences and must require at least one group or role; api-jwt policies must declare at least one audience; audiences, public_paths, required_groups, and required_roles must be unique; public_paths must start with \"/\", contain no whitespace, stay under the route path, and not be \"/\"; audiences must be non-empty strings with no whitespace; groups and roles must be printable ASCII names with single internal spaces and no comma or pipe delimiters."
   }
 
   validation {

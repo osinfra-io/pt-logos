@@ -1,5 +1,18 @@
 teams = {
   pt-pneuma = {
+    authentik_groups = {
+      agentgateway-admins = {
+        description = "Access to the agentgateway administration UI"
+        label       = "agentgateway Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+    }
+
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []

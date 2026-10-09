@@ -6,6 +6,16 @@
 # All locals are organized alphabetically for easy navigation and maintenance.
 
 locals {
+  authentik_groups = {
+    for team_key, team in var.teams : team_key => {
+      for key, group in team.authentik_groups : key => {
+        description = group.description
+        members     = group.members
+        name        = "${team_key}: ${group.label}"
+      }
+    }
+  }
+
   # Combine team users with Datadog admins and standard users to get complete Datadog user set
   all_datadog_users = toset(concat(
     tolist(local.datadog_users),
