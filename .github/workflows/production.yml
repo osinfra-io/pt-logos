@@ -2,6 +2,11 @@ name: Production
 
 on:
   workflow_dispatch:
+    inputs:
+      pneuma_only:
+        default: false
+        description: "Deploy only pt-pneuma; keep all existing production approval gates."
+        type: boolean
   push:
     branches:
       - main
@@ -27,15 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        teams:
-          - pt-arche
-          - pt-corpus
-          - pt-ekklesia
-          - pt-kryptos
-          - pt-logos
-          - pt-pneuma
-          - pt-techne
-          - st-ethos
+        teams: ${{ inputs.pneuma_only && fromJSON('["pt-pneuma"]') || fromJSON('["pt-arche","pt-corpus","pt-ekklesia","pt-kryptos","pt-logos","pt-pneuma","pt-techne","st-ethos"]') }}
     with:
       checkout_ref: ${{ github.ref }}
       github_environment: "Production: ${{ matrix.teams }}"
