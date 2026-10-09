@@ -62,19 +62,19 @@ teams = {
             }
           }
           non-production-authentik-config = {
-            name = "Non-Production Authentik Config"
+            name = "Non-Production authentik Config"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
           non-production-authentik-us-east1-b = {
-            name = "Non-Production Authentik: us-east1-b"
+            name = "Non-Production authentik: us-east1-b"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
           non-production-authentik-us-east4-a = {
-            name = "Non-Production Authentik: us-east4-a"
+            name = "Non-Production authentik: us-east4-a"
             reviewers = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
@@ -230,43 +230,43 @@ teams = {
             }
           }
           production-authentik-config = {
-            name = "Production Authentik Config"
+            name = "Production authentik Config"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east1-b = {
-            name = "Production Authentik: us-east1-b"
+            name = "Production authentik: us-east1-b"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east1-c = {
-            name = "Production Authentik: us-east1-c"
+            name = "Production authentik: us-east1-c"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east1-d = {
-            name = "Production Authentik: us-east1-d"
+            name = "Production authentik: us-east1-d"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east4-a = {
-            name = "Production Authentik: us-east4-a"
+            name = "Production authentik: us-east4-a"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east4-b = {
-            name = "Production Authentik: us-east4-b"
+            name = "Production authentik: us-east4-b"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
           production-authentik-us-east4-c = {
-            name = "Production Authentik: us-east4-c"
+            name = "Production authentik: us-east4-c"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
@@ -734,19 +734,19 @@ teams = {
             }
           }
           sandbox-authentik-config = {
-            name = "Sandbox Authentik Config"
+            name = "Sandbox authentik Config"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
           sandbox-authentik-us-east1-b = {
-            name = "Sandbox Authentik: us-east1-b"
+            name = "Sandbox authentik: us-east1-b"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
           sandbox-authentik-us-east4-a = {
-            name = "Sandbox Authentik: us-east4-a"
+            name = "Sandbox authentik: us-east4-a"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
