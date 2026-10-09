@@ -709,6 +709,30 @@ teams = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
           }
+          sandbox-agentgateway-manifests-us-east1-b = {
+            name = "Sandbox agentgateway Manifests: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-agentgateway-manifests-us-east4-a = {
+            name = "Sandbox agentgateway Manifests: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-agentgateway-us-east1-b = {
+            name = "Sandbox agentgateway: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-agentgateway-us-east4-a = {
+            name = "Sandbox agentgateway: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
           sandbox-authentik-config = {
             name = "Sandbox Authentik Config"
             reviewers = {
