@@ -146,6 +146,16 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          tiger-production = {
+            deployment_branch_policy = {
+              custom_branch_policies = false
+              protected_branches     = true
+            }
+            name = "Production: st-tiger"
+            reviewers = {
+              teams = ["pt-logos-production-approvers"]
+            }
+          }
         }
 
         topics = [
