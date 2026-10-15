@@ -211,6 +211,18 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
+          non-production-openbao-us-east1-b = {
+            name = "Non-Production OpenBao: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
+          non-production-openbao-us-east4-a = {
+            name = "Non-Production OpenBao: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
           non-production-regional-us-east1-b = {
             name = "Non-Production: us-east1-b"
             reviewers = {
@@ -667,6 +679,42 @@ teams = {
               teams = ["pt-pneuma-production-approvers"]
             }
           }
+          production-openbao-us-east1-b = {
+            name = "Production OpenBao: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-openbao-us-east1-c = {
+            name = "Production OpenBao: us-east1-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-openbao-us-east1-d = {
+            name = "Production OpenBao: us-east1-d"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-openbao-us-east4-a = {
+            name = "Production OpenBao: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-openbao-us-east4-b = {
+            name = "Production OpenBao: us-east4-b"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-openbao-us-east4-c = {
+            name = "Production OpenBao: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
           production-regional-us-east1-b = {
             name = "Production: us-east1-b"
             reviewers = {
@@ -879,6 +927,18 @@ teams = {
           }
           sandbox-opa-gatekeeper-us-east4-a = {
             name = "Sandbox OPA Gatekeeper: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-openbao-us-east1-b = {
+            name = "Sandbox OpenBao: us-east1-b"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-openbao-us-east4-a = {
+            name = "Sandbox OpenBao: us-east4-a"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
@@ -1162,6 +1222,9 @@ teams = {
                 service = "istio-test"
               }
             }
+          }
+          "openbao" = {
+            mesh_enabled = false
           }
         }
       }
