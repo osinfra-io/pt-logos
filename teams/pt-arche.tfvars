@@ -252,6 +252,23 @@ teams = {
           "pt-arche"
         ]
       }
+
+      "pt-arche-kubernetes-openbao" = {
+        description            = "OpenTofu child module for deploying and configuring OpenBao on Google Kubernetes Engine."
+        enable_datadog_webhook = true
+
+        topics = [
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
+          "openbao",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche",
+          "security"
+        ]
+      }
     }
 
     github_repository_labels = {
