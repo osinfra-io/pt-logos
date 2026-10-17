@@ -104,7 +104,7 @@ resource "datadog_organization_settings" "this" {
 resource "datadog_service_account" "this" {
   for_each = local.datadog_teams
 
-  email = "${each.value.handle}@osinfra.io"
+  email = each.value.email
   name  = each.value.handle
 
   roles = local.datadog_service_account_roles[each.key]
@@ -273,7 +273,7 @@ resource "github_issue_label" "this" {
 
 # Regular GitHub Members - Can be destroyed normally
 resource "github_membership" "members" {
-  for_each = setsubtract(local.all_github_users, toset(local.github_organization_owners))
+  for_each = local.github_organization_members_for_each
 
   role     = "member"
   username = each.value
@@ -386,8 +386,9 @@ resource "github_repository" "this" {
 
   topics = each.value.topics
 
-  visibility           = "public"
-  vulnerability_alerts = true
+  # This is an opensource reference implementation
+  # dd-iac-scan ignore-line
+  visibility = "public"
 }
 
 # GitHub Repository Environment Resource
@@ -413,10 +414,7 @@ resource "github_repository_environment" "this" {
   repository  = github_repository.this[each.value.repo_key].name
 
   reviewers {
-    teams = [
-      for team_name in each.value.reviewing_teams :
-      github_team.children[team_name].id
-    ]
+    teams = each.value.reviewing_team_ids
   }
 }
 
@@ -461,6 +459,7 @@ resource "github_repository_file" "security_policies" {
 
 # GitHub Repository Ruleset Resource
 # https://search.opentofu.org/provider/integrations/github/latest/docs/resources/repository_ruleset
+
 resource "github_repository_ruleset" "this" {
   depends_on = [
     github_repository.this
@@ -481,7 +480,7 @@ resource "github_repository_ruleset" "this" {
   }
 
   bypass_actors {
-    actor_id    = tonumber(github_team.children["${each.value.team_key}-repository-administrators"].id)
+    actor_id    = each.value.repository_administrators_team_id
     actor_type  = "Team"
     bypass_mode = "always"
   }
@@ -527,7 +526,7 @@ resource "github_repository_webhook" "datadog_webhooks" {
   configuration {
     content_type = "json"
     insecure_ssl = false
-    url          = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_api_key}"
+    url          = local.datadog_webhook_url
   }
 
   events = [
@@ -641,7 +640,6 @@ resource "github_team_settings" "this" {
   review_request_delegation {
     algorithm    = "LOAD_BALANCE"
     member_count = each.value.member_count
-    notify       = false
   }
 
   team_id = github_team.parents[each.key].id
@@ -673,7 +671,7 @@ resource "google_billing_account_iam_member" "billing_users" {
   }
 
   billing_account_id = var.google_billing_account
-  member             = "group:${google_cloud_identity_group.billing_users.group_key[0].id}"
+  member             = local.google_billing_users_member
   role               = "roles/billing.user"
 }
 
@@ -696,7 +694,7 @@ resource "google_billing_budget" "teams" {
     resource_ancestors = [google_folder.teams[each.key].id]
   }
 
-  display_name = "${each.value.display_name} Monthly"
+  display_name = each.value.display_name
 
   threshold_rules {
     spend_basis       = "CURRENT_SPEND"
@@ -729,16 +727,18 @@ resource "google_cloud_identity_group" "billing_users" {
   display_name = local.google_billing_users_group.display_name
 
   group_key {
-    id = "${local.google_billing_users_group.group_key}@${var.google_primary_domain}"
+    id = local.google_billing_users_group_email
   }
 
   initial_group_config = "EMPTY"
 
+  # Cloud Identity requires Google Groups to have the discussion forum label.
+  # dd-iac-scan ignore-line
   labels = {
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
 
-  parent = "customers/${var.google_customer_id}"
+  parent = local.google_customer_parent
 }
 
 # GKE security groups - organization-wide group for Kubernetes RBAC
@@ -754,17 +754,19 @@ resource "google_cloud_identity_group" "gke_security_groups" {
   display_name = local.google_gke_security_groups.display_name
 
   group_key {
-    id = "${local.google_gke_security_groups.group_key}@${var.google_primary_domain}"
+    id = local.google_gke_security_groups_email
   }
 
   initial_group_config = "EMPTY"
 
+  # Google Groups require the discussion forum label; GKE RBAC also requires the security label.
+  # dd-iac-scan ignore-line
   labels = {
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
     "cloudidentity.googleapis.com/groups.security"         = ""
   }
 
-  parent = "customers/${var.google_customer_id}"
+  parent = local.google_customer_parent
 }
 
 resource "google_cloud_identity_group" "this" {
@@ -778,17 +780,19 @@ resource "google_cloud_identity_group" "this" {
   display_name = each.value.display_name
 
   group_key {
-    id = "${each.key}@${var.google_primary_domain}"
+    id = local.google_cloud_identity_group_emails[each.key]
   }
 
   initial_group_config = "EMPTY"
 
+  # Cloud Identity requires Google Groups to have the discussion forum label.
+  # dd-iac-scan ignore-line
   labels = {
     # Must not contain more than one entry and must contain the following entry:
     "cloudidentity.googleapis.com/groups.discussion_forum" = ""
   }
 
-  parent = "customers/${var.google_customer_id}"
+  parent = local.google_customer_parent
 }
 
 # Cloud Identity Group Membership Resources
@@ -900,7 +904,7 @@ resource "google_folder" "teams" {
 
   deletion_protection = false
   display_name        = each.value.display_name
-  parent              = "folders/${var.google_team_type_folder_ids[each.value.team_type]}"
+  parent              = local.google_team_folder_parents[each.key]
 }
 
 # Google Folder IAM Member Resource
@@ -914,7 +918,7 @@ resource "google_folder_iam_member" "corpus_env_access" {
   for_each = local.google_folder_corpus_iam
 
   folder = each.value.folder
-  member = "group:${each.value.group_key}"
+  member = each.value.member
   role   = each.value.role
 }
 
@@ -928,6 +932,6 @@ resource "google_folder_iam_member" "team_env_access" {
   for_each = local.google_folder_team_env_iam
 
   folder = google_folder.environments[each.value.env_key].name
-  member = "group:${google_cloud_identity_group.this[each.value.group_key].group_key[0].id}"
+  member = each.value.member
   role   = each.value.role
 }
