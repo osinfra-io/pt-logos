@@ -1,31 +1,4 @@
 terraform {
-  # State and Plan Encryption
-  # https://opentofu.org/docs/language/state/encryption
-
-  # The commented out sections below demonstrate how to configure
-  # fallback encryption methods for state and plan files for bootstrapping.
-
-  encryption {
-    key_provider "gcp_kms" "default" {
-      key_length         = 32
-      kms_encryption_key = var.state_kms_encryption_key
-    }
-
-    method "aes_gcm" "default" {
-      keys = key_provider.gcp_kms.default
-    }
-
-    plan {
-      enforced = true
-      method   = method.aes_gcm.default
-    }
-
-    state {
-      enforced = true
-      method   = method.aes_gcm.default
-    }
-  }
-
   # Required Providers
   # https://opentofu.org/docs/language/providers/requirements#requiring-providers
 
