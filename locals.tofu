@@ -478,7 +478,7 @@ locals {
   }
 
   google_billing_users_group_email = "${local.google_billing_users_group.group_key}@${var.google_primary_domain}"
-  google_billing_users_member      = "group:${google_cloud_identity_group.billing_users.group_key[0].id}"
+  google_billing_users_member      = "group:${local.google_billing_users_group_email}"
 
   google_cloud_identity_group_emails = {
     for group_key in keys(local.google_cloud_identity_groups) : group_key => "${group_key}@${var.google_primary_domain}"

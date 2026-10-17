@@ -666,6 +666,10 @@ resource "github_team_settings" "this" {
 # Single group where all team service accounts are added for billing access
 # Organization-level resource managed only in logos-production-main workspace
 resource "google_billing_account_iam_member" "billing_users" {
+  depends_on = [
+    google_cloud_identity_group.billing_users
+  ]
+
   lifecycle {
     enabled = local.billing_users_enabled
   }
