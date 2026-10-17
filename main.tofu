@@ -238,9 +238,9 @@ resource "github_actions_secret" "datadog_api_keys" {
 
   for_each = local.github_repository_datadog_secrets
 
-  plaintext_value = datadog_api_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_API_KEY"
+  value       = datadog_api_key.this[each.value.team_key].key
+  repository  = each.key
+  secret_name = "DATADOG_API_KEY"
 }
 
 resource "github_actions_secret" "datadog_app_keys" {
@@ -250,9 +250,9 @@ resource "github_actions_secret" "datadog_app_keys" {
 
   for_each = local.github_repository_datadog_secrets
 
-  plaintext_value = datadog_service_account_application_key.this[each.value.team_key].key
-  repository      = each.key
-  secret_name     = "DATADOG_APP_KEY"
+  value       = datadog_service_account_application_key.this[each.value.team_key].key
+  repository  = each.key
+  secret_name = "DATADOG_APP_KEY"
 }
 
 # GitHub Issue Labels Resource
