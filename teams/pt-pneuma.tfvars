@@ -1193,12 +1193,6 @@ teams = {
         }
 
         namespaces = {
-          "agentgateway" = {
-            mesh_enabled = true
-          }
-          "authentik" = {
-            mesh_enabled = true
-          }
           "istio-test" = {
             mesh_enabled = true
 
@@ -1222,9 +1216,6 @@ teams = {
                 service = "istio-test"
               }
             }
-          }
-          "openbao" = {
-            mesh_enabled = false
           }
         }
       }
