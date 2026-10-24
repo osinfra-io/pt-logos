@@ -11,6 +11,39 @@ teams = {
           sandbox        = ["brett@osinfra.io"]
         }
       }
+
+      openbao-secret-admins = {
+        description = "Manage OpenBao secrets within the pt-pneuma team prefix"
+        label       = "OpenBao Secret Admins"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+
+      openbao-secret-readers = {
+        description = "Read and list OpenBao secrets within the pt-pneuma team prefix"
+        label       = "OpenBao Secret Readers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+
+      openbao-secret-writers = {
+        description = "Create and update OpenBao secrets within the pt-pneuma team prefix"
+        label       = "OpenBao Secret Writers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
     }
 
     datadog_team_memberships = {
