@@ -214,6 +214,7 @@ resource "github_actions_organization_permissions" "this" {
       "github/*",
       "golangci/*",
       "google-github-actions/*",
+      "hashicorp/*",
       "open-policy-agent/*",
       "opentofu/*",
       "projectdiscovery/*",
