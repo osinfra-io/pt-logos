@@ -19,7 +19,7 @@ teams = {
         members = {
           non-production = []
           production     = []
-          sandbox        = []
+          sandbox        = ["brett@osinfra.io"]
         }
       }
 
