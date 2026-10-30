@@ -12,13 +12,24 @@ teams = {
         }
       }
 
+      authentik-admins = {
+        description = "Manage the authentik instance and its global configuration"
+        label       = "authentik Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+
       openbao-secret-admins = {
         description = "Manage OpenBao secrets within the pt-pneuma team prefix"
         label       = "OpenBao Secret Admins"
 
         members = {
-          non-production = []
-          production     = []
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
           sandbox        = ["brett@osinfra.io"]
         }
       }
@@ -1119,7 +1130,7 @@ teams = {
           writers = {
             managers = []
             members  = []
-            owners   = []
+            owners   = ["brett@osinfra.io"]
           }
         }
 

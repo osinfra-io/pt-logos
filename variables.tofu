@@ -286,6 +286,88 @@ variable "teams" {
   }))
 
   validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      length(team.github_parent_team_memberships.maintainers) > 0 &&
+      alltrue([
+        for membership in values(merge(
+          {
+            "non-production-approvers"  = { maintainers = [], members = [] }
+            "production-approvers"      = { maintainers = [], members = [] }
+            "repository-administrators" = { maintainers = [], members = [] }
+            "sandbox-approvers"         = { maintainers = [], members = [] }
+          },
+          team.github_child_teams_memberships
+        )) : length(membership.maintainers) > 0
+      ])
+    ])
+    error_message = "Every GitHub parent team and child team must have at least one maintainer."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      length(team.datadog_team_memberships.admins) > 0
+    ])
+    error_message = "Every Datadog team must have at least one admin."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for team_key, team in var.teams : [
+        for role in ["admin", "reader", "writer"] : [
+          for environment in ["sandbox", "non-production", "production"] :
+          length(team.google_basic_groups_env_memberships[role][environment].owners) > 0
+        ]
+      ]
+    ]))
+    error_message = "Every Google Cloud Identity admin, reader, and writer group must have at least one owner in each environment."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      alltrue([
+        for key in ["openbao-secret-admins", "openbao-secret-readers", "openbao-secret-writers"] :
+        contains(keys(team.authentik_groups), key)
+      ]) &&
+      alltrue([
+        for environment in ["sandbox", "non-production", "production"] :
+        length(team.authentik_groups["openbao-secret-admins"].members[environment]) > 0
+      ]) &&
+      (
+        team_key == "pt-pneuma" ? (
+          contains(keys(team.authentik_groups), "agentgateway-admins") &&
+          contains(keys(team.authentik_groups), "authentik-admins") &&
+          alltrue([
+            for environment in ["sandbox", "non-production", "production"] :
+            contains(team.authentik_groups["authentik-admins"].members[environment], "brett@osinfra.io")
+          ])
+          ) : (
+          !contains(keys(team.authentik_groups), "agentgateway-admins") &&
+          !contains(keys(team.authentik_groups), "authentik-admins")
+        )
+      )
+    ])
+    error_message = "Every team must declare OpenBao admins, readers, and writers, with at least one OpenBao admin in each environment. Only pt-pneuma may declare agentgateway-admins and authentik-admins; pt-pneuma must include brett@osinfra.io in authentik-admins in every environment."
+  }
+
+  validation {
+    condition = alltrue([
+      for team_key, team in var.teams :
+      team.platform_managed_project == null ||
+      team.platform_managed_project.kubernetes_engine == null ||
+      length(team.platform_managed_project.kubernetes_engine.locations) == 0 ||
+      (
+        team.platform_managed_project.kubernetes_engine.artifact_registry_groups_memberships != null &&
+        length(team.platform_managed_project.kubernetes_engine.artifact_registry_groups_memberships.readers.owners) > 0 &&
+        length(team.platform_managed_project.kubernetes_engine.artifact_registry_groups_memberships.writers.owners) > 0
+      )
+    ])
+    error_message = "Teams with a Kubernetes cluster must configure Artifact Registry reader and writer groups, each with at least one owner."
+  }
+
+  validation {
     condition = alltrue(flatten([
       for team_key, team in var.teams : [
         for key, group in team.authentik_groups :

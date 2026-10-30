@@ -1,5 +1,40 @@
 teams = {
   pt-ekklesia = {
+    authentik_groups = {
+      openbao-secret-admins = {
+        description = "Manage secrets and versions within the pt-ekklesia team prefix"
+        label       = "OpenBao Secret Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+
+      openbao-secret-readers = {
+        description = "Read and list secrets within the pt-ekklesia team prefix"
+        label       = "OpenBao Secret Readers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+
+      openbao-secret-writers = {
+        description = "Create and update secrets within the pt-ekklesia team prefix"
+        label       = "OpenBao Secret Writers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+    }
+
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
       members = []
@@ -8,7 +43,19 @@ teams = {
     display_name = "Ekklesia" # The assembly of the called-out — where distinct capabilities are gathered into a unified body, deliberating and acting in concert toward shared platform purpose.
 
     github_child_teams_memberships = {
+      non-production-approvers = {
+        maintainers = ["brettcurtis"]
+        members     = []
+      }
+      production-approvers = {
+        maintainers = ["brettcurtis"]
+        members     = []
+      }
       repository-administrators = {
+        maintainers = ["brettcurtis"]
+        members     = []
+      }
+      sandbox-approvers = {
         maintainers = ["brettcurtis"]
         members     = []
       }
