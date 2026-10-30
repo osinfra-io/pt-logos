@@ -1,8 +1,43 @@
 teams = {
   pt-arche = {
+    authentik_groups = {
+      openbao-secret-admins = {
+        description = "Manage secrets and versions within the pt-arche team prefix"
+        label       = "OpenBao Secret Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+
+      openbao-secret-readers = {
+        description = "Read and list secrets within the pt-arche team prefix"
+        label       = "OpenBao Secret Readers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+
+      openbao-secret-writers = {
+        description = "Create and update secrets within the pt-arche team prefix"
+        label       = "OpenBao Secret Writers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+    }
+
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = []
+      members = ["brett@osinfra.io"]
     }
 
     display_name = "Arche" # The origin and first cause — the primordial source from which all platform foundations draw their initial form and essential nature.

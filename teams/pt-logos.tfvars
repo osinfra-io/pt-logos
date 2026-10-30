@@ -1,8 +1,43 @@
 teams = {
   pt-logos = {
+    authentik_groups = {
+      openbao-secret-admins = {
+        description = "Manage secrets and versions within the pt-logos team prefix"
+        label       = "OpenBao Secret Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+
+      openbao-secret-readers = {
+        description = "Read and list secrets within the pt-logos team prefix"
+        label       = "OpenBao Secret Readers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+
+      openbao-secret-writers = {
+        description = "Create and update secrets within the pt-logos team prefix"
+        label       = "OpenBao Secret Writers"
+
+        members = {
+          non-production = []
+          production     = []
+          sandbox        = []
+        }
+      }
+    }
+
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = []
+      members = ["brett@osinfra.io"]
     }
 
     display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.
