@@ -59,7 +59,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Pneuma" # The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation.

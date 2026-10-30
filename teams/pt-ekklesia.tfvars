@@ -37,7 +37,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Ekklesia" # The assembly of the called-out — where distinct capabilities are gathered into a unified body, deliberating and acting in concert toward shared platform purpose.

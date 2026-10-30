@@ -37,7 +37,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Corpus" # The embodiment of that order — the structural form where networks, shared services, and core infrastructure take shape, preparing the body that Pneuma will animate.

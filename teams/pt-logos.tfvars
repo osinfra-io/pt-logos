@@ -37,7 +37,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Logos" # The foundational principle of order across systems, integrating multi-provider infrastructure, establishing boundaries, governance, and stable standards for teams to operate autonomously.

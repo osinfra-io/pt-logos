@@ -37,7 +37,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Arche" # The origin and first cause — the primordial source from which all platform foundations draw their initial form and essential nature.

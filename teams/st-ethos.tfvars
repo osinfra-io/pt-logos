@@ -37,7 +37,7 @@ teams = {
 
     datadog_team_memberships = {
       admins  = ["brett@osinfra.io"]
-      members = ["brett@osinfra.io"]
+      members = []
     }
 
     display_name = "Ethos" # The lived moral character that customers experience — the trustworthiness, transparency, and integrity through which the business earns and keeps their confidence

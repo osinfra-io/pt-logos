@@ -307,9 +307,9 @@ variable "teams" {
   validation {
     condition = alltrue([
       for team_key, team in var.teams :
-      length(team.datadog_team_memberships.members) > 0
+      length(team.datadog_team_memberships.admins) > 0
     ])
-    error_message = "Every Datadog team must have at least one member."
+    error_message = "Every Datadog team must have at least one admin."
   }
 
   validation {
