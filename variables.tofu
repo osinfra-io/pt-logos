@@ -66,17 +66,18 @@ variable "teams" {
     A map of teams following Team Topologies methodology, with hardcoded environments (Sandbox/Non-Production/Production),
     hardcoded Google Cloud identity groups (3 standard roles at team level), hierarchical GitHub teams (customizable membership with admin protection),
     GitHub repositories with webhook configurations, Datadog teams (admin/member roles with admin protection), and optional project configurations.
+    OpenBao Authentik group labels and descriptions are managed by Logos; team configuration supplies only their memberships.
 
     Organization owners/admins are managed via hardcoded lists in locals.tofu with lifecycle protection.
 
     Gateway auth policy contract: kubernetes_engine.namespaces[*].route_auth_policies is a map keyed by route name. Each policy declares mode ("public" | "browser" | "api-jwt", default "browser"), audiences (list(string), default [], required for api-jwt), public_paths (list(string), default []), required_groups (list(string), default []), and required_roles (list(string), default []). browser routes enforce forward-auth via the embedded outpost and require at least one group or role; all browser routes for a team share its gateway hosts and must therefore declare identical required_groups and required_roles; api-jwt routes validate bearer JWTs for the given audiences with native claim authorization; public routes are unauthenticated.
 
-    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, google_projects{} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, enable_google_project, google_project_enable_datadog, google_project_services, platform_managed_project{cloud_sql,kubernetes_engine} }
   EOT
   type = map(object({
     authentik_groups = optional(map(object({
-      description = string
-      label       = string
+      description = optional(string)
+      label       = optional(string)
       members = optional(object({
         non-production = optional(list(string), [])
         production     = optional(list(string), [])
@@ -372,8 +373,14 @@ variable "teams" {
       for team_key, team in var.teams : [
         for key, group in team.authentik_groups :
         can(regex("^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$", key)) &&
-        can(regex("^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)*$", group.label)) &&
-        length(trimspace(group.description)) > 0 &&
+        (
+          contains(["openbao-secret-admins", "openbao-secret-readers", "openbao-secret-writers"], key) ?
+          group.description == null && group.label == null :
+          group.description != null &&
+          length(trimspace(group.description)) > 0 &&
+          group.label != null &&
+          can(regex("^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)*$", group.label))
+        ) &&
         alltrue([
           for members in [group.members.non-production, group.members.production, group.members.sandbox] :
           length(distinct(members)) == length(members) && alltrue([
@@ -382,13 +389,17 @@ variable "teams" {
         ])
       ]
     ]))
-    error_message = "authentik_groups keys must be RFC 1123 labels; labels must start with a letter and contain only alphanumeric words separated by single spaces; descriptions must not be blank; each environment must declare unique lowercase email addresses."
+    error_message = "authentik_groups keys must be RFC 1123 labels; OpenBao labels and descriptions are fixed by Logos and must be omitted; other groups require a valid label and non-blank description; each environment must declare unique lowercase email addresses."
   }
 
   validation {
     condition = alltrue([
       for team_key, team in var.teams :
-      length(distinct([for group in values(team.authentik_groups) : group.label])) == length(team.authentik_groups)
+      length(distinct([
+        for key, group in team.authentik_groups :
+        contains(["openbao-secret-admins", "openbao-secret-readers", "openbao-secret-writers"], key) ?
+        "OpenBao Secret ${title(trimprefix(key, "openbao-secret-"))}" : group.label
+      ])) == length(team.authentik_groups)
     ])
     error_message = "authentik_groups labels must be unique within each team."
   }
@@ -399,7 +410,11 @@ variable "teams" {
         for ns in values(try(team.platform_managed_project.kubernetes_engine.namespaces, {})) : [
           for policy in values(ns.route_auth_policies) : [
             for name in concat(policy.required_groups, policy.required_roles) :
-            !strcontains(name, ": ") || contains([for group in values(team.authentik_groups) : "${team_key}: ${group.label}"], name)
+            !strcontains(name, ": ") || contains([
+              for key, group in team.authentik_groups :
+              "${team_key}: ${contains(["openbao-secret-admins", "openbao-secret-readers", "openbao-secret-writers"], key) ?
+              "OpenBao Secret ${title(trimprefix(key, "openbao-secret-"))}" : group.label}"
+            ], name)
           ]
         ]
       ]
