@@ -2,9 +2,6 @@ teams = {
   pt-logos = {
     authentik_groups = {
       openbao-secret-admins = {
-        description = "Manage secrets and versions within the pt-logos team prefix"
-        label       = "OpenBao Secret Admins"
-
         members = {
           non-production = ["brett@osinfra.io"]
           production     = ["brett@osinfra.io"]
@@ -13,9 +10,6 @@ teams = {
       }
 
       openbao-secret-readers = {
-        description = "Read and list secrets within the pt-logos team prefix"
-        label       = "OpenBao Secret Readers"
-
         members = {
           non-production = []
           production     = []
@@ -24,9 +18,6 @@ teams = {
       }
 
       openbao-secret-writers = {
-        description = "Create and update secrets within the pt-logos team prefix"
-        label       = "OpenBao Secret Writers"
-
         members = {
           non-production = []
           production     = []

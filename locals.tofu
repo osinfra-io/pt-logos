@@ -6,12 +6,28 @@
 # All locals are organized alphabetically for easy navigation and maintenance.
 
 locals {
+  authentik_group_defaults = {
+    openbao-secret-admins = {
+      description = "Manage secrets and versions within the %s team prefix"
+      label       = "OpenBao Secret Admins"
+    }
+    openbao-secret-readers = {
+      description = "Read and list secrets within the %s team prefix"
+      label       = "OpenBao Secret Readers"
+    }
+    openbao-secret-writers = {
+      description = "Create and update secrets within the %s team prefix"
+      label       = "OpenBao Secret Writers"
+    }
+  }
+
   authentik_groups = {
     for team_key, team in var.teams : team_key => {
       for key, group in team.authentik_groups : key => {
-        description = group.description
+        description = contains(keys(local.authentik_group_defaults), key) ? format(local.authentik_group_defaults[key].description, team_key) : group.description
+        label       = contains(keys(local.authentik_group_defaults), key) ? local.authentik_group_defaults[key].label : group.label
         members     = group.members
-        name        = "${team_key}: ${group.label}"
+        name        = "${team_key}: ${contains(keys(local.authentik_group_defaults), key) ? local.authentik_group_defaults[key].label : group.label}"
       }
     }
   }
