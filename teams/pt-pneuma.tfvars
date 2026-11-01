@@ -86,7 +86,6 @@ teams = {
       "pt-pneuma" = {
         description                       = "The breath of life animating the platform via Kubernetes, orchestrating dynamic, self-healing, and scalable services atop the Logos foundation."
         enable_datadog_secrets            = true
-        enable_datadog_webhook            = true
         enable_google_wif_service_account = true
 
         environments = {
@@ -1109,8 +1108,6 @@ teams = {
         }
       }
 
-      enable_datadog = true
-
       kubernetes_engine = {
         artifact_registry_groups_memberships = {
           readers = {
@@ -1125,8 +1122,7 @@ teams = {
           }
         }
 
-        dns_subdomain      = "pneuma"
-        enable_datadog_apm = true
+        dns_subdomain = "pneuma"
 
         locations = {
           "us-east1-b" = {
