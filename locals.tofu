@@ -342,7 +342,6 @@ locals {
       for repo_key, repo in team.github_repositories : {
         description                       = repo.description
         enable_datadog_secrets            = repo.enable_datadog_secrets
-        enable_datadog_webhook            = repo.enable_datadog_webhook
         enable_google_wif_service_account = repo.enable_google_wif_service_account
         key                               = repo_key
         pages                             = repo.pages
@@ -363,15 +362,8 @@ locals {
     ]
   ]) : repo.key => repo }
 
-  # Filter GitHub repositories that have Datadog webhooks enabled
-  github_repository_datadog_webhooks = { for repo in flatten([
-    for team_key, team in var.teams : [
-      for repo_key, repo in team.github_repositories : {
-        key = repo_key
-      }
-      if repo.enable_datadog_webhook
-    ]
-  ]) : repo.key => repo }
+  # GitHub repositories that send events to Datadog (all of them)
+  github_repository_datadog_webhooks = { for repo_key, repo in local.github_repositories : repo_key => { key = repo_key } }
 
   # Default GitHub repository labels with consistent colors and descriptions
   github_repository_default_labels = {
@@ -774,9 +766,7 @@ locals {
 
       # Team metadata
       display_name                     = team.display_name
-      enable_datadog_apm               = try(team.platform_managed_project.kubernetes_engine.enable_datadog_apm, false)
       enable_google_project            = team.enable_google_project
-      enable_platform_managed_datadog  = try(team.platform_managed_project.enable_datadog, false)
       enable_opentofu_state_management = team.enable_opentofu_state_management
       enable_workflows                 = team.enable_workflows
 
@@ -807,8 +797,7 @@ locals {
       }
 
       # Google Cloud project flags for this team (consumed by corpus)
-      google_project_enable_datadog = team.google_project_enable_datadog
-      google_project_services       = team.google_project_services
+      google_project_services = team.google_project_services
 
       # DNS subdomain for this team (e.g., "pneuma" → pneuma.osinfra.io in prod, pneuma.sb.osinfra.io in sandbox)
       dns_subdomain = try(team.platform_managed_project.kubernetes_engine.dns_subdomain, null)

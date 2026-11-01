@@ -63,8 +63,7 @@ teams = {
 
     github_repositories = {
       "pt-techne-agents" = {
-        description            = "AI agent definitions and Copilot coding agent configurations for the osinfra.io platform."
-        enable_datadog_webhook = true
+        description = "AI agent definitions and Copilot coding agent configurations for the osinfra.io platform."
 
         topics = [
           "agent",
@@ -87,8 +86,7 @@ teams = {
       }
 
       "pt-techne-development-setup" = {
-        description            = "Local development environment setup scripts example for working with Infrastructure as Code (IaC)."
-        enable_datadog_webhook = true
+        description = "Local development environment setup scripts example for working with Infrastructure as Code (IaC)."
 
         topics = [
           "developer-tools",
@@ -100,8 +98,7 @@ teams = {
       }
 
       "pt-techne-mcp-server" = {
-        description            = "Model Context Protocol (MCP) server providing platform context and tools to AI assistants."
-        enable_datadog_webhook = true
+        description = "Model Context Protocol (MCP) server providing platform context and tools to AI assistants."
 
         topics = [
           "ai",
@@ -114,8 +111,7 @@ teams = {
       }
 
       "pt-techne-misc-workflows" = {
-        description            = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
-        enable_datadog_webhook = true
+        description = "Miscellaneous reusable GitHub Called Workflows for common platform automation tasks."
 
         topics = [
           "github-actions",
@@ -127,8 +123,7 @@ teams = {
       }
 
       "pt-techne-opentofu-codespace" = {
-        description            = "GitHub Codespace for OpenTofu Infrastructure as Code development providing standardized developer environments."
-        enable_datadog_webhook = true
+        description = "GitHub Codespace for OpenTofu Infrastructure as Code development providing standardized developer environments."
 
         topics = [
           "codespace",
@@ -142,7 +137,6 @@ teams = {
 
       "pt-techne-opentofu-workflows" = {
         description                       = "Reusable GitHub Called Workflow examples for OpenTofu and Google Cloud Platform."
-        enable_datadog_webhook            = true
         enable_google_wif_service_account = true
 
         environments = {
@@ -176,8 +170,7 @@ teams = {
       }
 
       "pt-techne-pre-commit-hooks" = {
-        description            = "Pre-commit hooks for Infrastructure as Code (IaC) tools including OpenTofu format, validate, and test."
-        enable_datadog_webhook = true
+        description = "Pre-commit hooks for Infrastructure as Code (IaC) tools including OpenTofu format, validate, and test."
 
         topics = [
           "github-actions",

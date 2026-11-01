@@ -72,7 +72,7 @@ variable "teams" {
 
     Gateway auth policy contract: kubernetes_engine.namespaces[*].route_auth_policies is a map keyed by route name. Each policy declares mode ("public" | "browser" | "api-jwt", default "browser"), audiences (list(string), default [], required for api-jwt), public_paths (list(string), default []), required_groups (list(string), default []), and required_roles (list(string), default []). browser routes enforce forward-auth via the embedded outpost and require at least one group or role; all browser routes for a team share its gateway hosts and must therefore declare identical required_groups and required_roles; api-jwt routes validate bearer JWTs for the given audiences with native claim authorization; public routes are unauthenticated.
 
-    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, enable_google_project, google_project_enable_datadog, google_project_services, platform_managed_project{cloud_sql,kubernetes_engine} }
+    Structure: team_key => { display_name, team_type, github_parent_team_memberships{maintainers,members}, github_child_teams_memberships{optional map, four standard teams always created}, google_basic_groups_env_memberships{admin/reader/writer × sandbox/non-production/production}, datadog_team_memberships{}, github_repositories{}, enable_google_project, google_project_services, platform_managed_project{cloud_sql,kubernetes_engine} }
   EOT
   type = map(object({
     authentik_groups = optional(map(object({
@@ -113,7 +113,6 @@ variable "teams" {
     github_repositories = optional(map(object({
       description                       = string
       enable_datadog_secrets            = optional(bool, false)
-      enable_datadog_webhook            = optional(bool, true)
       enable_google_wif_service_account = optional(bool, false)
       enable_ruleset                    = optional(bool, true)
 
@@ -213,11 +212,8 @@ variable "teams" {
         regions          = set(string)
       })), {})
 
-      enable_datadog = optional(bool, false)
-
       kubernetes_engine = optional(object({
-        dns_subdomain      = optional(string, null)
-        enable_datadog_apm = optional(bool, false)
+        dns_subdomain = optional(string, null)
 
         artifact_registry_groups_memberships = optional(object({
           readers = object({
@@ -279,9 +275,8 @@ variable "teams" {
       owners   = list(string)
     })), {})
 
-    enable_google_project         = optional(bool, false)
-    google_project_enable_datadog = optional(bool, false)
-    google_project_services       = optional(list(string), [])
+    enable_google_project   = optional(bool, false)
+    google_project_services = optional(list(string), [])
 
     team_type = string
   }))
