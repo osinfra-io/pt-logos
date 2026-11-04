@@ -131,6 +131,48 @@ resource "datadog_team" "this" {
   name        = each.value.name
 }
 
+# Datadog Team Connection Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_connection
+
+resource "datadog_team_connection" "github" {
+  for_each = local.datadog_teams
+
+  connected_team {
+    id   = github_team.parents[each.key].id
+    type = "github_team"
+  }
+
+  team {
+    id   = datadog_team.this[each.key].id
+    type = "team"
+  }
+}
+
+# Datadog Team Link Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_link
+
+resource "datadog_team_link" "documentation" {
+  for_each = local.datadog_teams
+
+  label    = "Documentation"
+  position = 0
+  team_id  = datadog_team.this[each.key].id
+  url      = each.value.documentation_url
+}
+
+# Datadog Team Notification Rule Resource
+# https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_notification_rule
+
+resource "datadog_team_notification_rule" "email" {
+  for_each = local.datadog_teams
+
+  email {
+    enabled = true
+  }
+
+  team_id = datadog_team.this[each.key].id
+}
+
 # Datadog Team Membership Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/team_membership
 

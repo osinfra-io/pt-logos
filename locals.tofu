@@ -211,12 +211,13 @@ locals {
   # Create Datadog teams for each top-level team with hardcoded definitions and customizable membership
   datadog_teams = {
     for team_key, team in var.teams : team_key => {
-      admins      = team.datadog_team_memberships.admins
-      description = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
-      email       = "${team_key}@osinfra.io"
-      handle      = team_key
-      members     = team.datadog_team_memberships.members
-      name        = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
+      admins            = team.datadog_team_memberships.admins
+      description       = "${team.display_name} is a ${local.team_type_labels[team.team_type]} ${local.team_topologies_descriptions[team.team_type]}."
+      documentation_url = "https://docs.osinfra.io/${local.team_type_docs_sections[team.team_type]}/${replace(team_key, "/^[^-]+-/", "")}"
+      email             = "${team_key}@osinfra.io"
+      handle            = team_key
+      members           = team.datadog_team_memberships.members
+      name              = "${local.team_type_labels[team.team_type]}: ${team.display_name}"
     }
   }
 
@@ -741,6 +742,13 @@ locals {
     "enabling-team"              = "helps Stream-aligned teams to overcome obstacles. Also detects missing capabilities"
     "platform-team"              = "providing a compelling internal product to accelerate delivery by Stream-aligned teams"
     "stream-aligned-team"        = "aligned to a flow of work from (usually) a segment of the business domain"
+  }
+
+  team_type_docs_sections = {
+    "complicated-subsystem-team" = "complicated-subsystem-teams"
+    "enabling-team"              = "enabling-teams"
+    "platform-team"              = "platform-grouping"
+    "stream-aligned-team"        = "stream-aligned-teams"
   }
 
   # Team type singular labels for consistent description formatting (e.g., "Platform Team")
