@@ -173,6 +173,11 @@ locals {
     ]
   }
 
+  datadog_team_github_ids = {
+    for team_key in keys(local.datadog_teams) :
+    team_key => "@osinfra-io/${github_team.parents[team_key].slug}"
+  }
+
   # Resolve Datadog team membership user IDs with cross-workspace admin lookup
   datadog_team_membership_user_ids = {
     for key, membership in local.datadog_team_memberships : key => (

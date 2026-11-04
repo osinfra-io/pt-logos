@@ -138,7 +138,7 @@ resource "datadog_team_connection" "github" {
   for_each = local.datadog_teams
 
   connected_team {
-    id   = github_team.parents[each.key].id
+    id   = local.datadog_team_github_ids[each.key]
     type = "github_team"
   }
 
