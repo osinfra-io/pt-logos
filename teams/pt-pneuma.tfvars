@@ -137,6 +137,12 @@ teams = {
               teams = ["pt-pneuma-non-production-approvers"]
             }
           }
+          non-production-datadog-config = {
+            name = "Non-Production Datadog Config"
+            reviewers = {
+              teams = ["pt-pneuma-non-production-approvers"]
+            }
+          }
           non-production-datadog-manifests-us-east1-b = {
             name = "Non-Production Datadog Manifests: us-east1-b"
             reviewers = {
@@ -385,6 +391,12 @@ teams = {
           }
           production-cert-manager-us-east4-c = {
             name = "Production cert-manager: us-east4-c"
+            reviewers = {
+              teams = ["pt-pneuma-production-approvers"]
+            }
+          }
+          production-datadog-config = {
+            name = "Production Datadog Config"
             reviewers = {
               teams = ["pt-pneuma-production-approvers"]
             }
@@ -853,6 +865,12 @@ teams = {
           }
           sandbox-cert-manager-us-east4-a = {
             name = "Sandbox cert-manager: us-east4-a"
+            reviewers = {
+              teams = ["pt-pneuma-sandbox-approvers"]
+            }
+          }
+          sandbox-datadog-config = {
+            name = "Sandbox Datadog Config"
             reviewers = {
               teams = ["pt-pneuma-sandbox-approvers"]
             }
