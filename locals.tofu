@@ -62,7 +62,7 @@ locals {
 
   datadog_log_indexes = {
     high-retention = {
-      daily_limit                              = 10000
+      daily_limit                              = 150000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
@@ -83,6 +83,12 @@ locals {
           is_enabled   = true
           name         = "Exclude internal Kubernetes noise"
           sample_rate  = 1
+        },
+        {
+          filter_query = "service:datadog-operator status:info @logger:(controllers.DatadogAgent OR controllers.DatadogAgentInternal) (\"Reconciling DatadogAgent\" OR \"Reconciling DatadogAgentInternal\") -@data.protoPayload:*"
+          is_enabled   = true
+          name         = "Sample routine Datadog operator reconciliation"
+          sample_rate  = 0.9
         }
       ]
 
@@ -138,9 +144,9 @@ locals {
   # Conditionally manage log indexes only in logos workspace
   datadog_log_indexes_for_each = local.within_logos ? local.datadog_log_indexes : {}
 
-  # Ordered list of log index names - preserves declaration order from datadog_log_indexes map above
+  # Protect errors before source-based retention tiers; keep the catch-all last.
   # Used by datadog_logs_index_order resource to ensure correct processing sequence
-  datadog_log_indexes_order = ["low-retention", "medium-retention", "high-retention", "main"]
+  datadog_log_indexes_order = ["high-retention", "low-retention", "medium-retention", "main"]
 
   # Enable logs index order resource only in logos workspace
   datadog_logs_index_order_enabled = local.within_logos
