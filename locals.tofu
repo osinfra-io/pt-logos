@@ -66,9 +66,18 @@ locals {
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
-      exclusion_filters                        = []
-      filter_query                             = "status:(error OR critical OR emergency OR alert)"
-      retention_days                           = 30
+
+      exclusion_filters = [
+        {
+          filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
+          is_enabled   = true
+          name         = "Exclude GKE ingress permission check probe"
+          sample_rate  = 1
+        }
+      ]
+
+      filter_query   = "status:(error OR critical OR emergency OR alert)"
+      retention_days = 30
     }
 
     low-retention = {
@@ -97,18 +106,12 @@ locals {
     }
 
     main = {
-      daily_limit                              = 200000
+      daily_limit                              = 1000000
       daily_limit_reset_time                   = "07:00"
       daily_limit_reset_utc_offset             = "-04:00"
       daily_limit_warning_threshold_percentage = 85
 
       exclusion_filters = [
-        {
-          filter_query = "source:gcp.gce.backend.service status:error @data.protoPayload.authorizationInfo.resource:projects/*/global/backendServices/k8s-ingress-svc-acct-permission-check-probe"
-          is_enabled   = true
-          name         = "Exclude GKE ingress permission check probe"
-          sample_rate  = 1
-        },
         {
           filter_query = "service:monitoring.googleapis.com method:google.monitoring.v3.metricservice.*"
           is_enabled   = true
