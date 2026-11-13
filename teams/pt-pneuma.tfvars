@@ -23,6 +23,17 @@ teams = {
         }
       }
 
+      kagent-admins = {
+        description = "Access to the kagent administration UI"
+        label       = "kagent Admins"
+
+        members = {
+          non-production = ["brett@osinfra.io"]
+          production     = ["brett@osinfra.io"]
+          sandbox        = ["brett@osinfra.io"]
+        }
+      }
+
       openbao-secret-admins = {
         members = {
           non-production = ["brett@osinfra.io"]
