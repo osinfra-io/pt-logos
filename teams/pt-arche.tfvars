@@ -174,6 +174,21 @@ teams = {
         ]
       }
 
+      "pt-arche-kubernetes-agent-substrate" = {
+        description = "OpenTofu child module for deploying and configuring Agent Substrate on Google Kubernetes Engine."
+
+        topics = [
+          "agent-substrate",
+          "helm",
+          "infrastructure-as-code",
+          "kubernetes",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
       "pt-arche-kubernetes-agentgateway" = {
         description = "OpenTofu child module for deploying and configuring Agentgateway on Google Kubernetes Engine."
 
@@ -242,6 +257,21 @@ teams = {
           "helm",
           "infrastructure-as-code",
           "istio",
+          "kubernetes",
+          "opentofu",
+          "opentofu-child-module",
+          "platform-team",
+          "pt-arche"
+        ]
+      }
+
+      "pt-arche-kubernetes-kagent" = {
+        description = "OpenTofu child module for deploying and configuring kagent on Google Kubernetes Engine."
+
+        topics = [
+          "helm",
+          "infrastructure-as-code",
+          "kagent",
           "kubernetes",
           "opentofu",
           "opentofu-child-module",
