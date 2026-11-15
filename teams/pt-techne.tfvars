@@ -110,6 +110,19 @@ teams = {
         ]
       }
 
+      "pt-techne-floor-fixture" = {
+        description = "Fixture workspaces for pt-techne-floor local integration tests."
+
+        topics = [
+          "flux",
+          "gitops",
+          "kubernetes",
+          "opentofu",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-mcp-server" = {
         description = "Model Context Protocol (MCP) server providing platform context and tools to AI assistants."
 
