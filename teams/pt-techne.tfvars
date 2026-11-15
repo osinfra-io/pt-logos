@@ -97,6 +97,19 @@ teams = {
         ]
       }
 
+      "pt-techne-floor" = {
+        description = "Factory floor: in-cluster OpenTofu plan, approval, and apply for the osinfra.io platform using Flux and tofu-controller."
+
+        topics = [
+          "flux",
+          "gitops",
+          "kubernetes",
+          "opentofu",
+          "platform-team",
+          "pt-techne"
+        ]
+      }
+
       "pt-techne-mcp-server" = {
         description = "Model Context Protocol (MCP) server providing platform context and tools to AI assistants."
 
