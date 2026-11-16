@@ -913,6 +913,19 @@ resource "google_cloud_identity_group_membership" "members" {
   roles { name = "MEMBER" }
 }
 
+resource "google_cloud_identity_group_membership" "organization_managers" {
+  for_each = local.google_organization_group_managers
+
+  group = local.google_organization_groups[each.value.group].name
+
+  preferred_member_key {
+    id = each.value.manager
+  }
+
+  roles { name = "MEMBER" }
+  roles { name = "MANAGER" }
+}
+
 resource "google_cloud_identity_group_membership" "owners" {
   # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
   for_each = local.google_cloud_identity_group_owners

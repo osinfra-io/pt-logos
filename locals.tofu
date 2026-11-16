@@ -761,6 +761,14 @@ locals {
     replace(replace(user, "@", "-at-"), ".", "-") => { owner = user }
   } : {}
 
+  google_organization_group_managers = local.within_google_organization ? {
+    for membership in flatten([
+      for group, managers in var.google_organization_group_managers : [
+        for manager in managers : { group = group, manager = manager }
+      ]
+    ]) : "${membership.group}/${membership.manager}" => membership
+  } : {}
+
   google_organization_groups = local.within_google_organization ? {
     for key, group in {
       billing_users       = google_cloud_identity_group.billing_users

@@ -62,6 +62,35 @@ variable "google_monthly_budget_amount" {
   type        = number
 }
 
+variable "google_organization_group_managers" {
+  default     = {}
+  description = "Existing service account emails delegated membership management for billing_users, gke_security_groups, and state_readers; all three are required in pt-logos-global"
+  nullable    = false
+  type        = map(set(string))
+
+  validation {
+    condition     = alltrue([for group in keys(var.google_organization_group_managers) : contains(["billing_users", "gke_security_groups", "state_readers"], group)])
+    error_message = "Supported organization group keys are billing_users, gke_security_groups, and state_readers."
+  }
+
+  validation {
+    condition = alltrue([
+      for managers in values(var.google_organization_group_managers) : managers == null ? false : alltrue([
+        for manager in managers : can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}[a-z0-9]\\.iam\\.gserviceaccount\\.com$", manager))
+      ])
+    ])
+    error_message = "Group managers must be sets of existing Google service account email addresses."
+  }
+
+  validation {
+    condition = terraform.workspace != "pt-logos-global" || (
+      toset(keys(var.google_organization_group_managers)) == toset(["billing_users", "gke_security_groups", "state_readers"]) &&
+      alltrue([for managers in values(var.google_organization_group_managers) : managers == null ? false : length(managers) > 0])
+    )
+    error_message = "The global workspace requires at least one delegated manager for each shared group."
+  }
+}
+
 variable "google_primary_domain" {
   default     = "osinfra.io"
   description = "The main domain associated with your Google Workspace account. By default, your users get a username at this domain"
