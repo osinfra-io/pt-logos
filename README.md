@@ -14,6 +14,8 @@ Logos is the source of truth for platform team structure and organizational acce
 
 Request onboarding and team changes through the [Nomos onboarding flow](https://docs.osinfra.io/onboarding) or by updating `teams/*.tfvars`. Logos owns organizational structure and access boundaries; Corpus owns cloud projects and networking, Pneuma owns Kubernetes runtime services, including OpenBao secrets.
 
+The dedicated `pt-logos-global` workspace runs with `teams = {}` and owns the shared Google billing-users, state-readers, and GKE security groups. Consumers must read its `organization_groups` output rather than obtaining these groups from a Production team's state; Core Helpers/Corpus require that interface update before their next deployment. Existing groups require an explicit state handoff before enabling this owner; do not apply a second empty state against resources still owned elsewhere. GitHub and Datadog resources retain their existing Production owners.
+
 ### 🛠️ Tools
 
 - [pre-commit](https://github.com/pre-commit/pre-commit)

@@ -9,7 +9,7 @@ resource "datadog_api_key" "this" {
 
 # Datadog Logs Index Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-main-production workspace.
 
 resource "datadog_logs_index" "this" {
   for_each = local.datadog_log_indexes_for_each
@@ -707,7 +707,7 @@ resource "github_team_settings" "this" {
 
 # Grant billing user role to organization billing users group
 # Single group where all team service accounts are added for billing access
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_billing_account_iam_member" "billing_users" {
   depends_on = [
     google_cloud_identity_group.billing_users
@@ -764,10 +764,10 @@ resource "google_billing_budget" "teams" {
 
 # Billing users group - single organization-wide group for service accounts with billing access
 # Team repos manage membership via google_cloud_identity_group_membership resources
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_cloud_identity_group" "billing_users" {
   lifecycle {
-    enabled = local.within_logos
+    enabled = local.within_google_organization
   }
 
   description  = local.google_billing_users_group.description
@@ -791,10 +791,10 @@ resource "google_cloud_identity_group" "billing_users" {
 # GKE security groups - organization-wide group for Kubernetes RBAC
 # This Google Group is required to enable Kubernetes role-based access control (RBAC) in your GKE clusters
 # Add your groups as nested groups to this group (don't add individual users)
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_cloud_identity_group" "gke_security_groups" {
   lifecycle {
-    enabled = local.within_logos
+    enabled = local.within_google_organization
   }
 
   description  = local.google_gke_security_groups.description

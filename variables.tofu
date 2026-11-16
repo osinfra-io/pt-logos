@@ -1,12 +1,6 @@
 # Input Variables
 # https://opentofu.org/docs/language/values/variables
 
-# This is only needed during bootstrapping.
-# variable "billing_project" {
-#   description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
-#   type        = string
-# }
-
 variable "datadog_api_key" {
   default     = null
   description = "Datadog API key"
@@ -51,6 +45,17 @@ variable "google_environment_root_folder_id" {
   }
 }
 
+variable "google_foundation_state_bucket" {
+  default     = null
+  description = "GCS bucket containing the current environment's Logos foundation state; defaults to pt-logos-state-{env}"
+  type        = string
+
+  validation {
+    condition     = var.google_foundation_state_bucket == null || can(regex("^[a-z0-9][a-z0-9._-]+[a-z0-9]$", var.google_foundation_state_bucket))
+    error_message = "Use a bucket name without a gs:// prefix or path."
+  }
+}
+
 variable "google_monthly_budget_amount" {
   default     = 100
   description = "Monthly budget amount in USD for each team folder"
@@ -61,6 +66,17 @@ variable "google_primary_domain" {
   default     = "osinfra.io"
   description = "The main domain associated with your Google Workspace account. By default, your users get a username at this domain"
   type        = string
+}
+
+variable "google_quota_project" {
+  default     = null
+  description = "Google Cloud project ID used for API quota and billing when bootstrapping with user credentials"
+  type        = string
+
+  validation {
+    condition     = var.google_quota_project == null || can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.google_quota_project))
+    error_message = "The quota project must be a valid Google Cloud project ID."
+  }
 }
 
 variable "teams" {
@@ -282,6 +298,11 @@ variable "teams" {
 
     team_type = string
   }))
+
+  validation {
+    condition     = !local.within_google_organization || length(var.teams) == 0
+    error_message = "The global workspace must use an empty teams map; team resources belong to environment workspaces."
+  }
 
   validation {
     condition = alltrue([

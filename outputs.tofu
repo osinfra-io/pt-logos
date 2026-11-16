@@ -13,6 +13,11 @@ output "environment_root_folder_id" {
   value       = local.environment_root_folder_id
 }
 
+output "organization_groups" {
+  description = "Organization-wide Google groups owned only by the pt-logos-global workspace"
+  value       = local.google_organization_groups
+}
+
 output "team_type_folder_ids" {
   description = "The folder IDs for each team type in the current environment"
   value       = local.google_team_type_folder_ids

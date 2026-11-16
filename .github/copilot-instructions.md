@@ -5,7 +5,7 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 - `teams/` — per-team tfvars files (e.g. `pt-corpus.tfvars`, `pt-pneuma.tfvars`) define each team's resources
 - This repo is the source of truth consumed by `module.helpers` — it does not invoke a helpers module itself.
 
-The `pt-logos` foundation workspace runs first in each environment and creates that environment's root and team-type folders. The remaining team workspaces create team folders below their configured type. GitHub and Datadog resources are managed only by Production workspaces; environment workflows manage Google folders and groups for their current environment.
+The `pt-logos-global` workspace uses `teams = {}` and exclusively owns the organization-wide Google billing-users, state-readers, and GKE security groups, exposed through `organization_groups`. Each environment's `pt-logos` foundation owns its environment root, team-type folders, and Logos team resources; remaining team workspaces create their own team folders and groups. Only the Corpus team state owns the three environment-root access grants. GitHub and Datadog resources retain their existing Production owners. Existing organization groups must be migrated from their former state before the global owner is enabled; never create a second owner.
 
 ## Team Configuration Schema
 

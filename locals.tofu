@@ -52,8 +52,7 @@ locals {
     local.github_organization_owners
   ))
 
-  # Enable billing users IAM member only in logos workspace when billing account is configured
-  billing_users_enabled = local.within_logos && var.google_billing_account != null
+  billing_users_enabled = local.within_google_organization && var.google_billing_account != null
 
   # Create normalized mappings for Datadog admin users (protected from deletion)
   datadog_admin_users = {
@@ -313,6 +312,8 @@ locals {
     ]
   ]) : github_team.key => github_team }
 
+  github_organization = "osinfra-io"
+
   # Regular GitHub members are everyone who is not an organization owner
   github_organization_members_for_each = local.is_production_environment ? setsubtract(local.all_github_users, toset(local.github_organization_owners)) : toset([])
 
@@ -442,6 +443,17 @@ locals {
       ]
   ]) : "${label.repository}-${label.name}" => label }
 
+  github_repository_metadata = {
+    for team_key, team in var.teams : team_key => {
+      for repo_key, repo in team.github_repositories : repo_key => {
+        enable_google_wif_service_account = repo.enable_google_wif_service_account
+        full_name                         = "${local.github_organization}/${repo_key}"
+        html_url                          = "https://github.com/${local.github_organization}/${repo_key}"
+        name                              = repo_key
+      }
+    }
+  }
+
   # Create ruleset configurations for repositories
   github_repository_rulesets = { for repo in flatten([
     for team_key, team in local.global_teams : [
@@ -544,7 +556,7 @@ locals {
   ]) : "${item.group}-${replace(replace(item.user, "@", "-at-"), ".", "-")}" => { group = item.group, owner = item.user } }
 
   # Flatten Google Cloud identity groups with hardcoded definitions and customizable membership
-  # Creates exactly 9 groups per team: admin, writer, reader × sandbox, non-production, production
+  # Creates three basic groups per team for the current environment.
   # For pt-corpus team, also creates project creator groups (one per environment) for centralized project factory
   # Uses official Google Cloud role descriptions
   google_cloud_identity_groups = merge(
@@ -648,19 +660,15 @@ locals {
     # State readers group for pt-logos
     # Grants read access to the Logos OpenTofu state bucket so all teams can use pt-arche-core-helpers root module
     # Membership managed by pt-corpus, not pt-logos (service accounts are created in pt-corpus)
-    contains(keys(var.teams), "pt-logos") && local.within_logos ? {
+    local.within_google_organization ? {
       "pt-logos-state-readers" = {
         description  = "Service accounts authorized to read Logos OpenTofu state"
         display_name = "Platform Team: Logos State Readers"
         key          = "pt-logos-state-readers"
-        managers = [
-          "pt-corpus-github@pt-corpus-tf16-prod.iam.gserviceaccount.com",
-          "pt-corpus-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com",
-          "pt-corpus-github@pt-corpus-tfc9-sb.iam.gserviceaccount.com",
-        ]
-        members = []
-        owners  = []
-        team    = "pt-logos"
+        managers     = []
+        members      = []
+        owners       = []
+        team         = "pt-logos"
       }
     } : {}
   )
@@ -675,8 +683,7 @@ locals {
     root = var.google_environment_root_folder_id
   } : {}
 
-  # Flatten Google Cloud IAM bindings for corpus platform service access across all team environment folders
-  # Combines browser, project creator, and XPN admin bindings in a single iterable map
+  # Only the Corpus team state owns these environment-root grants.
   google_folder_corpus_iam = { for binding in flatten([
     for env_key, env in local.environments : [
       {
@@ -697,7 +704,7 @@ locals {
         member = "group:pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
         role   = "roles/compute.xpnAdmin"
       }
-    ]
+    ] if env.team == "pt-corpus"
   ]) : binding.key => binding }
 
   # Flatten IAM bindings for per-environment basic group assignments
@@ -716,6 +723,15 @@ locals {
     ]
   ]) : binding.binding_key => binding }
 
+  google_foundation_state_config = {
+    bucket = coalesce(var.google_foundation_state_bucket, "pt-logos-state-${local.environment_short}")
+    prefix = "pt-logos"
+  }
+
+  google_foundation_workspace = "pt-logos-main-${coalesce(local.environment, "invalid")}"
+
+  google_foundation_workspaces = local.environment != null && !local.within_environment_logos ? toset(["root"]) : toset([])
+
   # This Google Group is required to enable Kubernetes role-based access control (RBAC)
   # in your Google Kubernetes Engine (GKE) clusters. Add your groups as nested groups to this group.
   # Don't add individual users as members of gke-security-groups.
@@ -730,20 +746,32 @@ locals {
 
   google_gke_security_groups_email = "${local.google_gke_security_groups.group_key}@${var.google_primary_domain}"
 
-  # GKE security group memberships — conditionally created only in logos workspace
-  google_gke_security_groups_managers_for_each = local.within_logos ? {
+  google_gke_security_groups_managers_for_each = local.within_google_organization ? {
     for user in local.google_gke_security_groups.managers :
     replace(replace(user, "@", "-at-"), ".", "-") => { manager = user }
   } : {}
 
-  google_gke_security_groups_members_for_each = local.within_logos ? {
+  google_gke_security_groups_members_for_each = local.within_google_organization ? {
     for user in local.google_gke_security_groups.members :
     replace(replace(user, "@", "-at-"), ".", "-") => { member = user }
   } : {}
 
-  google_gke_security_groups_owners_for_each = local.within_logos ? {
+  google_gke_security_groups_owners_for_each = local.within_google_organization ? {
     for user in local.google_gke_security_groups.owners :
     replace(replace(user, "@", "-at-"), ".", "-") => { owner = user }
+  } : {}
+
+  google_organization_groups = local.within_google_organization ? {
+    for key, group in {
+      billing_users       = google_cloud_identity_group.billing_users
+      gke_security_groups = google_cloud_identity_group.gke_security_groups
+      state_readers       = google_cloud_identity_group.this["pt-logos-state-readers"]
+      } : key => {
+      description  = group.description
+      display_name = group.display_name
+      email        = group.group_key[0].id
+      name         = group.name
+    }
   } : {}
 
   google_organization_lookup = length(local.google_environment_folder_names) > 0 ? toset(["root"]) : toset([])
@@ -774,6 +802,8 @@ locals {
   google_team_type_folder_parent = var.google_environment_root_folder_id != null ? try(data.google_folder.environment["root"].name, null) : try(google_folder.environments[local.environment].name, null)
 
   google_team_type_folders = local.within_environment_logos ? local.team_type_folder_names : {}
+
+  google_user_project_override = var.google_quota_project != null
 
   # Helper function to normalize email addresses for resource keys
   normalize_email = {
@@ -813,14 +843,6 @@ locals {
     for team_key, team in var.teams : team_key => {
       authentik_groups = local.authentik_groups[team_key]
 
-      # Billing users group (organization-wide, same for all teams)
-      billing_users_group = local.within_logos ? {
-        description  = local.google_billing_users_group.description
-        display_name = local.google_billing_users_group.display_name
-        email        = google_cloud_identity_group.billing_users.group_key[0].id
-        name         = google_cloud_identity_group.billing_users.name
-      } : null
-
       # Team metadata
       display_name                     = team.display_name
       enable_google_project            = team.enable_google_project
@@ -836,16 +858,7 @@ locals {
       environment_root_folder_id = local.environment_root_folder_id
 
       # GitHub Repositories for this team
-      github_repositories = {
-        for repo_key, repo in local.github_repositories :
-        repo_key => {
-          enable_google_wif_service_account = repo.enable_google_wif_service_account
-          full_name                         = github_repository.this[repo_key].full_name
-          html_url                          = github_repository.this[repo_key].html_url
-          name                              = github_repository.this[repo_key].name
-        }
-        if repo.team_key == team_key
-      }
+      github_repositories = local.github_repository_metadata[team_key]
 
       # Platform-managed project config for this team
       platform_managed_project = team.platform_managed_project == null ? null : {
@@ -886,7 +899,9 @@ locals {
 
   is_production_environment = local.environment == "production"
 
-  # If we are within the production Logos workspace, create organization-wide resources.
+  within_google_organization = terraform.workspace == "pt-logos-global"
+
+  # Production retains ownership of GitHub and Datadog organization resources.
   within_logos = terraform.workspace == "pt-logos-main-production"
 
   within_environment_logos = contains([

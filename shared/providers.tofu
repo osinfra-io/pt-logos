@@ -47,16 +47,14 @@ provider "datadog" {
 # }
 
 provider "github" {
-  owner = "osinfra-io"
+  owner = local.github_organization
   token = var.github_token
 }
 
 # Google Cloud Provider
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs
 
-# This is only needed during bootstrapping.
-
-# provider "google" {
-#   billing_project       = var.billing_project
-#   user_project_override = true
-# }
+provider "google" {
+  billing_project       = var.google_quota_project
+  user_project_override = local.google_user_project_override
+}

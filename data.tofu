@@ -43,14 +43,10 @@ data "google_organization" "this" {
 }
 
 data "terraform_remote_state" "logos_root" {
-  for_each = local.environment != null && !local.within_environment_logos ? toset(["root"]) : toset([])
+  for_each = local.google_foundation_workspaces
 
   backend = "gcs"
+  config  = local.google_foundation_state_config
 
-  config = {
-    bucket = "pt-logos-state-${local.environment_short}"
-    prefix = "pt-logos"
-  }
-
-  workspace = "pt-logos-main-${coalesce(local.environment, "invalid")}"
+  workspace = local.google_foundation_workspace
 }
