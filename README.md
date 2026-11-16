@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Logos is the source of truth for platform team structure and organizational access. Its OpenTofu configuration provisions GCP folders and identity groups, GitHub teams and repositories, Datadog teams, and the governance settings consumed by downstream platform layers.
+Logos is the source of truth for platform team structure and organizational access. Its OpenTofu configuration provisions GCP folders and identity groups, GitHub teams and repositories, Datadog teams, and the governance settings consumed by downstream platform layers. GCP folders follow `Organization → Environment → Team Type → Team → Projects`, allowing environment-level constraints to be inherited while leaving team-level exceptions possible.
 
 ## Consumer contract
 
@@ -35,7 +35,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🔄 Platform Deployment Dependency Graph
 
-The cross-repository deployment dependency chain shown below is **Logos → Corpus → Pneuma**. Logos deploys team workspaces directly to production on merge to `main`; downstream repositories promote changes through sandbox, non-production, and production. Logos deploys all team workspaces as a parallel matrix directly to production on merge to `main`. Corpus and Pneuma each follow a Sandbox → Non-Production → Production environment progression. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain. A single global **Authentik Config** job runs last, once every zone's Authentik deployment completes.
+The cross-repository deployment dependency chain shown below is **Logos → Corpus → Pneuma**. All three repositories promote changes through sandbox on pull requests, non-production on pushes to `main`, and production after non-production succeeds. In each Logos environment, the `pt-logos` foundation workspace creates the environment and team-type folders before the remaining team workspaces run in parallel. Global GitHub and Datadog resources are managed only in Production. Solid arrows are within-workflow job dependencies. Dashed arrows are cross-repo deployment dependencies — Corpus reads Logos team outputs via `opentofu-core-helpers`, and Pneuma deploys after Corpus regional workspaces complete. After Pneuma main completes, all zones deploy in parallel. Sandbox and non-production deploy **2 zones** (us-east1-b, us-east4-a); production deploys all **6 zones** (us-east1-b/c/d, us-east4-a/b/c). Two zones are expanded below — every zone follows the same dependency chain. A single global **Authentik Config** job runs last, once every zone's Authentik deployment completes.
 
 ```mermaid
 flowchart LR
@@ -52,7 +52,7 @@ flowchart LR
         logos_arche["Team: pt-arche"]:::logos
         logos_corpus["Team: pt-corpus"]:::logos
         logos_ekklesia["Team: pt-ekklesia"]:::logos
-        logos_logos["Team: pt-logos"]:::logos
+        logos_logos["Foundation: pt-logos"]:::logos
         logos_pneuma["Team: pt-pneuma"]:::logos
         logos_techne["Team: pt-techne"]:::logos
         logos_ethos["Team: st-ethos"]:::logos
@@ -102,6 +102,13 @@ flowchart LR
         z1_authentik --> authentik_config["Authentik Config (global)"]:::authentik
         z2_authentik --> authentik_config
     end
+
+    logos_logos --> logos_arche
+    logos_logos --> logos_corpus
+    logos_logos --> logos_ekklesia
+    logos_logos --> logos_pneuma
+    logos_logos --> logos_techne
+    logos_logos --> logos_ethos
 
     logos_arche -.-> corpus_main
     logos_corpus -.-> corpus_main

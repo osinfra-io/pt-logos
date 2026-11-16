@@ -931,19 +931,27 @@ resource "google_cloud_identity_group_membership" "owners" {
 # Google Folder Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
 
-# Folder resources provide grouping mechanism and isolation boundaries between projects.
-# This creates a 2-level hierarchy following Team Topologies methodology:
-#   Teams (Logos, Pneuma, Ethos, etc.) - created under pre-existing team type folders
-#   └── Environments (Sandbox, Non-Production, Production)
-#
-# Team type folders (Platform Teams, Stream-aligned Teams, etc.) are pre-created and referenced via google_team_type_folder_ids variable.
+# Folder resources provide environment-level policy inheritance and team isolation:
+#   Organization
+#   └── Environment
+#       └── Team Type
+#           └── Team
+#               └── Projects
 
 resource "google_folder" "environments" {
-  for_each = local.environments
+  for_each = local.within_environment_logos ? toset([local.environment]) : toset([])
 
   deletion_protection = false
-  display_name        = each.value.environment
-  parent              = google_folder.teams[each.value.team].name
+  display_name        = title(each.key)
+  parent              = "organizations/${try(data.google_organization.this["root"].org_id, "0")}"
+}
+
+resource "google_folder" "team_types" {
+  for_each = local.within_environment_logos ? local.team_type_folder_names : {}
+
+  deletion_protection = false
+  display_name        = each.value
+  parent              = local.within_environment_logos ? google_folder.environments[local.environment].name : "folders/0"
 }
 
 resource "google_folder" "teams" {
@@ -959,7 +967,7 @@ resource "google_folder" "teams" {
 
 resource "google_folder_iam_member" "corpus_env_access" {
   depends_on = [
-    google_folder.environments
+    google_cloud_identity_group.this
   ]
 
   for_each = local.google_folder_corpus_iam
@@ -972,13 +980,12 @@ resource "google_folder_iam_member" "corpus_env_access" {
 # Assign per-environment basic groups to their respective environment folders
 resource "google_folder_iam_member" "team_env_access" {
   depends_on = [
-    google_cloud_identity_group.this,
-    google_folder.environments
+    google_cloud_identity_group.this
   ]
 
   for_each = local.google_folder_team_env_iam
 
-  folder = google_folder.environments[each.value.env_key].name
+  folder = google_folder.teams[each.value.team_key].name
   member = each.value.member
   role   = each.value.role
 }

@@ -5,6 +5,8 @@ Creates the foundational organizational structure — GCP folder hierarchy, Goog
 - `teams/` — per-team tfvars files (e.g. `pt-corpus.tfvars`, `pt-pneuma.tfvars`) define each team's resources
 - This repo is the source of truth consumed by `module.helpers` — it does not invoke a helpers module itself.
 
+The `pt-logos` foundation workspace runs first in each environment and creates that environment's root and team-type folders. The remaining team workspaces create team folders below their configured type. GitHub and Datadog resources are managed only by Production workspaces; environment workflows manage Google folders and groups for their current environment.
+
 ## Team Configuration Schema
 
 The `teams` variable in `variables.tofu` is the canonical, in-repo schema for all team configuration options — its types, `optional()` defaults, and `validation` blocks define what every `teams/*.tfvars` file may contain. The schema is also documented on the [Team Topology](https://osinfra-io.github.io/docs/platform-grouping/logos/team-topology) docs page and enforced by `schema/team.schema.json` in [`pt-techne-mcp-server`](https://github.com/osinfra-io/pt-techne-mcp-server) (used by the `render_team_tfvars` tool to validate a spec before rendering a `.tfvars` file).
@@ -17,11 +19,11 @@ The `teams` variable in `variables.tofu` is the canonical, in-repo schema for al
 
 **Any time a field is added, removed, or changed in the `teams` variable in `variables.tofu`, the Nomos Agent prompt must also be reviewed and updated** to reflect the change in its conversation flow, validation rules, and generated HCL.
 
-When onboarding a team, the agent opens **two pull requests in sequence** — the GitHub environment must exist before the second PR's deployment can be gated by it:
+When onboarding a team, the agent opens **two pull requests in sequence** — the GitHub environments must exist before the second PR adds the team to the deployment matrices:
 
 **PR 1 — Create the GitHub environment** (branch `onboard/{team-key}-environment`):
 
-1. **Add a GitHub environment to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add a new entry. The environment key is the team key with its type prefix stripped, suffixed with `-production` (e.g., `pt-myteam` → `myteam-production`; `st-myproduct` → `myproduct-production`):
+1. **Add three GitHub environments to `teams/pt-logos.tfvars`** — Inside `github_repositories["pt-logos"].environments`, add Sandbox, Non-Production, and Production entries. Use the team key with its type prefix stripped and the environment as the suffix (e.g., `pt-myteam` → `myteam-sandbox`, `myteam-non-production`, `myteam-production`; `st-myproduct` → `myproduct-*`). The names and reviewers must match the corresponding workflow contexts:
    ```hcl
    myteam-production = {
      deployment_branch_policy = {
@@ -33,18 +35,30 @@ When onboarding a team, the agent opens **two pull requests in sequence** — th
        teams = ["pt-logos-production-approvers"]
      }
    }
+   myteam-non-production = {
+     name = "Non-Production: {team-key}"
+     reviewers = {
+       teams = ["pt-logos-non-production-approvers"]
+     }
+   }
+   myteam-sandbox = {
+     name = "Sandbox: {team-key}"
+     reviewers = {
+       teams = ["pt-logos-sandbox-approvers"]
+     }
+   }
    ```
 
 **PR 2 — Onboard the team** (branch `onboard/{team-key}`):
 
 1. **Create `teams/{team-key}.tfvars`** — Valid HCL generated from collected answers, matching the style of existing tfvars files.
 
-2. **Add the team to `.github/workflows/production.yml`** — Insert the team key into `jobs.main.strategy.matrix.teams` in alphabetical order.
+2. **Add the team to the matrix in all three deployment workflows** — Insert the team key into `jobs.teams.strategy.matrix.teams` in `.github/workflows/sandbox.yml`, `.github/workflows/non-production.yml`, and `.github/workflows/production.yml` in alphabetical order.
 
-PR 1 must be merged first so the `{team-key-without-prefix}-production` GitHub environment exists to gate the workflow that fires when PR 2 merges.
+PR 1 must be merged first so all three GitHub environments exist before the workflows in PR 2 reference them.
 
 All other operations open a PR against only the relevant `teams/{team-key}.tfvars` file.
 
 ## GitHub Actions
 
-Logos deploys only to production — on push to `main` and via `workflow_dispatch`. Each team's tfvars file is applied as a separate matrix job (e.g. `pt-corpus`, `pt-pneuma`).
+Logos deploys through three environments. Sandbox runs on pull requests and via `workflow_dispatch`; Non-Production runs on pushes to `main` and via `workflow_dispatch`; Production runs after a successful Non-Production workflow on `main` and via `workflow_dispatch`. The `pt-logos` foundation workspace runs before the team matrix; each remaining team's tfvars file is applied as a separate matrix job (e.g. `pt-corpus`, `pt-pneuma`).

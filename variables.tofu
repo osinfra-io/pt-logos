@@ -39,7 +39,7 @@ variable "google_customer_id" {
 
 variable "google_monthly_budget_amount" {
   default     = 100
-  description = "Monthly budget amount in USD for environment folders"
+  description = "Monthly budget amount in USD for each team folder"
   type        = number
 }
 
@@ -47,18 +47,6 @@ variable "google_primary_domain" {
   default     = "osinfra.io"
   description = "The main domain associated with your Google Workspace account. By default, your users get a username at this domain"
   type        = string
-}
-
-variable "google_team_type_folder_ids" {
-  default = {
-    "complicated-subsystem-team" = "195659428881" # Complicated-subsystem Teams folder ID
-    "enabling-team"              = "141076777961" # Enabling Teams folder ID
-    "platform-team"              = "831575438843" # Platform Teams folder ID
-    "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
-  }
-
-  description = "Map of team type to their pre-created folder IDs"
-  type        = map(string)
 }
 
 variable "teams" {

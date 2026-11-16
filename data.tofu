@@ -1,13 +1,21 @@
+# Google Organization Data Source
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/data-sources/google_organization
+data "google_organization" "this" {
+  for_each = local.within_environment_logos ? toset(["root"]) : toset([])
+
+  domain = var.google_primary_domain
+}
+
 # Datadog Role Data Sources
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/role
 
 # Fetch all required Datadog roles
 data "datadog_role" "this" {
-  for_each = toset([
+  for_each = local.is_production_environment ? toset([
     "Datadog Admin Role",
     "Datadog Read Only Role",
     "Datadog Standard Role"
-  ])
+  ]) : toset([])
 
   filter = each.key
 }
@@ -22,4 +30,17 @@ data "datadog_user" "existing_admins" {
 
   exact_match = true
   filter      = each.value
+}
+
+data "terraform_remote_state" "logos_root" {
+  for_each = local.environment != null && !local.within_environment_logos ? toset(["root"]) : toset([])
+
+  backend = "gcs"
+
+  config = {
+    bucket = "pt-logos-state-${local.environment_short}"
+    prefix = "pt-logos"
+  }
+
+  workspace = "pt-logos-main-${coalesce(local.environment, "invalid")}"
 }
