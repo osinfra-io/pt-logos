@@ -672,19 +672,19 @@ locals {
   google_folder_corpus_iam = { for binding in flatten([
     for env_key, env in local.environments : [
       {
-        folder = data.terraform_remote_state.logos_root["root"].outputs.environment_root_folder_id
+        folder = local.environment_root_folder_id
         key    = "${env_key}-browsers"
         member = "group:pt-corpus-${lower(env.environment)}-browsers@${var.google_primary_domain}"
         role   = "roles/browser"
       },
       {
-        folder = data.terraform_remote_state.logos_root["root"].outputs.environment_root_folder_id
+        folder = local.environment_root_folder_id
         key    = "${env_key}-project-creators"
         member = "group:pt-corpus-${lower(env.environment)}-project-creators@${var.google_primary_domain}"
         role   = "roles/resourcemanager.projectCreator"
       },
       {
-        folder = data.terraform_remote_state.logos_root["root"].outputs.environment_root_folder_id
+        folder = local.environment_root_folder_id
         key    = "${env_key}-xpn-administrators"
         member = "group:pt-corpus-${lower(env.environment)}-xpn-administrators@${var.google_primary_domain}"
         role   = "roles/compute.xpnAdmin"
