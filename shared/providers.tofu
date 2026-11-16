@@ -25,8 +25,9 @@ terraform {
 # https://search.opentofu.org/provider/opentofu/datadog/latest
 
 provider "datadog" {
-  api_key = var.datadog_api_key
-  app_key = var.datadog_app_key
+  api_key  = var.datadog_api_key
+  app_key  = var.datadog_app_key
+  validate = local.is_production_environment
 }
 
 # Github Provider

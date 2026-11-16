@@ -1,11 +1,3 @@
-# Google Organization Data Source
-# https://search.opentofu.org/provider/hashicorp/google/latest/docs/data-sources/google_organization
-data "google_organization" "this" {
-  for_each = local.within_environment_logos ? toset(["root"]) : toset([])
-
-  domain = var.google_primary_domain
-}
-
 # Datadog Role Data Sources
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/data-sources/role
 
@@ -30,6 +22,24 @@ data "datadog_user" "existing_admins" {
 
   exact_match = true
   filter      = each.value
+}
+
+# Google Folder Data Source
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/data-sources/google_folder
+
+data "google_folder" "environment" {
+  for_each = local.google_existing_environment_folders
+
+  folder = each.value
+}
+
+# Google Organization Data Source
+# https://search.opentofu.org/provider/hashicorp/google/latest/docs/data-sources/google_organization
+
+data "google_organization" "this" {
+  for_each = local.google_organization_lookup
+
+  domain = var.google_primary_domain
 }
 
 data "terraform_remote_state" "logos_root" {

@@ -8,18 +8,21 @@
 # }
 
 variable "datadog_api_key" {
+  default     = null
   description = "Datadog API key"
   sensitive   = true
   type        = string
 }
 
 variable "datadog_app_key" {
+  default     = null
   description = "Datadog APP key"
   sensitive   = true
   type        = string
 }
 
 variable "github_token" {
+  default     = null
   description = "The GitHub token to authenticate with the GitHub provider"
   sensitive   = true
   type        = string
@@ -35,6 +38,17 @@ variable "google_customer_id" {
   default     = "C01hd34v8"
   description = "The unique customer ID assigned to you when you signed up for Google Workspace or Cloud Identity. You can look up this ID in your Admin console"
   type        = string
+}
+
+variable "google_environment_root_folder_id" {
+  default     = null
+  description = "Existing environment root folder ID used by the foundation workspace instead of creating a new folder"
+  type        = string
+
+  validation {
+    condition     = var.google_environment_root_folder_id == null || can(regex("^[0-9]+$", var.google_environment_root_folder_id))
+    error_message = "The existing environment root folder ID must contain only digits."
+  }
 }
 
 variable "google_monthly_budget_amount" {

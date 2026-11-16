@@ -255,7 +255,7 @@ locals {
     for team_key, team in local.datadog_teams : concat(team.admins, team.members)
   ]))
 
-  datadog_webhook_url = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_api_key}"
+  datadog_webhook_url = "https://app.datadoghq.com/intake/webhook/github?api_key=${var.datadog_api_key != null ? var.datadog_api_key : ""}"
 
   # Team workspaces own only their current environment's team folder and basic groups.
   environment = try(regex("(sandbox|non-production|production)$", terraform.workspace)[0], null)
@@ -667,6 +667,14 @@ locals {
 
   google_customer_parent = "customers/${var.google_customer_id}"
 
+  google_environment_folder_names = local.within_environment_logos && var.google_environment_root_folder_id == null ? toset([local.environment]) : toset([])
+
+  google_environment_folder_parent = try(data.google_organization.this["root"].name, null)
+
+  google_existing_environment_folders = local.within_environment_logos && var.google_environment_root_folder_id != null ? {
+    root = var.google_environment_root_folder_id
+  } : {}
+
   # Flatten Google Cloud IAM bindings for corpus platform service access across all team environment folders
   # Combines browser, project creator, and XPN admin bindings in a single iterable map
   google_folder_corpus_iam = { for binding in flatten([
@@ -738,6 +746,8 @@ locals {
     replace(replace(user, "@", "-at-"), ".", "-") => { owner = user }
   } : {}
 
+  google_organization_lookup = length(local.google_environment_folder_names) > 0 ? toset(["root"]) : toset([])
+
   # Google Cloud role descriptions mapping
   google_role_descriptions = {
     "admin"  = "All of the permissions in the Writer role, plus permissions for actions like the following: Completing sensitive tasks, like managing tag bindings for Compute Engine resources; Managing roles and permissions for a project and all resources within the project; Setting up billing for a project."
@@ -760,6 +770,10 @@ locals {
     for team_type in keys(local.team_type_folder_names) :
     team_type => google_folder.team_types[team_type].id
   } : try(data.terraform_remote_state.logos_root["root"].outputs.team_type_folder_ids, {})
+
+  google_team_type_folder_parent = var.google_environment_root_folder_id != null ? try(data.google_folder.environment["root"].name, null) : try(google_folder.environments[local.environment].name, null)
+
+  google_team_type_folders = local.within_environment_logos ? local.team_type_folder_names : {}
 
   # Helper function to normalize email addresses for resource keys
   normalize_email = {
@@ -866,7 +880,9 @@ locals {
     }
   }
 
-  environment_root_folder_id = local.within_environment_logos ? google_folder.environments[local.environment].id : try(data.terraform_remote_state.logos_root["root"].outputs.environment_root_folder_id, null)
+  environment_root_folder_id = local.within_environment_logos ? (
+    var.google_environment_root_folder_id != null ? data.google_folder.environment["root"].id : google_folder.environments[local.environment].id
+  ) : try(data.terraform_remote_state.logos_root["root"].outputs.environment_root_folder_id, null)
 
   is_production_environment = local.environment == "production"
 

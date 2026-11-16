@@ -939,19 +939,19 @@ resource "google_cloud_identity_group_membership" "owners" {
 #               └── Projects
 
 resource "google_folder" "environments" {
-  for_each = local.within_environment_logos ? toset([local.environment]) : toset([])
+  for_each = local.google_environment_folder_names
 
   deletion_protection = false
   display_name        = title(each.key)
-  parent              = "organizations/${try(data.google_organization.this["root"].org_id, "0")}"
+  parent              = local.google_environment_folder_parent
 }
 
 resource "google_folder" "team_types" {
-  for_each = local.within_environment_logos ? local.team_type_folder_names : {}
+  for_each = local.google_team_type_folders
 
   deletion_protection = false
   display_name        = each.value
-  parent              = local.within_environment_logos ? google_folder.environments[local.environment].name : "folders/0"
+  parent              = local.google_team_type_folder_parent
 }
 
 resource "google_folder" "teams" {
