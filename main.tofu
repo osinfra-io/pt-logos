@@ -9,7 +9,7 @@ resource "datadog_api_key" "this" {
 
 # Datadog Logs Index Resource
 # https://search.opentofu.org/provider/DataDog/datadog/latest/docs/resources/logs_index
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-main-production workspace.
 
 resource "datadog_logs_index" "this" {
   for_each = local.datadog_log_indexes_for_each
@@ -707,7 +707,7 @@ resource "github_team_settings" "this" {
 
 # Grant billing user role to organization billing users group
 # Single group where all team service accounts are added for billing access
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_billing_account_iam_member" "billing_users" {
   depends_on = [
     google_cloud_identity_group.billing_users
@@ -764,10 +764,10 @@ resource "google_billing_budget" "teams" {
 
 # Billing users group - single organization-wide group for service accounts with billing access
 # Team repos manage membership via google_cloud_identity_group_membership resources
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_cloud_identity_group" "billing_users" {
   lifecycle {
-    enabled = local.within_logos
+    enabled = local.within_google_organization
   }
 
   description  = local.google_billing_users_group.description
@@ -791,10 +791,10 @@ resource "google_cloud_identity_group" "billing_users" {
 # GKE security groups - organization-wide group for Kubernetes RBAC
 # This Google Group is required to enable Kubernetes role-based access control (RBAC) in your GKE clusters
 # Add your groups as nested groups to this group (don't add individual users)
-# Organization-level resource managed only in logos-production-main workspace
+# Owned only by the pt-logos-global workspace.
 resource "google_cloud_identity_group" "gke_security_groups" {
   lifecycle {
-    enabled = local.within_logos
+    enabled = local.within_google_organization
   }
 
   description  = local.google_gke_security_groups.description
@@ -913,6 +913,19 @@ resource "google_cloud_identity_group_membership" "members" {
   roles { name = "MEMBER" }
 }
 
+resource "google_cloud_identity_group_membership" "organization_managers" {
+  for_each = local.google_organization_group_managers
+
+  group = local.google_organization_groups[each.value.group].name
+
+  preferred_member_key {
+    id = each.value.manager
+  }
+
+  roles { name = "MEMBER" }
+  roles { name = "MANAGER" }
+}
+
 resource "google_cloud_identity_group_membership" "owners" {
   # Iterate over local.google_cloud_identity_group_owners to create a resource for each user in the owner list.
   for_each = local.google_cloud_identity_group_owners
@@ -931,19 +944,27 @@ resource "google_cloud_identity_group_membership" "owners" {
 # Google Folder Resources
 # https://search.opentofu.org/provider/hashicorp/google/latest/docs/resources/google_folder
 
-# Folder resources provide grouping mechanism and isolation boundaries between projects.
-# This creates a 2-level hierarchy following Team Topologies methodology:
-#   Teams (Logos, Pneuma, Ethos, etc.) - created under pre-existing team type folders
-#   └── Environments (Sandbox, Non-Production, Production)
-#
-# Team type folders (Platform Teams, Stream-aligned Teams, etc.) are pre-created and referenced via google_team_type_folder_ids variable.
+# Folder resources provide environment-level policy inheritance and team isolation:
+#   Organization
+#   └── Environment
+#       └── Team Type
+#           └── Team
+#               └── Projects
 
 resource "google_folder" "environments" {
-  for_each = local.environments
+  for_each = local.google_environment_folder_names
 
   deletion_protection = false
-  display_name        = each.value.environment
-  parent              = google_folder.teams[each.value.team].name
+  display_name        = title(each.key)
+  parent              = local.google_environment_folder_parent
+}
+
+resource "google_folder" "team_types" {
+  for_each = local.google_team_type_folders
+
+  deletion_protection = false
+  display_name        = each.value
+  parent              = local.google_team_type_folder_parent
 }
 
 resource "google_folder" "teams" {
@@ -959,7 +980,7 @@ resource "google_folder" "teams" {
 
 resource "google_folder_iam_member" "corpus_env_access" {
   depends_on = [
-    google_folder.environments
+    google_cloud_identity_group.this
   ]
 
   for_each = local.google_folder_corpus_iam
@@ -972,13 +993,12 @@ resource "google_folder_iam_member" "corpus_env_access" {
 # Assign per-environment basic groups to their respective environment folders
 resource "google_folder_iam_member" "team_env_access" {
   depends_on = [
-    google_cloud_identity_group.this,
-    google_folder.environments
+    google_cloud_identity_group.this
   ]
 
   for_each = local.google_folder_team_env_iam
 
-  folder = google_folder.environments[each.value.env_key].name
+  folder = google_folder.teams[each.value.team_key].name
   member = each.value.member
   role   = each.value.role
 }

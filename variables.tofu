@@ -1,25 +1,22 @@
 # Input Variables
 # https://opentofu.org/docs/language/values/variables
 
-# This is only needed during bootstrapping.
-# variable "billing_project" {
-#   description = "The quota project to send in `user_project_override`, used for all requests sent from the provider. If set on a resource that supports sending the resource project, this value will supersede the resource project. This field is ignored if `user_project_override` is set to false or unset"
-#   type        = string
-# }
-
 variable "datadog_api_key" {
+  default     = null
   description = "Datadog API key"
   sensitive   = true
   type        = string
 }
 
 variable "datadog_app_key" {
+  default     = null
   description = "Datadog APP key"
   sensitive   = true
   type        = string
 }
 
 variable "github_token" {
+  default     = null
   description = "The GitHub token to authenticate with the GitHub provider"
   sensitive   = true
   type        = string
@@ -37,10 +34,61 @@ variable "google_customer_id" {
   type        = string
 }
 
+variable "google_environment_root_folder_id" {
+  default     = null
+  description = "Existing environment root folder ID used by the foundation workspace instead of creating a new folder"
+  type        = string
+
+  validation {
+    condition     = var.google_environment_root_folder_id == null || can(regex("^[0-9]+$", var.google_environment_root_folder_id))
+    error_message = "The existing environment root folder ID must contain only digits."
+  }
+}
+
+variable "google_foundation_state_bucket" {
+  default     = null
+  description = "GCS bucket containing the current environment's Logos foundation state; defaults to pt-logos-state-{env}"
+  type        = string
+
+  validation {
+    condition     = var.google_foundation_state_bucket == null || can(regex("^[a-z0-9][a-z0-9._-]+[a-z0-9]$", var.google_foundation_state_bucket))
+    error_message = "Use a bucket name without a gs:// prefix or path."
+  }
+}
+
 variable "google_monthly_budget_amount" {
   default     = 100
-  description = "Monthly budget amount in USD for environment folders"
+  description = "Monthly budget amount in USD for each team folder"
   type        = number
+}
+
+variable "google_organization_group_managers" {
+  default     = {}
+  description = "Existing service account emails delegated membership management for billing_users, gke_security_groups, and state_readers; all three are required in pt-logos-global"
+  nullable    = false
+  type        = map(set(string))
+
+  validation {
+    condition     = alltrue([for group in keys(var.google_organization_group_managers) : contains(["billing_users", "gke_security_groups", "state_readers"], group)])
+    error_message = "Supported organization group keys are billing_users, gke_security_groups, and state_readers."
+  }
+
+  validation {
+    condition = alltrue([
+      for managers in values(var.google_organization_group_managers) : managers == null ? false : alltrue([
+        for manager in managers : can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}[a-z0-9]\\.iam\\.gserviceaccount\\.com$", manager))
+      ])
+    ])
+    error_message = "Group managers must be sets of existing Google service account email addresses."
+  }
+
+  validation {
+    condition = terraform.workspace != "pt-logos-global" || (
+      toset(keys(var.google_organization_group_managers)) == toset(["billing_users", "gke_security_groups", "state_readers"]) &&
+      alltrue([for managers in values(var.google_organization_group_managers) : managers == null ? false : length(managers) > 0])
+    )
+    error_message = "The global workspace requires at least one delegated manager for each shared group."
+  }
 }
 
 variable "google_primary_domain" {
@@ -49,16 +97,15 @@ variable "google_primary_domain" {
   type        = string
 }
 
-variable "google_team_type_folder_ids" {
-  default = {
-    "complicated-subsystem-team" = "195659428881" # Complicated-subsystem Teams folder ID
-    "enabling-team"              = "141076777961" # Enabling Teams folder ID
-    "platform-team"              = "831575438843" # Platform Teams folder ID
-    "stream-aligned-team"        = "667305285655" # Stream-aligned Teams folder ID
-  }
+variable "google_quota_project" {
+  default     = null
+  description = "Google Cloud project ID used for API quota and billing when bootstrapping with user credentials"
+  type        = string
 
-  description = "Map of team type to their pre-created folder IDs"
-  type        = map(string)
+  validation {
+    condition     = var.google_quota_project == null || can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.google_quota_project))
+    error_message = "The quota project must be a valid Google Cloud project ID."
+  }
 }
 
 variable "teams" {
@@ -280,6 +327,11 @@ variable "teams" {
 
     team_type = string
   }))
+
+  validation {
+    condition     = !local.within_google_organization || length(var.teams) == 0
+    error_message = "The global workspace must use an empty teams map; team resources belong to environment workspaces."
+  }
 
   validation {
     condition = alltrue([

@@ -1,0 +1,72 @@
+name: Non-Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+
+concurrency:
+  group: non-production
+  cancel-in-progress: false
+
+# For reusable workflows, the permissions setting for id-token should be set to write at the
+# caller workflow level or in the specific job that calls the reusable workflow.
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  foundation:
+    name: "Environment folder hierarchy"
+    uses: osinfra-io/pt-techne-opentofu-workflows/.github/workflows/plan-and-apply.yml@e37130a8cea1e747b73a9d325eb4f8f209c0e95d # v0.7.1
+    if: github.actor != 'dependabot[bot]'
+    with:
+      checkout_ref: ${{ github.ref }}
+      github_environment: "Non-Production: pt-logos"
+      service_account: pt-logos-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com
+      opentofu_kms_encryption_key: projects/pt-corpus-tf61-nonprod/locations/us/keyRings/state-encryption/cryptoKeys/default
+      opentofu_plan_args: -var-file=teams/pt-logos.tfvars
+      opentofu_state_bucket: pt-logos-state-nonprod
+      opentofu_version: ${{ vars.OPENTOFU_VERSION }}
+      opentofu_workspace: pt-logos-main-non-production
+      workload_identity_provider: projects/640681940147/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc
+    secrets:
+      opentofu_plan_secret_args: >-
+        -var=datadog_api_key=${{ secrets.DATADOG_API_KEY }}
+        -var=datadog_app_key=${{ secrets.DATADOG_APP_KEY }}
+        -var=github_token=${{ secrets.TOKEN }}
+
+  teams:
+    name: "Team: ${{ matrix.teams }}"
+    needs: foundation
+    uses: osinfra-io/pt-techne-opentofu-workflows/.github/workflows/plan-and-apply.yml@e37130a8cea1e747b73a9d325eb4f8f209c0e95d # v0.7.1
+    if: github.actor != 'dependabot[bot]'
+    strategy:
+      fail-fast: false
+      matrix:
+        teams:
+          - pt-arche
+          - pt-corpus
+          - pt-ekklesia
+          - pt-pneuma
+          - pt-techne
+          - st-ethos
+    with:
+      checkout_ref: ${{ github.ref }}
+      github_environment: "Non-Production: ${{ matrix.teams }}"
+      service_account: pt-logos-github@pt-corpus-tf61-nonprod.iam.gserviceaccount.com
+      opentofu_kms_encryption_key: projects/pt-corpus-tf61-nonprod/locations/us/keyRings/state-encryption/cryptoKeys/default
+      opentofu_plan_args: -var-file=teams/${{ matrix.teams }}.tfvars
+      opentofu_state_bucket: pt-logos-state-nonprod
+      opentofu_version: ${{ vars.OPENTOFU_VERSION }}
+      opentofu_workspace: "${{ matrix.teams }}-main-non-production"
+      workload_identity_provider: projects/640681940147/locations/global/workloadIdentityPools/github-actions/providers/github-actions-oidc
+    secrets:
+      opentofu_plan_secret_args: >-
+        -var=datadog_api_key=${{ secrets.DATADOG_API_KEY }}
+        -var=datadog_app_key=${{ secrets.DATADOG_APP_KEY }}
+        -var=github_token=${{ secrets.TOKEN }}

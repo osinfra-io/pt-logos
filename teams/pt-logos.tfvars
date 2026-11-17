@@ -91,6 +91,12 @@ teams = {
         enable_google_wif_service_account = true
 
         environments = {
+          arche-non-production = {
+            name = "Non-Production: pt-arche"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
+            }
+          }
           arche-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
@@ -99,6 +105,18 @@ teams = {
             name = "Production: pt-arche"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
+            }
+          }
+          arche-sandbox = {
+            name = "Sandbox: pt-arche"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          corpus-non-production = {
+            name = "Non-Production: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
             }
           }
           corpus-production = {
@@ -111,6 +129,18 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          corpus-sandbox = {
+            name = "Sandbox: pt-corpus"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          ekklesia-non-production = {
+            name = "Non-Production: pt-ekklesia"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
+            }
+          }
           ekklesia-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
@@ -119,6 +149,18 @@ teams = {
             name = "Production: pt-ekklesia"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
+            }
+          }
+          ekklesia-sandbox = {
+            name = "Sandbox: pt-ekklesia"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          ethos-non-production = {
+            name = "Non-Production: st-ethos"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
             }
           }
           ethos-production = {
@@ -131,6 +173,18 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          ethos-sandbox = {
+            name = "Sandbox: st-ethos"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          logos-non-production = {
+            name = "Non-Production: pt-logos"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
+            }
+          }
           logos-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
@@ -139,6 +193,18 @@ teams = {
             name = "Production: pt-logos"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
+            }
+          }
+          logos-sandbox = {
+            name = "Sandbox: pt-logos"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          pneuma-non-production = {
+            name = "Non-Production: pt-pneuma"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
             }
           }
           pneuma-production = {
@@ -151,6 +217,18 @@ teams = {
               teams = ["pt-logos-production-approvers"]
             }
           }
+          pneuma-sandbox = {
+            name = "Sandbox: pt-pneuma"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
+            }
+          }
+          techne-non-production = {
+            name = "Non-Production: pt-techne"
+            reviewers = {
+              teams = ["pt-logos-non-production-approvers"]
+            }
+          }
           techne-production = {
             deployment_branch_policy = {
               custom_branch_policies = false
@@ -159,6 +237,12 @@ teams = {
             name = "Production: pt-techne"
             reviewers = {
               teams = ["pt-logos-production-approvers"]
+            }
+          }
+          techne-sandbox = {
+            name = "Sandbox: pt-techne"
+            reviewers = {
+              teams = ["pt-logos-sandbox-approvers"]
             }
           }
         }
